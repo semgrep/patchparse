@@ -3,6 +3,7 @@ TARGET=patchparse
 SRC=main.ml
 
 SYSLIBS=str.cma unix.cma $(SEXPSYSCMA)
+OPTSYSLIBS=$(SYSLIBS:.cma=.cmxa)
 LIBS=globals/globals.cma \
  get_input/get_input.cma \
  parse_input/parse_input.cma \
@@ -10,6 +11,7 @@ LIBS=globals/globals.cma \
  select_diffs/select_diffs.cma \
  eq_classes/eq_classes.cma \
  output/output.cma
+OPTLIBS=$(LIBS:.cma=.cmxa)
 
 #used for clean: and depend: and a little for rec & rec.opt
 MAKESUBDIRS=globals \

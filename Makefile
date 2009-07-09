@@ -4,19 +4,18 @@ SRC=main.ml
 
 SYSLIBS=str.cma unix.cma $(SEXPSYSCMA)
 LIBS=globals/globals.cma \
- generalize_diffs/generalize_diffs.cma \
- globals/globals.cma \
- output/output.cma \
  get_input/get_input.cma \
  parse_input/parse_input.cma \
+ generalize_diffs/generalize_diffs.cma \
  select_diffs/select_diffs.cma \
- eq_classes/eq_classes.cma
+ eq_classes/eq_classes.cma \
+ output/output.cma
 
 #used for clean: and depend: and a little for rec & rec.opt
 MAKESUBDIRS=globals \
- generalize_diffs globals output get_input parse_input select_diffs eq_classes
+ get_input parse_input generalize_diffs select_diffs eq_classes output
 INCLUDEDIRS=globals \
- generalize_diffs globals output get_input parse_input select_diffs eq_classes
+ get_input parse_input generalize_diffs select_diffs eq_classes output
 
 
 ##############################################################################

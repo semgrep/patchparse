@@ -48,7 +48,10 @@ let rec find_driver_diff = function
     [] -> None
   | (num,ln)::rest ->
       if start_string file_indicator ln
-      then Some (driver_directory ln,rest)
+      then
+	let (path,file) as dd = driver_directory ln in
+	if Filename.check_suffix file ".c" or Filename.check_suffix file ".h"
+	then Some (dd,rest) else find_driver_diff rest
       else find_driver_diff rest
 
 (* -------------------------------------------------------------------- *)
@@ -75,21 +78,6 @@ let parse s =
 (* -------------------------------------------------------------------- *)
 (* preprocessing of the patch lines *)
 
-let rec numerate lines =
-  let rec outer n = function
-      [] -> []
-    | (version,lines)::rest ->
-	let (n,lines) = inner n lines in
-	let rest = outer n rest in
-	(version,lines) :: rest
-  and inner n = function
-      [] -> (n,[])
-    | e::rest ->
-	let cur = (n,e) in
-	let (n,rest) = inner (n+1) rest in
-	(n,cur::rest) in
-  outer 1 lines
-
 (*subtil: important to put space before ___ otherwise other parsing
    functions of Init may be confused (such as driver_directory who may
    return as the filename of the driver konita.c___line=123 which may in
@@ -108,12 +96,12 @@ let rec drop_slash_input lines =
   List.filter
     (function (patch_line,ln) ->
       match String.get ln 0 with
-	'+' | '-' | ' ' | '@' | 'd' -> true
+	'+' | '-' | ' ' | '@' | 'd' | 'i' -> true
       | '\\' -> false
       | c ->
 	  failwith
-	    (Printf.sprintf "%d: unexpected patch character %c\n"
-	       patch_line c))
+	    (Printf.sprintf "%d: unexpected patch character %c: %s"
+	       patch_line c ln))
     lines
 
 (* -------------------------------------------------------------------- *)
@@ -187,8 +175,8 @@ let collect_lines bounded str lines =
 	    | None -> (collected^ln^"\n",all_start_with_star) in
 	  collect_non_comments collected_so_far seen_comment_starter
 	    all_start_with_star rest in
-    match collect_non_comments "" false true lines with
-      (_,true) when List.length lines > star_threshold (*just comments*) ->
+    match collect_non_comments "" false true region with
+      (_,true) when List.length region > star_threshold (*just comments*) ->
 	("",after)
     | (collected,_) -> (collected,after)
 
@@ -247,7 +235,8 @@ let process_lines version dirname filename lines =
 	 start line is the number of the first line in this region *)
       [] -> ([],[])
     | ((n,ln)::rest) as lines ->
-	if start_string "diff " ln or start_string "--- " ln
+	if start_string "diff " ln or start_string "--- " ln or
+	  start_string "index " ln
 	then ([],rest)
 	else
 	  if start_string "@@ " ln
@@ -307,6 +296,5 @@ let process_file (version,lines) =
 	res@(loop after)
   in loop lines
 
-let process_all_files (lines : (int * string list) list) =
-  let lines = numerate lines in
+let process_all_files (lines : (int * (int * string) list) list) =
   List.concat (List.map process_file lines)

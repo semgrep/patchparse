@@ -90,13 +90,13 @@ let print_evolutions tex_file evolutions =
 	   v dir weight;
 	 List.iter
 	   (function file ->
-	     Printf.fprintf tex_file "  \\noindent\\hspace{-1in}\\mbox{%s}\n\n"
+	     Printf.fprintf tex_file "  \\noindent\\hspace{-0.25in}%s\n\n"
 	       (CE.clean file))
 	   intersection;
 	 Printf.fprintf tex_file "\n\\noindent changes:\n\n";
 	 List.iter
            (function ce ->
-	     Printf.fprintf tex_file "  \\noindent\\hspace{-1in}\\mbox{%s}\n\n"
+	     Printf.fprintf tex_file "  \\noindent\\hspace{-0.25in}%s\n\n"
 	       (CE.ce2tex ce))
 	   changes)
        evolutions)

@@ -10,6 +10,7 @@ let speclist = Arg.align
   "-min",   Arg.Set_int Config.same_threshold, "set same_threshold";
   "-minf",  Arg.Set_int Config.file_threshold, "set file_threshold";
   "-mega",  Arg.Unit mega, "set same_threshold to 100";
+  "-notex",  Arg.Set Config.noev, "   no latex output";
   "-noev",  Arg.Set Config.noev, "   no evolutions";
   "-noall", Arg.Set Config.noall, "   only specialized changes";
   "-nofilters", Arg.Set Config.nofilters, "   no specialized changes";

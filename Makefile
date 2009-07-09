@@ -28,6 +28,7 @@ OBJS=    $(SRC:.ml=.cmo)
 OPTOBJS= $(SRC:.ml=.cmx)
 
 EXEC=$(TARGET)
+OPTEXEC=$(TARGET).opt
 
 ##############################################################################
 # Generic ocaml variables

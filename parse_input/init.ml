@@ -96,7 +96,7 @@ let rec drop_slash_input lines =
   List.filter
     (function (patch_line,ln) ->
       match String.get ln 0 with
-	'+' | '-' | ' ' | '@' | 'd' | 'i' -> true
+	'+' | '-' | ' ' | '@' | 'd' | 'i' | 'n' -> true
       | '\\' -> false
       | c ->
 	  failwith
@@ -236,7 +236,8 @@ let process_lines version dirname filename lines =
       [] -> ([],[])
     | ((n,ln)::rest) as lines ->
 	if start_string "diff " ln or start_string "--- " ln or
-	  start_string "index " ln
+	  start_string "index " ln or
+	  start_string "new file mode " ln
 	then ([],rest)
 	else
 	  if start_string "@@ " ln

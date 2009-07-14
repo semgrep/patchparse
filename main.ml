@@ -17,6 +17,8 @@ let speclist = Arg.align
   "-constants_only", Arg.Unit Config.set_constants_only, "   constants only";
   "-anything", Arg.Unit Config.set_anything, "   all results";
   "-verbose", Arg.Set Config.verbose, "   print all equivalence classes";
+  "-print_parsable", Arg.Set Config.print_parsable,
+   "   print parsable changes on stdout";
   "-out_dir", Arg.String set_out_dir, "     <dirname> specify output directory"
  ]
   

@@ -33,7 +33,8 @@ let tex_prolog o =
 let tex_epilog o =
   Printf.fprintf o "\\end{document}\n"
 
-let file_data tex_file git_file (printer : 'change -> string)
+let file_data tex_file out_file (printer : 'change -> string)
+    (printer_parsable : 'change -> string)
     ((version_table,dir_table,multidir_table,multiver_table1,multiver_table2) :
        Questions.result) =
   let printed_changes = ref false in
@@ -47,6 +48,8 @@ let file_data tex_file git_file (printer : 'change -> string)
 	      (CE.clean tag);
 	    List.iter
 	      (function (change,count) ->
+		(if !Config.print_parsable
+		then Printf.fprintf out_file "%s\n" (printer_parsable change));
 		Printf.fprintf tex_file
 		  "\\noindent\\,\\,\\,\\, %d changes: %s\n\n"
 		  count (printer change))
@@ -213,23 +216,25 @@ let make_files (change_result,filtered_results) evolutions =
   let all_name = "_"^(!Config.file) in
   let tex_file =
     open_out (Printf.sprintf "%s/all%s.tex" !Config.out_dir all_name) in
+  let out_file =
+    if !Config.print_parsable
+    then open_out (Printf.sprintf "%s/all%s.out" !Config.out_dir all_name)
+    else open_out "/dev/null" in
   tex_prolog tex_file;
   if not !Config.noall
   then
     begin
-      let git_file = open_out (Printf.sprintf "get_%s" !Config.file) in
       Printf.fprintf tex_file "\\chapter{All changes}\n";
-      file_data tex_file git_file CE.ce2tex change_result;
+      file_data tex_file out_file CE.ce2tex CE.ce2parsable change_result;
       print_evolutions tex_file evolutions;
-      close_out git_file
     end;
-  let git_file = open_out "/dev/null" in
   List.iter
     (function (label,change_table,change_result) ->
       Printf.fprintf tex_file "\\chapter{%s}\n" label;
-      file_data tex_file git_file CE.ce2tex change_result)
+      file_data tex_file out_file
+	CE.ce2tex (function _ -> "") change_result)
     filtered_results;
-  close_out git_file;
+  close_out out_file;
   tex_epilog tex_file;
   close_out tex_file;
   if not (!Config.notex)

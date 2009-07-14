@@ -202,7 +202,7 @@ let ce2label = function
   | CODECE(_,_)  -> "codece"
   | CODELCE(_,_) -> "codelce"
 
-type tex = TEX | TEXT
+type tex = TEX | TEXT | PARSABLE
 
 (* get rid of latex problems in strings *)
 let nstart_string n s1 s2 =
@@ -236,11 +236,13 @@ let print_replace flag pair =
     ("",s2) ->
       (match flag with
 	TEX -> Printf.sprintf "added %s" (lstinline s2)
-      |	TEXT -> Printf.sprintf "added\n%s\n\n" s2)
+      |	TEXT -> Printf.sprintf "added\n%s\n\n" s2
+      |	PARSABLE -> Printf.sprintf "added\n<!%s!>\n\n" s2)
   | (s1,"") ->
       (match flag with
 	TEX -> Printf.sprintf "dropped %s" (lstinline s1)
-      |	TEXT -> Printf.sprintf "%s\ndropped\n\n" s1)
+      |	TEXT -> Printf.sprintf "%s\ndropped\n\n" s1
+      |	PARSABLE -> Printf.sprintf "dropped\n<!%s!>\n\n" s1)
   | (s1,s2) ->
       (match flag with
 	TEX -> 
@@ -249,7 +251,9 @@ let print_replace flag pair =
 	  if (String.length s1 < !Config.page_width_threshold &&
 	      String.length s2 < !Config.page_width_threshold)
 	  then Printf.sprintf "%s\nreplaced by\n%s\n\n" s1 s2
-	  else Printf.sprintf "replaced %s\n%s by\n%s\n\n" s1 "\n" s2)
+	  else Printf.sprintf "replaced %s\n%s by\n%s\n\n" s1 "\n" s2
+      |	PARSABLE -> 
+	  Printf.sprintf "replaced\n<!%s!>\n<!%s!>\n\n" s1 s2)
 
 let listify = String.concat ""
 
@@ -257,19 +261,16 @@ let ace2c =
   process_ce (print_replace TEXT) listify
     Ast.ast_unparse_prim Ast.ast_unparse_expr Ast.ast_unparse_code
 
-let ce2c = function
+let unparser print_type = function
     SYMCE(s1,s2) ->
-      print_replace TEXT (Ast.unparse_symbol s1,Ast.unparse_symbol s2)
+      print_replace print_type (Ast.unparse_symbol s1,Ast.unparse_symbol s2)
   | ce ->
-      process_ce (print_replace TEXT) listify
+      process_ce (print_replace print_type) listify
 	Ast.unparse_prim Ast.unparse_expr Ast.unparse_code ce
 
-let ce2tex = function
-    SYMCE(s1,s2) ->
-      print_replace TEX (Ast.unparse_symbol s1,Ast.unparse_symbol s2)
-  | ce ->
-      process_ce (print_replace TEX) listify
-	Ast.unparse_prim Ast.unparse_expr Ast.unparse_code ce
+let ce2c = unparser TEXT
+let ce2tex = unparser TEX
+let ce2parsable = unparser PARSABLE
 
 let ce2c_simple = function
     SYMCE(s1,s2) ->

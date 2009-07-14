@@ -31,6 +31,9 @@ let version_table =
 
 let get_version id = Hashtbl.find version_table id
 
+(* prints output to stdout with some delimiters for easier parsing *)
+let print_parsable = ref false
+
 (* --------------------------------------------------------------- *)
 
 type filter = ConstantsOnly | Anything

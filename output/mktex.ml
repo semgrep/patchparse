@@ -1,5 +1,6 @@
 module CE = Ce
 let url = "http://grmso.net:8090/commit/"
+let url = "http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h="
 (* -------------------------------------------------------------------- *)
 (* Print the data in the VERSION or DIRECTORY cases *)
 

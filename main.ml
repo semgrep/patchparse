@@ -1,12 +1,10 @@
 let mega _ = Config.same_threshold := 100
 
-let git = ref true
-
 let set_out_dir s = Config.out_dir := s
 
 let speclist = Arg.align
- ["-git",   Arg.Set git, "  use a git file";
-  "-patch", Arg.Clear git, "  use a patch file";
+ ["-git",   Arg.Set Config.git, "  use a git file";
+  "-patch", Arg.Clear Config.git, "  use a patch file";
   "-min",   Arg.Set_int Config.same_threshold, "set same_threshold";
   "-minf",  Arg.Set_int Config.file_threshold, "set file_threshold";
   "-mega",  Arg.Unit mega, "set same_threshold to 100";
@@ -31,7 +29,7 @@ let main _ =
   Arg.parse speclist anonymous usage;
   (* collect lines from the git/patch file *)
   let patch_data =
-    if !git
+    if !Config.git
     then Git_reader.git !Config.file
     else Git_reader.patch !Config.file in
   (* parse and collect differences in the lines from the git/patch file *)

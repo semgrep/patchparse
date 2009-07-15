@@ -1,5 +1,7 @@
 (* All of the various global variables and flags. *)
 
+let git = ref true
+
 let out_dir = ref "out"
 let name_depth = ref 3
 

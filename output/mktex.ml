@@ -57,6 +57,56 @@ let file_data tex_file out_file (printer : 'change -> string)
 	      (List.rev data))
 	  data
       end in
+  let pcm data = (* multidirectory *)
+    Printf.fprintf tex_file "%d changes in all\n\n" (List.length data);
+      let ct = ref 0 in
+      List.iter
+        (function (change,data) ->
+          ct := !ct + 1;
+          Printf.fprintf tex_file
+            "\\vspace*{1.5em}\\noindent %d. %d(%d). %s\n\n%s\n\n"
+            !ct
+            (let (directories,counts) = List.split data in
+            Aux.sum counts)
+            (List.length data) (printer change)
+            (if !Config.git
+            then
+              (String.concat ""
+                 (let seen = Hashtbl.create(List.length data) in
+                 let rec loop prev = function
+                     [] -> []
+                   | ((version,dir),count)::rest ->
+                       let version = CE.clean version in
+                       let dir = CE.clean dir in
+                       let (prev,front) =
+                         let (git_code,rest) = split_git_version version in
+                         (git_code,
+                          if prev = git_code
+                          then
+                            Printf.sprintf "{\\mbox{%s (%d)}} " dir count
+                          else
+                            Printf.sprintf
+                              "\n\n\\lefteqn{\\mbox{\\href{%s%s}{%s}: \\emph{%s\
+} %s (%d)}}\n\n"
+                              url git_code git_code rest dir count) in
+                       front :: (loop prev rest) in
+                 loop "" data))
+            else
+              (let per_line = 2 in
+              String.concat ", "
+                (let rec loop n = function
+                    [] -> []
+                  | ((version,dir),count)::rest ->
+                      let version = CE.clean version in
+                      let dir = CE.clean dir in
+                      let front =
+                        Printf.sprintf "%s: %s (%d)"
+                          version dir count in
+                      if n = per_line
+                      then (front ^ "\n\n") :: (loop 0 rest)
+                      else front :: (loop (n+1) rest) in
+                loop 0 data))))
+            data in
   let process info_string table pc =
     Printf.fprintf tex_file "\\section{By %s}\n" info_string;
     List.iter
@@ -81,7 +131,12 @@ let file_data tex_file out_file (printer : 'change -> string)
   if not (version_table = [])
   then
     (process "version" version_table pc;
-     printed_changes := true)
+     printed_changes := true);
+  if not (multidir_table = [])
+  then
+    process
+      (if !Config.git then "change" else "multi-directory")
+      [("change",multidir_table)] pcm
 
 let print_evolutions tex_file evolutions =
   if List.exists (function (_,_,_,x,_) -> List.length x > 1) evolutions

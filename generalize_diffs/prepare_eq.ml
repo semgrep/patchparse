@@ -61,7 +61,7 @@ let interface_filters =
      "Change in structure data layout");
     (Interface_filter.public_private,
      "Change between public and private field");
-
+    (Interface_filter.calls_change,"Add change in a function call");
     (Interface_filter.calls_added_or_removed,
      "Change in protocol: calls added or removed")]
 
@@ -75,7 +75,6 @@ let make_filter_tables filters =
     )
     filters
 
-(*let filter_tables = make_filter_tables filters*)
 let gsemi__interface_filter_tables = make_filter_tables interface_filters
 
 

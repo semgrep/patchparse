@@ -85,3 +85,13 @@ work. *)
 
 let calls_added_or_removed change =
   analyze_bottom (function mg -> Filter.addfn mg or Filter.dropfn mg) change
+
+(* --------------------------------------------------------------------- *)
+
+(* changes in the protocol *)
+
+(* functions added or removed only.  ordering changed will require more
+work. *)
+
+let calls_change change =
+  analyze_bottom (function mg -> Filter.any_change_in_call mg) change

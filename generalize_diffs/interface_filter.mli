@@ -17,3 +17,5 @@ val public_private : Diff.context_change -> Diff.context_change option
 work. *)
 
 val calls_added_or_removed : Diff.context_change -> Diff.context_change option
+
+val calls_change : Diff.context_change -> Diff.context_change option

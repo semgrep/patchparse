@@ -25,6 +25,13 @@ val same_fn_add_args : Ce.ce -> bool
 (* Function same, add and drop arguments, ignore argument order *)
 val same_fn_add_and_drop_args : Ce.ce -> bool
 
+
+
+(* change name or add or drop arguments *)
+val any_change_in_call : Ce.ce -> bool
+
+
+
 val contains_exp : Ast.code list -> bool (* for function parameters *)
 
 (* Prototype same name, changed visibility *)

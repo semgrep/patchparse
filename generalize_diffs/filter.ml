@@ -120,6 +120,17 @@ let same_fn_add_and_drop_args = function
       k1=k2
   | _ -> false
 
+    
+(* Function change, add and drop arguments, ignore argument order *)
+let any_change_in_call = function
+    CE.EXPRCE(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2)) ->
+      not(f1=f2) ||
+      (((contains_code a1) && (contains_code a2)) ||
+      (List.exists (function a -> not (List.mem a a1)) a2 ||
+       List.exists (function a -> not (List.mem a a2)) a1))
+  | _ -> false
+
+
 (* --------------------------------------------------------------------- *)
 (* Function declarations *)
 

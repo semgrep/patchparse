@@ -188,10 +188,11 @@ rule initial =
 	
 	|		eof		{EOF}
 	|		_		{display_error
-								"Invalid symbol"
-								(Lexing.lexeme_start lexbuf)
-								(Lexing.lexeme_end lexbuf);
-							initial lexbuf}
+						("Invalid symbol: "^
+						 (Lexing.lexeme lexbuf))
+						(Lexing.lexeme_start lexbuf)
+						(Lexing.lexeme_end lexbuf);
+					        initial lexbuf}
 and comment =
 	parse 	"*/"			{()}
 	| eof                           {()}

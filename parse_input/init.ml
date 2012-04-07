@@ -97,7 +97,7 @@ let rec drop_slash_input lines =
     (function (patch_line,ln) ->
       match String.get ln 0 with
 	'+' | '-' | ' ' | '@' | 'd' | 'i' | 'n' | 'o' -> true
-      | '\\' -> false
+      | '\\' | 'B' (*Binary files differ*) -> false
       | c ->
 	  failwith
 	    (Printf.sprintf "%d: unexpected patch character %c: %s"

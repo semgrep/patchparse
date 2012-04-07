@@ -47,9 +47,6 @@ let main _ =
     Prepare_eq.eqclasses do_evolutions in
   Printf.printf "done with questions\n"; flush stdout;
 
-
-
-
   let evolutions =
     if do_evolutions
     then

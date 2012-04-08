@@ -4,6 +4,7 @@ let set_out_dir s = Config.out_dir := s
 
 let speclist = Arg.align
  ["-git",   Arg.Set Config.git, "  use a git file";
+  "-giturl", Arg.String Config.set_git_url, "  url of git repository";
   "-patch", Arg.Clear Config.git, "  use a patch file";
   "-min",   Arg.Set_int Config.same_threshold, "set same_threshold";
   "-minf",  Arg.Set_int Config.file_threshold, "set file_threshold";

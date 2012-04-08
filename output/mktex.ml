@@ -1,6 +1,4 @@
 module CE = Ce
-let url = "http://grmso.net:8090/commit/"
-let url = "http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h="
 (* -------------------------------------------------------------------- *)
 (* Print the data in the VERSION or DIRECTORY cases *)
 
@@ -88,7 +86,7 @@ let file_data tex_file out_file (printer : 'change -> string)
                             Printf.sprintf
                               "\n\n\\lefteqn{\\mbox{\\href{%s%s}{%s}: \\emph{%s\
 } %s (%d)}}\n\n"
-                              url git_code git_code rest dir count) in
+                              !Config.url git_code git_code rest dir count) in
                        front :: (loop prev rest) in
                  loop "" data))
             else
@@ -121,7 +119,7 @@ let file_data tex_file out_file (printer : 'change -> string)
 	    let (git_code,rest) = split_git_version version in
 	    Printf.fprintf tex_file
 	      "\\subsection{\\href{%s%s}{%s}} \\emph{%s}\n\n\\noindent %d dirs %d unused tokens\n\n\\bigskip\n\n" 
-	      url git_code git_code rest (List.length data) unused_tokens
+	      !Config.url git_code git_code rest (List.length data) unused_tokens
 	  end
 	else
 	  Printf.fprintf tex_file "\\subsection{%s: %d}\n" version

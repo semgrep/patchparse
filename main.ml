@@ -1,29 +1,53 @@
 let mega _ = Config.same_threshold := 100
 
+let setup_git gitdir =
+  Config.gitdir := gitdir;
+  Config.git := true
+
+let setup_next gitdir =
+  Config.gitdir := gitdir;
+  let lasttwo =
+    Aux.cmd_to_list
+      (Printf.sprintf "cd %s ; /usr/bin/git tag -l \"next*\" | tail -2"
+	 gitdir) in
+  Config.git := true;
+  Config.noev := true;
+  Config.noall := true;
+  Config.print_sp := true;
+  match lasttwo with
+    [from;upto] -> Config.file := Printf.sprintf "%s..%s" from upto
+  | _ -> failwith "bad git file"
+
 let set_out_dir s = Config.out_dir := s
 
 let speclist = Arg.align
- ["-git",   Arg.Set Config.git, "  use a git file";
-  "-giturl", Arg.String Config.set_git_url, "  url of git repository";
-  "-patch", Arg.Clear Config.git, "  use a patch file";
-  "-min",   Arg.Set_int Config.same_threshold, "set same_threshold";
-  "-minf",  Arg.Set_int Config.file_threshold, "set file_threshold";
-  "-mega",  Arg.Unit mega, "set same_threshold to 100";
-  "-notex",  Arg.Set Config.notex, "   no latex output";
-  "-noev",  Arg.Set Config.noev, "   no evolutions";
-  "-noall", Arg.Set Config.noall, "   only specialized changes";
-  "-nofilters", Arg.Set Config.nofilters, "   no specialized changes";
-  "-constants_only", Arg.Unit Config.set_constants_only, "   constants only";
-  "-anything", Arg.Unit Config.set_anything, "   all results";
-  "-verbose", Arg.Set Config.verbose, "   print all equivalence classes";
-  "-print_parsable", Arg.Set Config.print_parsable,
+ ["--git",   Arg.String setup_git, "  use a git directory";
+  "--giturl", Arg.String Config.set_git_url, "  url of git repository";
+  "--destdir", Arg.Set_string Config.dest_dir, "  destination of files";
+  "--patch", Arg.Clear Config.git, "  use a patch file";
+  "--next", Arg.String setup_next, "  use most recent tag in linux-next";
+
+  "--min",   Arg.Set_int Config.same_threshold, "set same_threshold";
+  "--minf",  Arg.Set_int Config.file_threshold, "set file_threshold";
+  "--mega",  Arg.Unit mega, "set same_threshold to 100";
+
+  "--notex",  Arg.Set Config.notex, "   no latex output";
+  "--noev",  Arg.Set Config.noev, "   no evolutions";
+  "--noall", Arg.Set Config.noall, "   only specialized changes";
+  "--nofilters", Arg.Set Config.nofilters, "   no specialized changes";
+  "--constants_only", Arg.Unit Config.set_constants_only, "   constants only";
+  "--anything", Arg.Unit Config.set_anything, "   all results";
+
+  "--verbose", Arg.Set Config.verbose, "   print all equivalence classes";
+
+  "--print-parsable", Arg.Set Config.print_parsable,
    "   print parsable changes on stdout";
-  "-print_sp", Arg.Set Config.print_sp, "   print semantic patch";
-  "-out_dir", Arg.String set_out_dir, "     <dirname> specify output directory"
+  "--print-sp", Arg.Set Config.print_sp, "   print semantic patch";
+  "--out-dir", Arg.String set_out_dir, "     <dirname> specify output directory"
  ]
   
 
-let usage = "Usage: patchparse [-git file] [-patch file], etc"
+let usage = "Usage: patchparse [--git file] [--patch file], etc"
 
 let anonymous str = Config.file := str
 

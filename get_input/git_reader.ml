@@ -1,76 +1,82 @@
 let lines = ref 0
 
-let my_input_line i =
-  lines := !lines + 1;
-  (!lines,input_line i)
-
-let rec drop_git_start i (n,l) =
-  let rec loop ver code =
-    let (n,l) = my_input_line i in
-    match Str.split (Str.regexp " ") l with
-      "commit"::_ -> drop_git_start i (n,l)
-    | "diff"::_ -> (ver,code,(n,l))
-    | _ -> loop ver code in
-  match Str.split (Str.regexp " ") l with
-    ["commit";code] ->
-      let (n,l) = my_input_line i in
+let rec drop_git_start in_lines =
+  let rec loop ver code = function
+      [] -> (ver,code,[])
+    | (n,l)::rest ->
+	match Str.split (Str.regexp " ") l with
+	  "commit"::_ -> drop_git_start ((n,l)::rest)
+	| "diff"::_ -> (ver,code,((n,l)::rest))
+	| _ -> loop ver code rest in
+  match in_lines with
+    [] -> failwith "should not happen"
+  | (nc,lc)::(na,la)::(nd,ld)::rest ->
+      let code =
+	match Str.split (Str.regexp " ") lc with
+          ["commit";code] -> code
+	| _ -> failwith "bad git file" in
       (match
-	Str.split (Str.regexp " ") 
-	  (List.hd (Str.split (Str.regexp "<") l)) with
-	"Author:"::name ->
+        Str.split (Str.regexp " ")
+          (List.hd (Str.split (Str.regexp "<") la)) with
+        "Author:"::name ->
 	  let name = String.concat " " name in
-	  let (n,l) = my_input_line i in
-	  (match Str.split (Str.regexp " ") l with
+	  (match Str.split (Str.regexp " ") ld with
 	    "Date:"::_::_::_::month::day::_::year::_ ->
 	      let date = String.concat " " [month;day;year] in
 	      let ver = Printf.sprintf "%s %s %s" code name date in
-	      (try loop ver code with End_of_file -> (ver,code,(!lines+1,"")))
-	  | _ -> failwith (Printf.sprintf "bad git file %s" l))
-      |	"Merge:"::_ ->
-	  (try loop "" "" with End_of_file -> ("","",(!lines+1,"")))
-      |	_ -> failwith (Printf.sprintf "bad git file %s" l))
+	      loop ver code rest
+	  | _ -> failwith (Printf.sprintf "bad git file %s" ld))
+      |	"Merge:"::_ -> loop "" "" rest
+      |	_ -> failwith (Printf.sprintf "bad git file %s" la))
   | _ -> failwith "bad git file"
 
-let drop_patch_start i l =
-  ("no_ver","no_code",l)
+let drop_patch_start in_lines =
+  ("no_ver","no_code",in_lines)
 
-let get_diffs i l =
-  let lines = ref [] in
-  let rec loop (n,l) =
-    match Str.split (Str.regexp " ") l with
-      ["commit";code] ->
-	let front =
-	  match !lines with
-	    (_,"") :: rest -> List.rev rest
-	  | front -> List.rev front in
-	(Some (n,l),front)
-    | _ -> lines := (n,l)::!lines; loop (my_input_line i) in
-  try loop l with End_of_file -> (None,List.rev !lines)
-    
+let get_diffs in_lines =
+  let rec loop = function
+      [] -> ([],[])
+    | (n,"")::rest -> loop rest
+    | (n,l)::rest ->
+	match Str.split (Str.regexp " ") l with
+	  ["commit";code] -> ([],(n,l)::rest)
+	| _ ->
+	    let (lines,after) = loop rest in
+	    ((n,l) :: lines,after) in
+  loop in_lines
+
+let counter l =
+  let rec loop n = function
+      [] -> []
+    | x::xs -> (n,x) :: loop (n+1) xs in
+  loop 1 l
+
 let git fl =
   lines := 0;
-  let i = open_in fl in
-  let all_lines = ref [] in
-  let rec loop l ctr =
-    let (info,code,l) = drop_git_start i l in
-    let (l,lines) = get_diffs i l in
-    all_lines := (ctr,lines) :: !all_lines;
-    Hashtbl.add Config.version_table ctr (Printf.sprintf "%s" info);
-    match l with None -> () | Some l -> loop l (ctr + 1) in
-  loop (my_input_line i) 0;
-  close_in i;
-  List.rev !all_lines
+  let in_lines =
+    Aux.cmd_to_list
+      (Printf.sprintf "cd %s ; /usr/bin/git log -p %s" !Config.gitdir fl) in
+  let in_lines = counter in_lines in
+  let rec loop in_lines ctr =
+    match in_lines with
+      [] -> []
+    | in_lines ->
+	let (info,code,in_lines) = drop_git_start in_lines in
+	let (lines,in_lines) = get_diffs in_lines in
+	Hashtbl.add Config.version_table ctr (Printf.sprintf "%s" info);
+	(ctr,lines) :: loop in_lines (ctr + 1) in
+  loop in_lines 0
 
 let patch fl =
   lines := 0;
-  let i = open_in fl in
-  let all_lines = ref [] in
-  let rec loop l ctr =
-    let (info,code,l) = drop_patch_start i l in
-    let (l,lines) = get_diffs i l in
-    all_lines := (ctr,lines) :: !all_lines;
-    Hashtbl.add Config.version_table ctr (Printf.sprintf "%d" ctr);
-    match l with None -> () | Some l -> loop l (ctr + 1) in
-  loop (my_input_line i) 0;
-  close_in i;
-  List.rev !all_lines
+  let in_lines = Aux.cmd_to_list (Printf.sprintf "cat %s" fl) in
+  let in_lines = counter in_lines in
+  let rec loop in_lines ctr =
+    match in_lines with
+      [] -> []
+    | in_lines ->
+	let (info,code,in_lines) = drop_patch_start in_lines in
+	let (lines,in_lines) = get_diffs in_lines in
+	Hashtbl.add Config.version_table ctr (Printf.sprintf "%s" info);
+	(ctr,lines) :: loop in_lines (ctr + 1) in
+  loop in_lines 0

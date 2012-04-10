@@ -23,3 +23,5 @@ val safe_alist_find : ('a * 'b) list ref -> 'a -> (unit -> 'b) -> 'b
 
 val substring : string -> string -> bool
 val substring_index : string -> string -> int
+
+val cmd_to_list : string -> string list

@@ -3,7 +3,8 @@
 let git = ref true
 let gittag = ref ""
 
-let out_dir = ref "out"
+let out_dir = ref "out"  (* for .tex and .cocci files *)
+let dest_dir = ref "." (* for files obtained from git *)
 let name_depth = ref 3
 
 let file = ref ""
@@ -50,3 +51,5 @@ let set_anything _ = filter := Anything
 let url = ref "http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h="
 
 let set_git_url s = url := s ^ ";a=commit;h="
+
+let gitdir = ref "" (* local directory containing the git repository *)

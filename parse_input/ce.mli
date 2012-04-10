@@ -23,7 +23,7 @@ val have_al_ce : ce -> bool
 val ace2c : ce -> string
 val ce2c : ce -> string
 val ce2tex : ce -> string
-val ce2sp : ce -> string
+val ce2sp : int -> ce -> string
 val ce2parsable : ce -> string
 val ce2c_simple : ce -> string
 val ce2label : ce -> string

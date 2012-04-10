@@ -32,12 +32,41 @@ let tex_prolog o =
 let tex_epilog o =
   Printf.fprintf o "\\end{document}\n"
 
-let file_data tex_file out_file sp_file (printer : 'change -> string)
-    (printer_parsable : 'change -> string) (printer_sp : 'change -> string)
-    ((version_table,dir_table,multidir_table,multiver_table1,multiver_table2) :
+let pre_print_to_get_files o ct =
+  Printf.fprintf o "\nrule%d:\n" ct;
+  Printf.fprintf o "\tcd %s\n" !Config.gitdir
+
+let print_to_get_files o ct code =
+  let diffs =
+    Aux.cmd_to_list
+      (Printf.sprintf "cd %s; /usr/bin/git show %s | /bin/grep ^diff"
+	 !Config.gitdir code) in
+  let files =
+    List.map
+      (function diff ->
+	match Str.split (Str.regexp " b/") diff with
+	  _::file::_ -> file
+	| _ -> failwith "bad diff")
+      diffs in
+  let dir = Sys.getcwd() in
+  List.iter
+    (function file ->
+      Printf.fprintf o
+	"\tgit cat-file blob %s^:%s > %s/%s/$(DEST)/%s\n\tgit cat-file blob %s:%s > %s/%s/$(DEST)/%s.res\n"
+	code file dir !Config.out_dir (Filename.basename file)
+	code file dir !Config.out_dir (Filename.basename file))
+    files
+
+let file_data tex_file out_file sp_file get_files
+    (printer : 'change -> string)
+    (printer_parsable : 'change -> string)
+    (printer_sp : int -> 'change -> string)
+    pre_print_to_get_files
+    print_to_get_files
+    ((version_table,dir_table,multidir_table,multiver_table1,multiver_table2):
        Questions.result) =
   let printed_changes = ref false in
-  let pc data = (* version or directory *)
+  let pc (data : (string * (Ce.ce * int) list) list) = (* version or directory *)
     if not(!printed_changes)
     then
       begin
@@ -48,7 +77,8 @@ let file_data tex_file out_file sp_file (printer : 'change -> string)
 	    List.iter
 	      (function (change,count) ->
 		(if !Config.print_parsable
-		then Printf.fprintf out_file "%s\n" (printer_parsable change));
+		then
+		  Printf.fprintf out_file "%s\n" (printer_parsable change));
 		Printf.fprintf tex_file
 		  "\\noindent\\,\\,\\,\\, %d changes: %s\n\n"
 		  count (printer change))
@@ -62,7 +92,11 @@ let file_data tex_file out_file sp_file (printer : 'change -> string)
         (function (change,data) ->
           ct := !ct + 1;
 	  (if !Config.print_sp
-	  then Printf.fprintf sp_file "%s\n" (printer_sp change));
+	  then
+	    begin
+	      Printf.fprintf sp_file "%s" (printer_sp !ct change);
+	      pre_print_to_get_files get_files !ct
+	    end);
           Printf.fprintf tex_file
             "\\vspace*{1.5em}\\noindent %d. %d(%d). %s\n\n%s\n\n"
             !ct
@@ -72,8 +106,7 @@ let file_data tex_file out_file sp_file (printer : 'change -> string)
             (if !Config.git
             then
               (String.concat ""
-                 (let seen = Hashtbl.create(List.length data) in
-                 let rec loop prev = function
+                 (let rec loop prev = function
                      [] -> []
                    | ((version,dir),count)::rest ->
                        let version = CE.clean version in
@@ -85,10 +118,14 @@ let file_data tex_file out_file sp_file (printer : 'change -> string)
                           then
                             Printf.sprintf "{\\mbox{%s (%d)}} " dir count
                           else
-                            Printf.sprintf
-                              "\n\n\\lefteqn{\\mbox{\\href{%s%s}{%s}: \\emph{%s\
-} %s (%d)}}\n\n"
-                              !Config.url git_code git_code rest dir count) in
+			    begin
+			      (if !Config.print_sp
+			      then
+				print_to_get_files get_files !ct git_code);
+                              Printf.sprintf
+				"\n\n\\lefteqn{\\mbox{\\href{%s%s}{%s}: \\emph{%s} %s (%d)}}\n\n"
+                              !Config.url git_code git_code rest dir count
+			    end) in
                        front :: (loop prev rest) in
                  loop "" data))
             else
@@ -280,24 +317,41 @@ let make_files (change_result,filtered_results) evolutions =
     if !Config.print_sp
     then open_out (Printf.sprintf "%s/all%s.cocci" !Config.out_dir all_name)
     else open_out "/dev/null" in
+  let get_files =
+    if !Config.print_sp
+    then
+      begin
+	let o =
+	  open_out
+	    (Printf.sprintf "%s/all%s.make" !Config.out_dir all_name) in
+	Printf.fprintf o "DEST ?= %s\n" !Config.dest_dir;
+	o
+      end
+    else open_out "/dev/null" in
   tex_prolog tex_file;
   if not !Config.noall
   then
     begin
       Printf.fprintf tex_file "\\chapter{All changes}\n";
-      file_data tex_file out_file sp_file
-	CE.ce2tex CE.ce2parsable (function _ -> "") change_result;
+      file_data tex_file out_file sp_file get_files
+	CE.ce2tex CE.ce2parsable
+	(fun _ _ -> "") (fun _ _ -> ()) (fun _ _ _ -> ())
+	change_result;
       print_evolutions tex_file evolutions;
     end;
   List.iter
     (function (label,change_table,change_result) ->
       Printf.fprintf tex_file "\\chapter{%s}\n" label;
-      file_data tex_file out_file sp_file
-	CE.ce2tex (function _ -> "") CE.ce2sp change_result)
+      file_data tex_file out_file sp_file get_files
+	CE.ce2tex (function _ -> "") CE.ce2sp
+	pre_print_to_get_files print_to_get_files
+	change_result)
     filtered_results;
   close_out out_file;
   tex_epilog tex_file;
   close_out tex_file;
+  close_out sp_file;
+  close_out get_files;
   if not (!Config.notex)
   then begin
     let cmdfunc = "/usr/bin/pdflatex" in

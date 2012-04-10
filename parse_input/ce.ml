@@ -97,10 +97,11 @@ let process_ce combiner mapper primfn exprfn codefn = function
       combiner (mapper (List.map codefn code_list1),
 		mapper (List.map codefn code_list2))
 
-let spunparser e =
+let spunparser ct e =
   let finish before metas after =
-    Printf.sprintf "@@\n%s\n@@\n%s\n%s\n\n"
-      (String.concat "\n" metas) before after in
+    Printf.sprintf "@rule%d@\n%s%s@@\n%s\n%s\n\n"
+      ct (String.concat "\n" metas) (if metas = [] then "" else "\n")
+      before after in
   match e with
     PRIMCE(prim1, prim2) ->
       let before = Ast.unparse_minus Ast.unparse_sp_prim prim1 in

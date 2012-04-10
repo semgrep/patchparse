@@ -156,3 +156,20 @@ let substring_index s1 s2 =
       then s2start
       else loop (s2start+1) in
   loop 0
+
+(* -------------------------------------------------------------------- *)
+
+let process_output_to_list2 = fun command ->
+  let chan = Unix.open_process_in command in
+  let res = ref ([] : string list) in
+  let rec process_otl_aux () =
+    let e = input_line chan in
+    res := e::!res;
+    process_otl_aux() in
+  try process_otl_aux ()
+  with End_of_file ->
+    let stat = Unix.close_process_in chan in (List.rev !res,stat)
+let cmd_to_list command =
+  let (l,_) = process_output_to_list2 command in l
+let process_output_to_list = cmd_to_list
+let cmd_to_list_and_status = process_output_to_list2

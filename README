@@ -1,0 +1,46 @@
+Compilation:
+
+make produces patchparse
+make opt produces patchparse.opt, which should be faster
+
+Execution:
+
+Two suggested usage scenarios for focusing on semantic patches
+
+--git directory start..end --min 20 --noall --noev --print-sp --notex
+
+This uses the local git directory "directory" and considers all patches
+from version "start" to version "end".  Each generated rule must apply at
+least 20 times and in at least 3 files (the default value of the --minf
+option).  There are some restrictions on what it printed (--noall and
+--noev) and a semantic patch is generated but not a latex/pdf file.  The
+semantic patch is generated in the "out" subdirectory which must already
+exist.  The name of this directory can be controlled using the --out-dir
+option.
+
+--next directory --min 20 --notex
+
+This does the same as the above, except that it takes the last two tags
+beginning with next as the start and end; these are assumed to be the most
+recent.
+
+
+In both of the above cases (and whenever a semantic patch is generated) a
+makefile is also generated in the out directory.  Each rule in the semantic
+patch has a label in the makefile for getting the old and new versions of
+all of the files in all of the patches from which the rule was derived.
+The makefile is expected to be run from within the out directory.  Giving
+make the extra argument DEST=path specifies a relative path from the out
+directory where the files should be places.  The destination directory
+should exist already.  The produced files have their basenames but not
+their full pathnames, so there is the danger that two files with the same
+name may overwrite each other.
+
+
+It is also possible to generate a latex file which can be nicer for
+browsing.  For this, drop the --notex option and add the option --giturl to
+indicate the URL of the git repository.  The generated pdf file then
+contains clickable links for seeing the patches.
+
+
+Generated files have the name all_ followed by the versions concerned.

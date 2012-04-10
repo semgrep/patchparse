@@ -68,6 +68,19 @@ val unparse_code_list : code list -> string
 val unparse : code list -> string
 
 
+val unparse_sp_prim : bool -> prim -> string
+val unparse_sp_symbol : bool -> prim list -> string
+val unparse_sp_symbol_list : bool -> prim list list -> string
+val unparse_sp_expr : bool -> expr -> string
+val unparse_sp_expr_list : bool -> expr list -> string
+val unparse_sp_code : bool -> code -> string
+val unparse_sp_code_list : bool -> code list -> string
+
+val unparse_minus : (bool -> 'a -> string) -> 'a -> string
+val unparse_plus :
+    (bool -> 'a -> string) -> 'a -> (string list (* metavars *) * string)
+
+
 val al_prim:   prim -> prim
 val al_symbol: symbol -> symbol
 val al_expr:   expr -> expr

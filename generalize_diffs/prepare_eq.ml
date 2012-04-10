@@ -61,9 +61,19 @@ let interface_filters =
      "Change in structure data layout");
     (Interface_filter.public_private,
      "Change between public and private field");
-    (Interface_filter.calls_change,"Add change in a function call");
+    (Interface_filter.calls_change,"Any change in a function call");
     (Interface_filter.calls_added_or_removed,
      "Change in protocol: calls added or removed")]
+
+let interface_sp_filters =
+  [(Interface_filter.data_layout_change,
+     "Change in structure data layout");
+    (Interface_filter.public_private,
+     "Change between public and private field");
+    (Interface_filter.calls_change,"Any change in a function call")
+      (* not supported for sp generation ;
+    (Interface_filter.calls_added_or_removed,
+     "Change in protocol: calls added or removed") *)]
 
 let make_filter_tables filters =
   List.map
@@ -76,6 +86,7 @@ let make_filter_tables filters =
     filters
 
 let gsemi__interface_filter_tables = make_filter_tables interface_filters
+let sp__interface_filter_tables = make_filter_tables interface_sp_filters
 
 
 (* --------------------------------------------------------------------- *)
@@ -121,7 +132,9 @@ let eqworklists changelist (version, pathname, filename, region) =
 	    Eqclasses.eqworklists worklist max_change_size
 	      (Diff.al_context_change change)
 	      (version, pathname, filename, region))
-      gsemi__interface_filter_tables;
+      (if !Config.print_sp
+      then sp__interface_filter_tables
+      else gsemi__interface_filter_tables);
     List.iter loop context 
   in
   if not (!Config.nofilters)
@@ -131,12 +144,9 @@ let eqworklists changelist (version, pathname, filename, region) =
 let eqclasses keep_change_table =
   let big_change_table    = (Hashtbl.create(200) : change_table_type) in
 
-  Printf.printf "starting eqclasses\n"; flush stdout;
   Eqclasses.eqclasses gsemi__change_worklist big_change_table max_change_size;
-  Printf.printf "starting questions\n"; flush stdout;
   let global_res =
     Questions.questions big_change_table keep_change_table false in
-  Printf.printf "starting filter_res\n"; flush stdout;
   let filter_res =
     List.map
       (function
@@ -146,6 +156,7 @@ let eqclasses keep_change_table =
 	       mktex.ml *)
 	    (filter_string,change_table,
 	     Questions.questions change_table true false))
-      gsemi__interface_filter_tables in
-  Printf.printf "done with filter_res\n"; flush stdout;
+      (if !Config.print_sp
+      then sp__interface_filter_tables
+      else gsemi__interface_filter_tables) in
   ((big_change_table,global_res),filter_res)

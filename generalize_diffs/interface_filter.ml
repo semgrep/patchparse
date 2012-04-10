@@ -94,4 +94,4 @@ let calls_added_or_removed change =
 work. *)
 
 let calls_change change =
-  analyze_bottom (function mg -> Filter.any_change_in_call mg) change
+  analyze_top (function mg -> Filter.any_change_in_call mg) change

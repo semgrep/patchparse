@@ -32,8 +32,8 @@ let tex_prolog o =
 let tex_epilog o =
   Printf.fprintf o "\\end{document}\n"
 
-let file_data tex_file out_file (printer : 'change -> string)
-    (printer_parsable : 'change -> string)
+let file_data tex_file out_file sp_file (printer : 'change -> string)
+    (printer_parsable : 'change -> string) (printer_sp : 'change -> string)
     ((version_table,dir_table,multidir_table,multiver_table1,multiver_table2) :
        Questions.result) =
   let printed_changes = ref false in
@@ -61,6 +61,8 @@ let file_data tex_file out_file (printer : 'change -> string)
       List.iter
         (function (change,data) ->
           ct := !ct + 1;
+	  (if !Config.print_sp
+	  then Printf.fprintf sp_file "%s\n" (printer_sp change));
           Printf.fprintf tex_file
             "\\vspace*{1.5em}\\noindent %d. %d(%d). %s\n\n%s\n\n"
             !ct
@@ -274,30 +276,37 @@ let make_files (change_result,filtered_results) evolutions =
     if !Config.print_parsable
     then open_out (Printf.sprintf "%s/all%s.out" !Config.out_dir all_name)
     else open_out "/dev/null" in
+  let sp_file =
+    if !Config.print_sp
+    then open_out (Printf.sprintf "%s/all%s.cocci" !Config.out_dir all_name)
+    else open_out "/dev/null" in
   tex_prolog tex_file;
   if not !Config.noall
   then
     begin
       Printf.fprintf tex_file "\\chapter{All changes}\n";
-      file_data tex_file out_file CE.ce2tex CE.ce2parsable change_result;
+      file_data tex_file out_file sp_file
+	CE.ce2tex CE.ce2parsable (function _ -> "") change_result;
       print_evolutions tex_file evolutions;
     end;
   List.iter
     (function (label,change_table,change_result) ->
       Printf.fprintf tex_file "\\chapter{%s}\n" label;
-      file_data tex_file out_file
-	CE.ce2tex (function _ -> "") change_result)
+      file_data tex_file out_file sp_file
+	CE.ce2tex (function _ -> "") CE.ce2sp change_result)
     filtered_results;
   close_out out_file;
   tex_epilog tex_file;
   close_out tex_file;
   if not (!Config.notex)
-  then
-    let cmdfunc = "pdflatex" in
+  then begin
+    let cmdfunc = "/usr/bin/pdflatex" in
     let _ =
       Sys.command
-	(Printf.sprintf "%s %s/all%s.tex" cmdfunc !Config.out_dir all_name) in
+	(Printf.sprintf "cd %s ; %s all%s.tex" !Config.out_dir
+	   cmdfunc all_name) in
     let _ =
       Sys.command
-	(Printf.sprintf "%s %s/all%s.tex" cmdfunc !Config.out_dir all_name) in
-    ()
+	(Printf.sprintf "cd %s ; %s all%s.tex" !Config.out_dir
+	   cmdfunc all_name) in
+    () end

@@ -182,6 +182,120 @@ and unparse_code_list l = String.concat "" (List.map unparse_code l)
 
 let unparse l = String.concat "" (List.map unparse_code l)
 
+(* ----------------------------- unparse sp ----------------------------- *)
+
+let code_counter = ref 0
+let metavariables = ref ([] : string list)
+
+let new_meta s =
+  let res = Printf.sprintf "%s%d" s !code_counter in
+  code_counter := !code_counter + 1;
+  res
+
+let add_meta ty name =
+  metavariables := Printf.sprintf "%s %s;" ty name :: !metavariables
+
+let rec local_unparse_sp_prim minus after = function
+    IDENT(string,_) -> string^after
+  | CHAR(string,_) -> "'"^string^"'"^after
+  | INT(string,_) -> string^after
+  | STR (_) (*string*) ->
+      let str = new_meta "string" in
+      add_meta "constant char []" str;
+      str^after
+  | SYMOP(string,_) -> string
+  | ARRAY(exprlist,known) ->
+      Printf.sprintf "[%s%s"
+	(unparse_sp_expr_list minus exprlist)
+	(if known = KNOWN then "]" else "")
+  | PARENSYM(exprlist,known) ->
+      Printf.sprintf "(%s%s"
+	(unparse_sp_expr_list minus exprlist)
+	(if known = KNOWN then ")" else "")
+  | EXP(n,_) ->
+      let exp = Printf.sprintf "EXP%d" n in
+      (if minus then add_meta "expression" exp);
+      exp
+
+and unparse_sp_prim minus = local_unparse_sp_prim minus ""
+
+and unparse_sp_symbol minus primlist =
+  let rec loop = function
+      [] -> []
+    | [x] -> [local_unparse_sp_prim minus "" x]
+    | x::((y::_) as rest) ->
+	(local_unparse_sp_prim minus (get_space y) x)::(loop rest) in
+  String.concat "" (loop primlist)
+
+and unparse_sp_expr minus = function
+    SYMBOL(symbol) -> unparse_sp_symbol minus symbol
+  | EOP(string,_) -> string
+  | ASSIGN(symbol,(op,_),exprlist,_) ->
+      Printf.sprintf "%s %s %s" (unparse_sp_expr minus symbol) op
+	(unparse_sp_expr_list minus exprlist)
+  | CALL(symbol,codelist,known) ->
+      let fn = unparse_sp_expr minus symbol in
+      let res fn =
+	Printf.sprintf "%s(%s%s" fn
+	  (unparse_sp_code_list minus codelist)
+	  (if known = KNOWN || known = FRONTUNKNOWN then ")" else "...)") in
+      if fn = "if"
+      then
+	begin
+	  let s1 = new_meta "S" in
+	  let s2 = new_meta "S" in
+	  add_meta "statement" s1;
+	  add_meta "statement" s2;
+	  Printf.sprintf "%s\n%s else %s" (res fn) s1 s2
+	end
+      else res fn
+  | PROTOTYPE(symbol,_,_,_,codelist,known) ->
+      Printf.sprintf "%s(%s%s" (unparse_sp_expr minus symbol)
+	 (unparse_sp_code_list minus codelist)
+	(if known = KNOWN || known = FRONTUNKNOWN then ")" else "...)")
+  | STRUCT(codelist,known) ->
+      Printf.sprintf "{%s%s" (unparse_sp_code_list minus codelist)
+	(if known = KNOWN then "}" else "...}")
+
+and unparse_sp_code minus = function
+    EXPR(exprlist) ->
+      Printf.sprintf "%s"
+	(String.concat " " (List.map (unparse_sp_expr minus) exprlist))
+  | SEP(";",_) -> ";\n"
+  | SEP(string,_) -> Printf.sprintf "%s " string
+  | ARG(n) ->
+      let exp = Printf.sprintf "ARG%d" n in
+      (if minus then add_meta "expression" exp);
+      exp
+  | CODE ->
+      let exp = new_meta "CODE" in
+      add_meta "expression" exp;
+      exp
+
+and unparse_sp_symbol_list minus l =
+  String.concat "" (List.map (unparse_sp_symbol minus) l)
+and unparse_sp_expr_list minus l =
+  String.concat "" (List.map (unparse_sp_expr minus) l)
+and unparse_sp_code_list minus l =
+  String.concat "" (List.map (unparse_sp_code minus) l)
+
+let unparse_minus fn l =
+  code_counter := 0;
+  metavariables := [];
+  let res = fn true l in
+  if res = ""
+  then res
+  else
+    let res = String.concat "\n- " (Str.split (Str.regexp_string "\n") res) in
+    Printf.sprintf "- %s" res
+let unparse_plus fn l =
+  let res = fn false l in
+  if res = ""
+  then (!metavariables,res)
+  else
+    let res = String.concat "\n+ " (Str.split (Str.regexp_string "\n") res) in
+    (List.rev !metavariables,Printf.sprintf "+ %s" res)
+
 (* ---------------------------- abstract line --------------------------- *)
 
 let _al_number = Abstract

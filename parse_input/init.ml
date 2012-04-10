@@ -95,13 +95,16 @@ let integrate_line_number n ln = ln ^ "  ___line=" ^ string_of_int n
 let rec drop_slash_input lines =
   List.filter
     (function (patch_line,ln) ->
-      match String.get ln 0 with
-	'+' | '-' | ' ' | '@' | 'd' | 'i' | 'n' | 'o' -> true
-      | '\\' | 'B' (*Binary files differ*) -> false
-      | c ->
-	  failwith
-	    (Printf.sprintf "%d: unexpected patch character %c: %s"
-	       patch_line c ln))
+      if ln = ""
+      then false
+      else
+	match String.get ln 0 with
+	  '+' | '-' | ' ' | '@' | 'd' | 'i' | 'n' | 'o' -> true
+	| '\\' | 'B' (*Binary files differ*) -> false
+	| c ->
+	    failwith
+	      (Printf.sprintf "%d: unexpected patch character %c: %s"
+		 patch_line c ln))
     lines
 
 (* -------------------------------------------------------------------- *)

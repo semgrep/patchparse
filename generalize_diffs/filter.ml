@@ -122,7 +122,8 @@ let same_fn_add_and_drop_args = function
 
     
 (* Function change, add and drop arguments, ignore argument order *)
-let any_change_in_call = function
+let any_change_in_call c =
+  match c with
     CE.EXPRCE(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2)) ->
       not(f1=f2) ||
       (((contains_code a1) && (contains_code a2)) ||

@@ -9,7 +9,7 @@ let speclist = Arg.align
   "-min",   Arg.Set_int Config.same_threshold, "set same_threshold";
   "-minf",  Arg.Set_int Config.file_threshold, "set file_threshold";
   "-mega",  Arg.Unit mega, "set same_threshold to 100";
-  "-notex",  Arg.Set Config.noev, "   no latex output";
+  "-notex",  Arg.Set Config.notex, "   no latex output";
   "-noev",  Arg.Set Config.noev, "   no evolutions";
   "-noall", Arg.Set Config.noall, "   only specialized changes";
   "-nofilters", Arg.Set Config.nofilters, "   no specialized changes";
@@ -18,6 +18,7 @@ let speclist = Arg.align
   "-verbose", Arg.Set Config.verbose, "   print all equivalence classes";
   "-print_parsable", Arg.Set Config.print_parsable,
    "   print parsable changes on stdout";
+  "-print_sp", Arg.Set Config.print_sp, "   print semantic patch";
   "-out_dir", Arg.String set_out_dir, "     <dirname> specify output directory"
  ]
   

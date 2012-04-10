@@ -97,6 +97,36 @@ let process_ce combiner mapper primfn exprfn codefn = function
       combiner (mapper (List.map codefn code_list1),
 		mapper (List.map codefn code_list2))
 
+let spunparser e =
+  let finish before metas after =
+    Printf.sprintf "@@\n%s\n@@\n%s\n%s\n\n"
+      (String.concat "\n" metas) before after in
+  match e with
+    PRIMCE(prim1, prim2) ->
+      let before = Ast.unparse_minus Ast.unparse_sp_prim prim1 in
+      let (metas,after) = Ast.unparse_plus Ast.unparse_sp_prim prim2 in
+      finish before metas after
+  | SYMCE(s1,s2) ->
+      let before = Ast.unparse_minus Ast.unparse_sp_symbol s1 in
+      let (metas,after) = Ast.unparse_plus Ast.unparse_sp_symbol s2 in
+      finish before metas after
+  | EXPRCE(expr1,  expr2) ->
+      let before = Ast.unparse_minus Ast.unparse_sp_expr expr1 in
+      let (metas,after) = Ast.unparse_plus Ast.unparse_sp_expr expr2 in
+      finish before metas after
+  | EXPRLCE(el1, el2) ->
+      let before = Ast.unparse_minus Ast.unparse_sp_expr_list el1 in
+      let (metas,after) = Ast.unparse_plus Ast.unparse_sp_expr_list el2 in
+      finish before metas after
+  | CODECE(code1, code2) ->
+      let before = Ast.unparse_minus Ast.unparse_sp_code code1 in
+      let (metas,after) = Ast.unparse_plus Ast.unparse_sp_code code2 in
+      finish before metas after
+  | CODELCE(cl1, cl2) ->
+      let before = Ast.unparse_minus Ast.unparse_sp_code_list cl1 in
+      let (metas,after) = Ast.unparse_plus Ast.unparse_sp_code_list cl2 in
+      finish before metas after
+
 (* ---------------------------------------------------------------------- *)
 
 let rebuild_term rebuild_prim rebuild_expr rebuild_code =
@@ -270,6 +300,7 @@ let unparser print_type = function
 
 let ce2c = unparser TEXT
 let ce2tex = unparser TEX
+let ce2sp = spunparser
 let ce2parsable = unparser PARSABLE
 
 let ce2c_simple = function

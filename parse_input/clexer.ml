@@ -4689,7 +4689,7 @@ let __ocaml_lex_tables = {
 }
 
 let rec initial lexbuf =
-    __ocaml_lex_initial_rec lexbuf 0
+  __ocaml_lex_initial_rec lexbuf 0
 and __ocaml_lex_initial_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
@@ -5133,7 +5133,7 @@ let
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf; __ocaml_lex_initial_rec lexbuf __ocaml_lex_state
 
 and comment lexbuf =
-    __ocaml_lex_comment_rec lexbuf 227
+  __ocaml_lex_comment_rec lexbuf 227
 and __ocaml_lex_comment_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
@@ -5154,7 +5154,7 @@ and __ocaml_lex_comment_rec lexbuf __ocaml_lex_state =
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf; __ocaml_lex_comment_rec lexbuf __ocaml_lex_state
 
 and line lexbuf =
-    __ocaml_lex_line_rec lexbuf 232
+  __ocaml_lex_line_rec lexbuf 232
 and __ocaml_lex_line_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
@@ -5181,7 +5181,7 @@ and __ocaml_lex_line_rec lexbuf __ocaml_lex_state =
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf; __ocaml_lex_line_rec lexbuf __ocaml_lex_state
 
 and file lexbuf =
-    __ocaml_lex_file_rec lexbuf 240
+  __ocaml_lex_file_rec lexbuf 240
 and __ocaml_lex_file_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
@@ -5208,7 +5208,7 @@ and __ocaml_lex_file_rec lexbuf __ocaml_lex_state =
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf; __ocaml_lex_file_rec lexbuf __ocaml_lex_state
 
 and endline_slash lexbuf =
-    __ocaml_lex_endline_slash_rec lexbuf 247
+  __ocaml_lex_endline_slash_rec lexbuf 247
 and __ocaml_lex_endline_slash_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
@@ -5229,7 +5229,7 @@ and __ocaml_lex_endline_slash_rec lexbuf __ocaml_lex_state =
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf; __ocaml_lex_endline_slash_rec lexbuf __ocaml_lex_state
 
 and endline lexbuf =
-    __ocaml_lex_endline_rec lexbuf 251
+  __ocaml_lex_endline_rec lexbuf 251
 and __ocaml_lex_endline_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
@@ -5255,7 +5255,7 @@ and __ocaml_lex_endline_rec lexbuf __ocaml_lex_state =
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf; __ocaml_lex_endline_rec lexbuf __ocaml_lex_state
 
 and idline lexbuf =
-    __ocaml_lex_idline_rec lexbuf 256
+  __ocaml_lex_idline_rec lexbuf 256
 and __ocaml_lex_idline_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
@@ -5271,7 +5271,7 @@ and __ocaml_lex_idline_rec lexbuf __ocaml_lex_state =
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf; __ocaml_lex_idline_rec lexbuf __ocaml_lex_state
 
 and str lexbuf =
-    __ocaml_lex_str_rec lexbuf 259
+  __ocaml_lex_str_rec lexbuf 259
 and __ocaml_lex_str_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->
@@ -5315,7 +5315,7 @@ and __ocaml_lex_str_rec lexbuf __ocaml_lex_state =
   | __ocaml_lex_state -> lexbuf.Lexing.refill_buff lexbuf; __ocaml_lex_str_rec lexbuf __ocaml_lex_state
 
 and chr lexbuf =
-    __ocaml_lex_chr_rec lexbuf 272
+  __ocaml_lex_chr_rec lexbuf 272
 and __ocaml_lex_chr_rec lexbuf __ocaml_lex_state =
   match Lexing.engine __ocaml_lex_tables __ocaml_lex_state lexbuf with
       | 0 ->

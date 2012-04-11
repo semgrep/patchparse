@@ -316,14 +316,22 @@ let print_summary tex_file desired_info
 let make_files (change_result,filtered_results) evolutions =
   let all_name = "_"^(!Config.file) in
   let tex_file =
-    open_out (Printf.sprintf "%s/all%s.tex" !Config.out_dir all_name) in
+    open_out
+      (Printf.sprintf "%s/all%s.tex" !Config.out_dir
+	 (Filename.basename all_name)) in
   let out_file =
     if !Config.print_parsable
-    then open_out (Printf.sprintf "%s/all%s.out" !Config.out_dir all_name)
+    then
+      open_out
+	(Printf.sprintf "%s/all%s.out" !Config.out_dir
+	   (Filename.basename all_name))
     else open_out "/dev/null" in
   let sp_file =
     if !Config.print_sp
-    then open_out (Printf.sprintf "%s/all%s.cocci" !Config.out_dir all_name)
+    then
+      open_out
+	(Printf.sprintf "%s/all%s.cocci" !Config.out_dir
+	   (Filename.basename all_name))
     else open_out "/dev/null" in
   let get_files =
     if !Config.print_sp && !Config.git && not !Config.gitpatch
@@ -331,7 +339,8 @@ let make_files (change_result,filtered_results) evolutions =
       begin
 	let o =
 	  open_out
-	    (Printf.sprintf "%s/all%s.make" !Config.out_dir all_name) in
+	    (Printf.sprintf "%s/all%s.make" !Config.out_dir
+	       (Filename.basename all_name)) in
 	Printf.fprintf o "DEST ?= %s\n" !Config.dest_dir;
 	o
       end
@@ -366,10 +375,10 @@ let make_files (change_result,filtered_results) evolutions =
     let _ =
       Sys.command
 	(Printf.sprintf "cd %s ; %s all%s.tex" !Config.out_dir
-	   cmdfunc all_name) in
+	   cmdfunc (Filename.basename all_name)) in
     let _ =
       Sys.command
 	(Printf.sprintf "cd %s ; %s all%s.tex" !Config.out_dir
-	   cmdfunc all_name) in
+	   cmdfunc (Filename.basename all_name)) in
     () end
 

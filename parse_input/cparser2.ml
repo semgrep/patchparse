@@ -1,25 +1,25 @@
 type token =
-  | IDENT of (string * int)
-  | CST_CHAR of (string * int)
-  | CST_INT of (string * int)
-  | CST_STRING of (string * int)
-  | SEP of (string * int)
-  | ESEP of (string * int)
-  | OPERATOR of (string * int)
-  | EQ of (string * int)
-  | SYMOP of (string * int)
-  | DEREFOP of (string * int)
-  | TYPE of (string * int)
-  | PRIM of (string * int)
-  | INCLUDE of (string * int)
+  | IDENT of (string * (int * Parse_error.linetype))
+  | CST_CHAR of (string * (int * Parse_error.linetype))
+  | CST_INT of (string * (int * Parse_error.linetype))
+  | CST_STRING of (string * (int * Parse_error.linetype))
+  | SEP of (string * (int * Parse_error.linetype))
+  | ESEP of (string * (int * Parse_error.linetype))
+  | OPERATOR of (string * (int * Parse_error.linetype))
+  | EQ of (string * (int * Parse_error.linetype))
+  | SYMOP of (string * (int * Parse_error.linetype))
+  | DEREFOP of (string * (int * Parse_error.linetype))
+  | TYPE of (string * (int * Parse_error.linetype))
+  | PRIM of (string * (int * Parse_error.linetype))
+  | INCLUDE of (string * (int * Parse_error.linetype))
   | EOF
-  | LPAREN of (int)
-  | RPAREN of (int)
-  | LBRACE of (int)
-  | RBRACE of (int)
-  | LBRACK of (int)
-  | RBRACK of (int)
-  | DEFINE of (int)
+  | LPAREN of (int * Parse_error.linetype)
+  | RPAREN of (int * Parse_error.linetype)
+  | LBRACE of (int * Parse_error.linetype)
+  | RBRACE of (int * Parse_error.linetype)
+  | LBRACK of (int * Parse_error.linetype)
+  | RBRACK of (int * Parse_error.linetype)
+  | DEFINE of (int * Parse_error.linetype)
 
 open Parsing;;
 # 6 "cparser2.mly"
@@ -565,13 +565,13 @@ let yyact = [|
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'toplevel) in
     Obj.repr(
-# 44 "cparser2.mly"
+# 45 "cparser2.mly"
                (_1)
 # 571 "cparser2.ml"
                : Ast0.code list))
 ; (fun __caml_parser_env ->
     Obj.repr(
-# 45 "cparser2.mly"
+# 46 "cparser2.mly"
       ([])
 # 577 "cparser2.ml"
                : Ast0.code list))
@@ -579,7 +579,7 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'expressions) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'ltoplevel2) in
     Obj.repr(
-# 50 "cparser2.mly"
+# 51 "cparser2.mly"
                                     (Ast0.EXPR(_1)::_2)
 # 585 "cparser2.ml"
                : 'toplevel))
@@ -587,7 +587,7 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'sep) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'toplevel) in
     Obj.repr(
-# 51 "cparser2.mly"
+# 52 "cparser2.mly"
                                     (Ast0.SEP(_1)::_2)
 # 593 "cparser2.ml"
                : 'toplevel))
@@ -595,7 +595,7 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'definesym) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'ltoplevel3) in
     Obj.repr(
-# 52 "cparser2.mly"
+# 53 "cparser2.mly"
                                     (_1@_2)
 # 601 "cparser2.ml"
                : 'toplevel))
@@ -603,43 +603,43 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'define) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'toplevel) in
     Obj.repr(
-# 53 "cparser2.mly"
+# 54 "cparser2.mly"
                                     (_1@_2)
 # 609 "cparser2.ml"
                : 'toplevel))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'expressionsend) in
     Obj.repr(
-# 54 "cparser2.mly"
+# 55 "cparser2.mly"
                                     ([Ast0.EXPR(_1)])
 # 616 "cparser2.ml"
                : 'toplevel))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'sep) in
     Obj.repr(
-# 55 "cparser2.mly"
+# 56 "cparser2.mly"
                                     ([Ast0.SEP(_1)])
 # 623 "cparser2.ml"
                : 'toplevel))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'defineend) in
     Obj.repr(
-# 56 "cparser2.mly"
+# 57 "cparser2.mly"
                                     (_1)
 # 630 "cparser2.ml"
                : 'toplevel))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * (int * Parse_error.linetype)) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'toplevel) in
     Obj.repr(
-# 57 "cparser2.mly"
+# 58 "cparser2.mly"
                               (Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(_1)])])::_2)
 # 638 "cparser2.ml"
                : 'toplevel))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 58 "cparser2.mly"
+# 59 "cparser2.mly"
                               ([Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(_1)])])])
 # 645 "cparser2.ml"
                : 'toplevel))
@@ -647,14 +647,14 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'sep) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'toplevel) in
     Obj.repr(
-# 62 "cparser2.mly"
+# 63 "cparser2.mly"
                                     (Ast0.SEP(_1)::_2)
 # 653 "cparser2.ml"
                : 'ltoplevel2))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'sep) in
     Obj.repr(
-# 63 "cparser2.mly"
+# 64 "cparser2.mly"
                                     ([Ast0.SEP(_1)])
 # 660 "cparser2.ml"
                : 'ltoplevel2))
@@ -662,7 +662,7 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'definesym) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'ltoplevel3) in
     Obj.repr(
-# 64 "cparser2.mly"
+# 65 "cparser2.mly"
                                     (_1@_2)
 # 668 "cparser2.ml"
                : 'ltoplevel2))
@@ -670,29 +670,29 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'define) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'toplevel) in
     Obj.repr(
-# 65 "cparser2.mly"
+# 66 "cparser2.mly"
                                     (_1@_2)
 # 676 "cparser2.ml"
                : 'ltoplevel2))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'defineend) in
     Obj.repr(
-# 66 "cparser2.mly"
+# 67 "cparser2.mly"
                                     (_1)
 # 683 "cparser2.ml"
                : 'ltoplevel2))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * (int * Parse_error.linetype)) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'toplevel) in
     Obj.repr(
-# 67 "cparser2.mly"
+# 68 "cparser2.mly"
                               (Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(_1)])])::_2)
 # 691 "cparser2.ml"
                : 'ltoplevel2))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 68 "cparser2.mly"
+# 69 "cparser2.mly"
                               ([Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(_1)])])])
 # 698 "cparser2.ml"
                : 'ltoplevel2))
@@ -700,14 +700,14 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'expressionsd) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'ltoplevel2) in
     Obj.repr(
-# 72 "cparser2.mly"
+# 73 "cparser2.mly"
                                     (Ast0.EXPR(_1)::_2)
 # 706 "cparser2.ml"
                : 'ltoplevel3))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'expressionsdend) in
     Obj.repr(
-# 73 "cparser2.mly"
+# 74 "cparser2.mly"
                                     ([Ast0.EXPR(_1)])
 # 713 "cparser2.ml"
                : 'ltoplevel3))
@@ -715,14 +715,14 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'sep) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'toplevel) in
     Obj.repr(
-# 74 "cparser2.mly"
+# 75 "cparser2.mly"
                                     (Ast0.SEP(_1)::_2)
 # 721 "cparser2.ml"
                : 'ltoplevel3))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'sep) in
     Obj.repr(
-# 75 "cparser2.mly"
+# 76 "cparser2.mly"
                                     ([Ast0.SEP(_1)])
 # 728 "cparser2.ml"
                : 'ltoplevel3))
@@ -730,7 +730,7 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'definesym) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'ltoplevel3) in
     Obj.repr(
-# 76 "cparser2.mly"
+# 77 "cparser2.mly"
                                     (_1@_2)
 # 736 "cparser2.ml"
                : 'ltoplevel3))
@@ -738,128 +738,128 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'define) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'toplevel) in
     Obj.repr(
-# 77 "cparser2.mly"
+# 78 "cparser2.mly"
                                     (_1@_2)
 # 744 "cparser2.ml"
                : 'ltoplevel3))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'defineend) in
     Obj.repr(
-# 78 "cparser2.mly"
+# 79 "cparser2.mly"
                                     (_1)
 # 751 "cparser2.ml"
                : 'ltoplevel3))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * (int * Parse_error.linetype)) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'toplevel) in
     Obj.repr(
-# 79 "cparser2.mly"
+# 80 "cparser2.mly"
                               (Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(_1)])])::_2)
 # 759 "cparser2.ml"
                : 'ltoplevel3))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 80 "cparser2.mly"
+# 81 "cparser2.mly"
                               ([Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(_1)])])])
 # 766 "cparser2.ml"
                : 'ltoplevel3))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 83 "cparser2.mly"
+# 84 "cparser2.mly"
                                     (_1)
 # 773 "cparser2.ml"
                : 'sep))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 84 "cparser2.mly"
+# 85 "cparser2.mly"
                                     ("{",_1)
 # 780 "cparser2.ml"
                : 'sep))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 85 "cparser2.mly"
+# 86 "cparser2.mly"
                                     ("}",_1)
 # 787 "cparser2.ml"
                : 'sep))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 86 "cparser2.mly"
+# 87 "cparser2.mly"
                                     (_1)
 # 794 "cparser2.ml"
                : 'sep))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 87 "cparser2.mly"
+# 88 "cparser2.mly"
                                     (")",_1)
 # 801 "cparser2.ml"
                : 'sep))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 88 "cparser2.mly"
+# 89 "cparser2.mly"
                                     ("]",_1)
 # 808 "cparser2.ml"
                : 'sep))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
+    let _2 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 93 "cparser2.mly"
+# 94 "cparser2.mly"
     ([Ast0.SEP("#define",_1);Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(_2)])])])
 # 816 "cparser2.ml"
                : 'definesym))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 4 : int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 3 : string * int) in
-    let _3 = (Parsing.peek_val __caml_parser_env 2 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 4 : int * Parse_error.linetype) in
+    let _2 = (Parsing.peek_val __caml_parser_env 3 : string * (int * Parse_error.linetype)) in
+    let _3 = (Parsing.peek_val __caml_parser_env 2 : int * Parse_error.linetype) in
     let _4 = (Parsing.peek_val __caml_parser_env 1 : 'args) in
-    let _5 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _5 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 97 "cparser2.mly"
+# 98 "cparser2.mly"
     ([Ast0.SEP("#define",_1);
        Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(_2)]);Ast0.PAREN(_4,Ast.KNOWN)])])
 # 828 "cparser2.ml"
                : 'define))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
+    let _2 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 102 "cparser2.mly"
+# 103 "cparser2.mly"
     ([Ast0.SEP("#define",_1);Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(_2)])])])
 # 836 "cparser2.ml"
                : 'defineend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 104 "cparser2.mly"
+# 105 "cparser2.mly"
     ([Ast0.SEP("#define",_1)])
 # 843 "cparser2.ml"
                : 'defineend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 4 : int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 3 : string * int) in
-    let _3 = (Parsing.peek_val __caml_parser_env 2 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 4 : int * Parse_error.linetype) in
+    let _2 = (Parsing.peek_val __caml_parser_env 3 : string * (int * Parse_error.linetype)) in
+    let _3 = (Parsing.peek_val __caml_parser_env 2 : int * Parse_error.linetype) in
     let _4 = (Parsing.peek_val __caml_parser_env 1 : 'args) in
-    let _5 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _5 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 106 "cparser2.mly"
+# 107 "cparser2.mly"
     ([Ast0.SEP("#define",_1);
        Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(_2)]);Ast0.PAREN(_4,Ast.KNOWN)])])
 # 855 "cparser2.ml"
                : 'defineend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 3 : int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 2 : string * int) in
-    let _3 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 3 : int * Parse_error.linetype) in
+    let _2 = (Parsing.peek_val __caml_parser_env 2 : string * (int * Parse_error.linetype)) in
+    let _3 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _4 = (Parsing.peek_val __caml_parser_env 0 : 'args) in
     Obj.repr(
-# 109 "cparser2.mly"
+# 110 "cparser2.mly"
     ([Ast0.SEP("#define",_1);
        Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(_2)]);
 		   Ast0.PAREN(_4,Ast.ENDUNKNOWN)])])
@@ -869,14 +869,14 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'symbol) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressions2) in
     Obj.repr(
-# 116 "cparser2.mly"
+# 117 "cparser2.mly"
                                     (Ast0.SYMBOL(_1)::_2)
 # 875 "cparser2.ml"
                : 'expressions))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'symbol) in
     Obj.repr(
-# 117 "cparser2.mly"
+# 118 "cparser2.mly"
                                     ([Ast0.SYMBOL(_1)])
 # 882 "cparser2.ml"
                : 'expressions))
@@ -884,21 +884,21 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'dsymbol) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressions3) in
     Obj.repr(
-# 118 "cparser2.mly"
+# 119 "cparser2.mly"
                                     (Ast0.DSYMBOL(_1)::_2)
 # 890 "cparser2.ml"
                : 'expressions))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'dsymbol) in
     Obj.repr(
-# 119 "cparser2.mly"
+# 120 "cparser2.mly"
                                     ([Ast0.DSYMBOL(_1)])
 # 897 "cparser2.ml"
                : 'expressions))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'expressions4) in
     Obj.repr(
-# 120 "cparser2.mly"
+# 121 "cparser2.mly"
                                     (_1)
 # 904 "cparser2.ml"
                : 'expressions))
@@ -906,14 +906,14 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'symbol) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressions2end) in
     Obj.repr(
-# 123 "cparser2.mly"
+# 124 "cparser2.mly"
                                     (Ast0.SYMBOL(_1)::_2)
 # 912 "cparser2.ml"
                : 'expressionsend))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'symbolend) in
     Obj.repr(
-# 124 "cparser2.mly"
+# 125 "cparser2.mly"
                                     ([Ast0.SYMBOL(_1)])
 # 919 "cparser2.ml"
                : 'expressionsend))
@@ -921,21 +921,21 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'dsymbol) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressions3end) in
     Obj.repr(
-# 125 "cparser2.mly"
+# 126 "cparser2.mly"
                                     (Ast0.DSYMBOL(_1)::_2)
 # 927 "cparser2.ml"
                : 'expressionsend))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'dsymbol) in
     Obj.repr(
-# 126 "cparser2.mly"
+# 127 "cparser2.mly"
                                     ([Ast0.DSYMBOL(_1)])
 # 934 "cparser2.ml"
                : 'expressionsend))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'expressions4end) in
     Obj.repr(
-# 127 "cparser2.mly"
+# 128 "cparser2.mly"
                                     (_1)
 # 941 "cparser2.ml"
                : 'expressionsend))
@@ -943,21 +943,21 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'dsymbol) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressions3) in
     Obj.repr(
-# 131 "cparser2.mly"
+# 132 "cparser2.mly"
                                     (Ast0.DSYMBOL(_1)::_2)
 # 949 "cparser2.ml"
                : 'expressions2))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'dsymbol) in
     Obj.repr(
-# 132 "cparser2.mly"
+# 133 "cparser2.mly"
                                     ([Ast0.DSYMBOL(_1)])
 # 956 "cparser2.ml"
                : 'expressions2))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'expressions4) in
     Obj.repr(
-# 133 "cparser2.mly"
+# 134 "cparser2.mly"
                                     (_1)
 # 963 "cparser2.ml"
                : 'expressions2))
@@ -965,21 +965,21 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'dsymbol) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressions3end) in
     Obj.repr(
-# 136 "cparser2.mly"
+# 137 "cparser2.mly"
                                     (Ast0.DSYMBOL(_1)::_2)
 # 971 "cparser2.ml"
                : 'expressions2end))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'dsymbol) in
     Obj.repr(
-# 137 "cparser2.mly"
+# 138 "cparser2.mly"
                                     ([Ast0.DSYMBOL(_1)])
 # 978 "cparser2.ml"
                : 'expressions2end))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'expressions4end) in
     Obj.repr(
-# 138 "cparser2.mly"
+# 139 "cparser2.mly"
                                     (_1)
 # 985 "cparser2.ml"
                : 'expressions2end))
@@ -987,21 +987,21 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'symbol) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressions2) in
     Obj.repr(
-# 142 "cparser2.mly"
+# 143 "cparser2.mly"
                                     (Ast0.SYMBOL(_1)::_2)
 # 993 "cparser2.ml"
                : 'expressions3))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'symbol) in
     Obj.repr(
-# 143 "cparser2.mly"
+# 144 "cparser2.mly"
                                     ([Ast0.SYMBOL(_1)])
 # 1000 "cparser2.ml"
                : 'expressions3))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'expressions4) in
     Obj.repr(
-# 144 "cparser2.mly"
+# 145 "cparser2.mly"
                                     (_1)
 # 1007 "cparser2.ml"
                : 'expressions3))
@@ -1009,201 +1009,201 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'symbol) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressions2end) in
     Obj.repr(
-# 147 "cparser2.mly"
+# 148 "cparser2.mly"
                                     (Ast0.SYMBOL(_1)::_2)
 # 1015 "cparser2.ml"
                : 'expressions3end))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'symbol) in
     Obj.repr(
-# 148 "cparser2.mly"
+# 149 "cparser2.mly"
                                     ([Ast0.SYMBOL(_1)])
 # 1022 "cparser2.ml"
                : 'expressions3end))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'expressions4end) in
     Obj.repr(
-# 149 "cparser2.mly"
+# 150 "cparser2.mly"
                                     (_1)
 # 1029 "cparser2.ml"
                : 'expressions3end))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 3 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 3 : int * Parse_error.linetype) in
     let _2 = (Parsing.peek_val __caml_parser_env 2 : 'args) in
-    let _3 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _3 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _4 = (Parsing.peek_val __caml_parser_env 0 : 'expressions) in
     Obj.repr(
-# 153 "cparser2.mly"
+# 154 "cparser2.mly"
                                     (Ast0.PAREN(_2,Ast.KNOWN)::_4)
 # 1039 "cparser2.ml"
                : 'expressions4))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * (int * Parse_error.linetype)) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressions) in
     Obj.repr(
-# 154 "cparser2.mly"
+# 155 "cparser2.mly"
                                     (Ast0.EOP(_1)::_2)
 # 1047 "cparser2.ml"
                : 'expressions4))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 4 : string * int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 3 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 4 : string * (int * Parse_error.linetype)) in
+    let _2 = (Parsing.peek_val __caml_parser_env 3 : int * Parse_error.linetype) in
     let _3 = (Parsing.peek_val __caml_parser_env 2 : 'args) in
-    let _4 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _4 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _5 = (Parsing.peek_val __caml_parser_env 0 : 'expressions) in
     Obj.repr(
-# 155 "cparser2.mly"
+# 156 "cparser2.mly"
                                       (Ast0.CALL(_1,_3,Ast.KNOWN)::_5)
 # 1058 "cparser2.ml"
                : 'expressions4))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * (int * Parse_error.linetype)) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressionsd) in
     Obj.repr(
-# 156 "cparser2.mly"
+# 157 "cparser2.mly"
                                     (Ast0.SYMBOL([Ast0.IDENT(_1)])::_2)
 # 1066 "cparser2.ml"
                : 'expressions4))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * (int * Parse_error.linetype)) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'assignrhs) in
     Obj.repr(
-# 157 "cparser2.mly"
+# 158 "cparser2.mly"
                                     ([Ast0.ASSIGN(_1,_2,Ast.KNOWN)])
 # 1074 "cparser2.ml"
                : 'expressions4))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 2 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 2 : int * Parse_error.linetype) in
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'args) in
-    let _3 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _3 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 158 "cparser2.mly"
+# 159 "cparser2.mly"
                                     ([Ast0.PAREN(_2,Ast.KNOWN)])
 # 1083 "cparser2.ml"
                : 'expressions4))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 159 "cparser2.mly"
+# 160 "cparser2.mly"
                                     ([Ast0.EOP(_1)])
 # 1090 "cparser2.ml"
                : 'expressions4))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 3 : string * int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 2 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 3 : string * (int * Parse_error.linetype)) in
+    let _2 = (Parsing.peek_val __caml_parser_env 2 : int * Parse_error.linetype) in
     let _3 = (Parsing.peek_val __caml_parser_env 1 : 'args) in
-    let _4 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _4 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 160 "cparser2.mly"
+# 161 "cparser2.mly"
                                     ([Ast0.CALL(_1,_3,Ast.KNOWN)])
 # 1100 "cparser2.ml"
                : 'expressions4))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 161 "cparser2.mly"
+# 162 "cparser2.mly"
                                     ([Ast0.SYMBOL([Ast0.IDENT(_1)])])
 # 1107 "cparser2.ml"
                : 'expressions4))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 3 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 3 : int * Parse_error.linetype) in
     let _2 = (Parsing.peek_val __caml_parser_env 2 : 'args) in
-    let _3 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _3 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _4 = (Parsing.peek_val __caml_parser_env 0 : 'expressionsend) in
     Obj.repr(
-# 164 "cparser2.mly"
+# 165 "cparser2.mly"
                                     (Ast0.PAREN(_2,Ast.KNOWN)::_4)
 # 1117 "cparser2.ml"
                : 'expressions4end))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * (int * Parse_error.linetype)) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressionsend) in
     Obj.repr(
-# 165 "cparser2.mly"
+# 166 "cparser2.mly"
                                     (Ast0.EOP(_1)::_2)
 # 1125 "cparser2.ml"
                : 'expressions4end))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 4 : string * int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 3 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 4 : string * (int * Parse_error.linetype)) in
+    let _2 = (Parsing.peek_val __caml_parser_env 3 : int * Parse_error.linetype) in
     let _3 = (Parsing.peek_val __caml_parser_env 2 : 'args) in
-    let _4 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _4 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _5 = (Parsing.peek_val __caml_parser_env 0 : 'expressionsend) in
     Obj.repr(
-# 166 "cparser2.mly"
+# 167 "cparser2.mly"
                                          (Ast0.CALL(_1,_3,Ast.KNOWN)::_5)
 # 1136 "cparser2.ml"
                : 'expressions4end))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * (int * Parse_error.linetype)) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressionsdend) in
     Obj.repr(
-# 167 "cparser2.mly"
+# 168 "cparser2.mly"
                                     (Ast0.SYMBOL([Ast0.IDENT(_1)])::_2)
 # 1144 "cparser2.ml"
                : 'expressions4end))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * (int * Parse_error.linetype)) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'assignrhsend) in
     Obj.repr(
-# 168 "cparser2.mly"
+# 169 "cparser2.mly"
                                     ([Ast0.ASSIGN(_1,_2,Ast.KNOWN)])
 # 1152 "cparser2.ml"
                : 'expressions4end))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 169 "cparser2.mly"
+# 170 "cparser2.mly"
                                     ([Ast0.ASSIGN(_1,[],Ast.ENDUNKNOWN)])
 # 1159 "cparser2.ml"
                : 'expressions4end))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 2 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 2 : int * Parse_error.linetype) in
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'args) in
-    let _3 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _3 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 170 "cparser2.mly"
+# 171 "cparser2.mly"
                                     ([Ast0.PAREN(_2,Ast.KNOWN)])
 # 1168 "cparser2.ml"
                : 'expressions4end))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'argsend) in
     Obj.repr(
-# 171 "cparser2.mly"
+# 172 "cparser2.mly"
                                     ([Ast0.PAREN(_2,Ast.ENDUNKNOWN)])
 # 1176 "cparser2.ml"
                : 'expressions4end))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 172 "cparser2.mly"
+# 173 "cparser2.mly"
                                     ([Ast0.EOP(_1)])
 # 1183 "cparser2.ml"
                : 'expressions4end))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 3 : string * int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 2 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 3 : string * (int * Parse_error.linetype)) in
+    let _2 = (Parsing.peek_val __caml_parser_env 2 : int * Parse_error.linetype) in
     let _3 = (Parsing.peek_val __caml_parser_env 1 : 'args) in
-    let _4 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _4 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 173 "cparser2.mly"
+# 174 "cparser2.mly"
                                     ([Ast0.CALL(_1,_3,Ast.KNOWN)])
 # 1193 "cparser2.ml"
                : 'expressions4end))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 2 : string * int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 2 : string * (int * Parse_error.linetype)) in
+    let _2 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _3 = (Parsing.peek_val __caml_parser_env 0 : 'argsend) in
     Obj.repr(
-# 174 "cparser2.mly"
+# 175 "cparser2.mly"
                                     ([Ast0.CALL(_1,_3,Ast.ENDUNKNOWN)])
 # 1202 "cparser2.ml"
                : 'expressions4end))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 175 "cparser2.mly"
+# 176 "cparser2.mly"
                                     ([Ast0.SYMBOL([Ast0.IDENT(_1)])])
 # 1209 "cparser2.ml"
                : 'expressions4end))
@@ -1211,14 +1211,14 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'symbol) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressions2) in
     Obj.repr(
-# 179 "cparser2.mly"
+# 180 "cparser2.mly"
                                     (Ast0.SYMBOL(_1)::_2)
 # 1217 "cparser2.ml"
                : 'expressionsd))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'symbol) in
     Obj.repr(
-# 180 "cparser2.mly"
+# 181 "cparser2.mly"
                                     ([Ast0.SYMBOL(_1)])
 # 1224 "cparser2.ml"
                : 'expressionsd))
@@ -1226,73 +1226,73 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'dsymbol) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressions3) in
     Obj.repr(
-# 181 "cparser2.mly"
+# 182 "cparser2.mly"
                                     (Ast0.DSYMBOL(_1)::_2)
 # 1232 "cparser2.ml"
                : 'expressionsd))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'dsymbol) in
     Obj.repr(
-# 182 "cparser2.mly"
+# 183 "cparser2.mly"
                                     ([Ast0.DSYMBOL(_1)])
 # 1239 "cparser2.ml"
                : 'expressionsd))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * (int * Parse_error.linetype)) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressions) in
     Obj.repr(
-# 183 "cparser2.mly"
+# 184 "cparser2.mly"
                                     (Ast0.EOP(_1)::_2)
 # 1247 "cparser2.ml"
                : 'expressionsd))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 4 : string * int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 3 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 4 : string * (int * Parse_error.linetype)) in
+    let _2 = (Parsing.peek_val __caml_parser_env 3 : int * Parse_error.linetype) in
     let _3 = (Parsing.peek_val __caml_parser_env 2 : 'args) in
-    let _4 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _4 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _5 = (Parsing.peek_val __caml_parser_env 0 : 'expressions) in
     Obj.repr(
-# 184 "cparser2.mly"
+# 185 "cparser2.mly"
                                       (Ast0.CALL(_1,_3,Ast.KNOWN)::_5)
 # 1258 "cparser2.ml"
                : 'expressionsd))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * (int * Parse_error.linetype)) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressionsd) in
     Obj.repr(
-# 185 "cparser2.mly"
+# 186 "cparser2.mly"
                                     (Ast0.SYMBOL([Ast0.IDENT(_1)])::_2)
 # 1266 "cparser2.ml"
                : 'expressionsd))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * (int * Parse_error.linetype)) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'assignrhs) in
     Obj.repr(
-# 186 "cparser2.mly"
+# 187 "cparser2.mly"
                                     ([Ast0.ASSIGN(_1,_2,Ast.KNOWN)])
 # 1274 "cparser2.ml"
                : 'expressionsd))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 187 "cparser2.mly"
+# 188 "cparser2.mly"
                                     ([Ast0.EOP(_1)])
 # 1281 "cparser2.ml"
                : 'expressionsd))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 3 : string * int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 2 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 3 : string * (int * Parse_error.linetype)) in
+    let _2 = (Parsing.peek_val __caml_parser_env 2 : int * Parse_error.linetype) in
     let _3 = (Parsing.peek_val __caml_parser_env 1 : 'args) in
-    let _4 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _4 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 188 "cparser2.mly"
+# 189 "cparser2.mly"
                                     ([Ast0.CALL(_1,_3,Ast.KNOWN)])
 # 1291 "cparser2.ml"
                : 'expressionsd))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 189 "cparser2.mly"
+# 190 "cparser2.mly"
                                     ([Ast0.SYMBOL([Ast0.IDENT(_1)])])
 # 1298 "cparser2.ml"
                : 'expressionsd))
@@ -1300,14 +1300,14 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'symbol) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressions2end) in
     Obj.repr(
-# 192 "cparser2.mly"
+# 193 "cparser2.mly"
                                     (Ast0.SYMBOL(_1)::_2)
 # 1306 "cparser2.ml"
                : 'expressionsdend))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'symbol) in
     Obj.repr(
-# 193 "cparser2.mly"
+# 194 "cparser2.mly"
                                     ([Ast0.SYMBOL(_1)])
 # 1313 "cparser2.ml"
                : 'expressionsdend))
@@ -1315,96 +1315,96 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'dsymbol) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressions3end) in
     Obj.repr(
-# 194 "cparser2.mly"
+# 195 "cparser2.mly"
                                     (Ast0.DSYMBOL(_1)::_2)
 # 1321 "cparser2.ml"
                : 'expressionsdend))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'dsymbol) in
     Obj.repr(
-# 195 "cparser2.mly"
+# 196 "cparser2.mly"
                                     ([Ast0.DSYMBOL(_1)])
 # 1328 "cparser2.ml"
                : 'expressionsdend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * (int * Parse_error.linetype)) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressionsend) in
     Obj.repr(
-# 196 "cparser2.mly"
+# 197 "cparser2.mly"
                                     (Ast0.EOP(_1)::_2)
 # 1336 "cparser2.ml"
                : 'expressionsdend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 4 : string * int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 3 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 4 : string * (int * Parse_error.linetype)) in
+    let _2 = (Parsing.peek_val __caml_parser_env 3 : int * Parse_error.linetype) in
     let _3 = (Parsing.peek_val __caml_parser_env 2 : 'args) in
-    let _4 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _4 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _5 = (Parsing.peek_val __caml_parser_env 0 : 'expressionsend) in
     Obj.repr(
-# 197 "cparser2.mly"
+# 198 "cparser2.mly"
                                          (Ast0.CALL(_1,_3,Ast.KNOWN)::_5)
 # 1347 "cparser2.ml"
                : 'expressionsdend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * (int * Parse_error.linetype)) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressionsdend) in
     Obj.repr(
-# 198 "cparser2.mly"
+# 199 "cparser2.mly"
                                     (Ast0.SYMBOL([Ast0.IDENT(_1)])::_2)
 # 1355 "cparser2.ml"
                : 'expressionsdend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * (int * Parse_error.linetype)) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'assignrhsend) in
     Obj.repr(
-# 199 "cparser2.mly"
+# 200 "cparser2.mly"
                                     ([Ast0.ASSIGN(_1,_2,Ast.KNOWN)])
 # 1363 "cparser2.ml"
                : 'expressionsdend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 200 "cparser2.mly"
+# 201 "cparser2.mly"
                                     ([Ast0.ASSIGN(_1,[],Ast.ENDUNKNOWN)])
 # 1370 "cparser2.ml"
                : 'expressionsdend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 201 "cparser2.mly"
+# 202 "cparser2.mly"
                                     ([Ast0.EOP(_1)])
 # 1377 "cparser2.ml"
                : 'expressionsdend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 3 : string * int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 2 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 3 : string * (int * Parse_error.linetype)) in
+    let _2 = (Parsing.peek_val __caml_parser_env 2 : int * Parse_error.linetype) in
     let _3 = (Parsing.peek_val __caml_parser_env 1 : 'args) in
-    let _4 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _4 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 202 "cparser2.mly"
+# 203 "cparser2.mly"
                                     ([Ast0.CALL(_1,_3,Ast.KNOWN)])
 # 1387 "cparser2.ml"
                : 'expressionsdend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 2 : string * int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 2 : string * (int * Parse_error.linetype)) in
+    let _2 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _3 = (Parsing.peek_val __caml_parser_env 0 : 'argsend) in
     Obj.repr(
-# 203 "cparser2.mly"
+# 204 "cparser2.mly"
                                     ([Ast0.CALL(_1,_3,Ast.ENDUNKNOWN)])
 # 1396 "cparser2.ml"
                : 'expressionsdend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 204 "cparser2.mly"
+# 205 "cparser2.mly"
                                     ([Ast0.SYMBOL([Ast0.IDENT(_1)])])
 # 1403 "cparser2.ml"
                : 'expressionsdend))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'expressions) in
     Obj.repr(
-# 207 "cparser2.mly"
+# 208 "cparser2.mly"
                                 ([Ast0.EXPR(_1)])
 # 1410 "cparser2.ml"
                : 'args))
@@ -1412,45 +1412,45 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'expressions) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'args2) in
     Obj.repr(
-# 208 "cparser2.mly"
+# 209 "cparser2.mly"
                                 (Ast0.EXPR(_1)::_2)
 # 1418 "cparser2.ml"
                : 'args))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'args2) in
     Obj.repr(
-# 209 "cparser2.mly"
+# 210 "cparser2.mly"
                                 (_1)
 # 1425 "cparser2.ml"
                : 'args))
 ; (fun __caml_parser_env ->
     Obj.repr(
-# 210 "cparser2.mly"
+# 211 "cparser2.mly"
                                 ([])
 # 1431 "cparser2.ml"
                : 'args))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * (int * Parse_error.linetype)) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'args) in
     Obj.repr(
-# 213 "cparser2.mly"
+# 214 "cparser2.mly"
                                 (Ast0.SEP(_1)::_2)
 # 1439 "cparser2.ml"
                : 'args2))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 3 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 3 : int * Parse_error.linetype) in
     let _2 = (Parsing.peek_val __caml_parser_env 2 : 'args) in
-    let _3 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _3 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _4 = (Parsing.peek_val __caml_parser_env 0 : 'args) in
     Obj.repr(
-# 214 "cparser2.mly"
+# 215 "cparser2.mly"
                                 (Ast0.EXPR([Ast0.STRUCT(_2,Ast.KNOWN)])::_4)
 # 1449 "cparser2.ml"
                : 'args2))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'expressionsend) in
     Obj.repr(
-# 217 "cparser2.mly"
+# 218 "cparser2.mly"
                                 ([Ast0.EXPR(_1)])
 # 1456 "cparser2.ml"
                : 'argsend))
@@ -1458,46 +1458,46 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'expressions) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'args2end) in
     Obj.repr(
-# 218 "cparser2.mly"
+# 219 "cparser2.mly"
                                 (Ast0.EXPR(_1)::_2)
 # 1464 "cparser2.ml"
                : 'argsend))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'args2end) in
     Obj.repr(
-# 219 "cparser2.mly"
+# 220 "cparser2.mly"
                                 (_1)
 # 1471 "cparser2.ml"
                : 'argsend))
 ; (fun __caml_parser_env ->
     Obj.repr(
-# 220 "cparser2.mly"
+# 221 "cparser2.mly"
                                 ([])
 # 1477 "cparser2.ml"
                : 'argsend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * (int * Parse_error.linetype)) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'argsend) in
     Obj.repr(
-# 223 "cparser2.mly"
+# 224 "cparser2.mly"
                                 (Ast0.SEP(_1)::_2)
 # 1485 "cparser2.ml"
                : 'args2end))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 3 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 3 : int * Parse_error.linetype) in
     let _2 = (Parsing.peek_val __caml_parser_env 2 : 'args) in
-    let _3 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _3 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _4 = (Parsing.peek_val __caml_parser_env 0 : 'argsend) in
     Obj.repr(
-# 224 "cparser2.mly"
+# 225 "cparser2.mly"
                                 (Ast0.EXPR([Ast0.STRUCT(_2,Ast.KNOWN)])::_4)
 # 1495 "cparser2.ml"
                : 'args2end))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'argsend) in
     Obj.repr(
-# 225 "cparser2.mly"
+# 226 "cparser2.mly"
                                 ([Ast0.EXPR([Ast0.STRUCT(_2,Ast.ENDUNKNOWN)])])
 # 1503 "cparser2.ml"
                : 'args2end))
@@ -1505,14 +1505,14 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'symbol) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressions2) in
     Obj.repr(
-# 229 "cparser2.mly"
+# 230 "cparser2.mly"
                                 (Ast0.SYMBOL(_1)::_2)
 # 1511 "cparser2.ml"
                : 'assignrhs))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'symbol) in
     Obj.repr(
-# 230 "cparser2.mly"
+# 231 "cparser2.mly"
                                 ([Ast0.SYMBOL(_1)])
 # 1518 "cparser2.ml"
                : 'assignrhs))
@@ -1520,30 +1520,30 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'dsymbol) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressions3) in
     Obj.repr(
-# 231 "cparser2.mly"
+# 232 "cparser2.mly"
                                 (Ast0.DSYMBOL(_1)::_2)
 # 1526 "cparser2.ml"
                : 'assignrhs))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'dsymbol) in
     Obj.repr(
-# 232 "cparser2.mly"
+# 233 "cparser2.mly"
                                 ([Ast0.DSYMBOL(_1)])
 # 1533 "cparser2.ml"
                : 'assignrhs))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'expressions4) in
     Obj.repr(
-# 233 "cparser2.mly"
+# 234 "cparser2.mly"
                                 (_1)
 # 1540 "cparser2.ml"
                : 'assignrhs))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 2 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 2 : int * Parse_error.linetype) in
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'args) in
-    let _3 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _3 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 234 "cparser2.mly"
+# 235 "cparser2.mly"
                                 ([Ast0.STRUCT(_2,Ast.KNOWN)])
 # 1549 "cparser2.ml"
                : 'assignrhs))
@@ -1551,14 +1551,14 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'symbol) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressions2end) in
     Obj.repr(
-# 237 "cparser2.mly"
+# 238 "cparser2.mly"
                                 (Ast0.SYMBOL(_1)::_2)
 # 1557 "cparser2.ml"
                : 'assignrhsend))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'symbolend) in
     Obj.repr(
-# 238 "cparser2.mly"
+# 239 "cparser2.mly"
                                 ([Ast0.SYMBOL(_1)])
 # 1564 "cparser2.ml"
                : 'assignrhsend))
@@ -1566,38 +1566,38 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'dsymbol) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressions3end) in
     Obj.repr(
-# 239 "cparser2.mly"
+# 240 "cparser2.mly"
                                 (Ast0.DSYMBOL(_1)::_2)
 # 1572 "cparser2.ml"
                : 'assignrhsend))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'dsymbol) in
     Obj.repr(
-# 240 "cparser2.mly"
+# 241 "cparser2.mly"
                                 ([Ast0.DSYMBOL(_1)])
 # 1579 "cparser2.ml"
                : 'assignrhsend))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'expressions4end) in
     Obj.repr(
-# 241 "cparser2.mly"
+# 242 "cparser2.mly"
                                 (_1)
 # 1586 "cparser2.ml"
                : 'assignrhsend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 2 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 2 : int * Parse_error.linetype) in
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'args) in
-    let _3 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _3 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 242 "cparser2.mly"
+# 243 "cparser2.mly"
                                 ([Ast0.STRUCT(_2,Ast.KNOWN)])
 # 1595 "cparser2.ml"
                : 'assignrhsend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'argsend) in
     Obj.repr(
-# 243 "cparser2.mly"
+# 244 "cparser2.mly"
                                 ([Ast0.STRUCT(_2,Ast.ENDUNKNOWN)])
 # 1603 "cparser2.ml"
                : 'assignrhsend))
@@ -1605,50 +1605,50 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'atoken) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'symbol) in
     Obj.repr(
-# 247 "cparser2.mly"
+# 248 "cparser2.mly"
                                       (_1::_2)
 # 1611 "cparser2.ml"
                : 'symbol))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'atoken) in
     Obj.repr(
-# 248 "cparser2.mly"
+# 249 "cparser2.mly"
                                       ([_1])
 # 1618 "cparser2.ml"
                : 'symbol))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 3 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 3 : int * Parse_error.linetype) in
     let _2 = (Parsing.peek_val __caml_parser_env 2 : 'expressions) in
-    let _3 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _3 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _4 = (Parsing.peek_val __caml_parser_env 0 : 'symbol) in
     Obj.repr(
-# 249 "cparser2.mly"
+# 250 "cparser2.mly"
                                       (Ast0.ARRAY(_2,Ast.KNOWN)::_4)
 # 1628 "cparser2.ml"
                : 'symbol))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 2 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 2 : int * Parse_error.linetype) in
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'expressions) in
-    let _3 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _3 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 250 "cparser2.mly"
+# 251 "cparser2.mly"
                                       ([Ast0.ARRAY(_2,Ast.KNOWN)])
 # 1637 "cparser2.ml"
                : 'symbol))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 2 : int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 2 : int * Parse_error.linetype) in
+    let _2 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _3 = (Parsing.peek_val __caml_parser_env 0 : 'symbol) in
     Obj.repr(
-# 251 "cparser2.mly"
+# 252 "cparser2.mly"
                                       (Ast0.ARRAY([],Ast.KNOWN)::_3)
 # 1646 "cparser2.ml"
                : 'symbol))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
+    let _2 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 252 "cparser2.mly"
+# 253 "cparser2.mly"
                                       ([Ast0.ARRAY([],Ast.KNOWN)])
 # 1654 "cparser2.ml"
                : 'symbol))
@@ -1656,122 +1656,122 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 1 : 'atoken) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'symbolend) in
     Obj.repr(
-# 255 "cparser2.mly"
+# 256 "cparser2.mly"
                                       (_1::_2)
 # 1662 "cparser2.ml"
                : 'symbolend))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'atoken) in
     Obj.repr(
-# 256 "cparser2.mly"
+# 257 "cparser2.mly"
                                       ([_1])
 # 1669 "cparser2.ml"
                : 'symbolend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 3 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 3 : int * Parse_error.linetype) in
     let _2 = (Parsing.peek_val __caml_parser_env 2 : 'expressions) in
-    let _3 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _3 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _4 = (Parsing.peek_val __caml_parser_env 0 : 'symbolend) in
     Obj.repr(
-# 257 "cparser2.mly"
+# 258 "cparser2.mly"
                                       (Ast0.ARRAY(_2,Ast.KNOWN)::_4)
 # 1679 "cparser2.ml"
                : 'symbolend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 2 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 2 : int * Parse_error.linetype) in
     let _2 = (Parsing.peek_val __caml_parser_env 1 : 'expressions) in
-    let _3 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _3 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 258 "cparser2.mly"
+# 259 "cparser2.mly"
                                       ([Ast0.ARRAY(_2,Ast.KNOWN)])
 # 1688 "cparser2.ml"
                : 'symbolend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'expressionsend) in
     Obj.repr(
-# 259 "cparser2.mly"
+# 260 "cparser2.mly"
                                       ([Ast0.ARRAY(_2,Ast.ENDUNKNOWN)])
 # 1696 "cparser2.ml"
                : 'symbolend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 2 : int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 1 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 2 : int * Parse_error.linetype) in
+    let _2 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
     let _3 = (Parsing.peek_val __caml_parser_env 0 : 'symbolend) in
     Obj.repr(
-# 260 "cparser2.mly"
+# 261 "cparser2.mly"
                                       (Ast0.ARRAY([],Ast.KNOWN)::_3)
 # 1705 "cparser2.ml"
                : 'symbolend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : int) in
-    let _2 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : int * Parse_error.linetype) in
+    let _2 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 261 "cparser2.mly"
+# 262 "cparser2.mly"
                                       ([Ast0.ARRAY([],Ast.KNOWN)])
 # 1713 "cparser2.ml"
                : 'symbolend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : int * Parse_error.linetype) in
     Obj.repr(
-# 262 "cparser2.mly"
+# 263 "cparser2.mly"
                                       ([Ast0.ARRAY([],Ast.ENDUNKNOWN)])
 # 1720 "cparser2.ml"
                : 'symbolend))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 265 "cparser2.mly"
+# 266 "cparser2.mly"
                                       (Ast0.IDENT(_1))
 # 1727 "cparser2.ml"
                : 'atoken))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 266 "cparser2.mly"
+# 267 "cparser2.mly"
                                       (Ast0.CHAR(_1))
 # 1734 "cparser2.ml"
                : 'atoken))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 267 "cparser2.mly"
+# 268 "cparser2.mly"
                                       (Ast0.INT(_1))
 # 1741 "cparser2.ml"
                : 'atoken))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 268 "cparser2.mly"
+# 269 "cparser2.mly"
                                       (Ast0.STR(_1))
 # 1748 "cparser2.ml"
                : 'atoken))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 269 "cparser2.mly"
+# 270 "cparser2.mly"
                                       (Ast0.SYMOP(_1))
 # 1755 "cparser2.ml"
                : 'atoken))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 270 "cparser2.mly"
+# 271 "cparser2.mly"
                                       (Ast0.TYPE(_1))
 # 1762 "cparser2.ml"
                : 'atoken))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 1 : string * (int * Parse_error.linetype)) in
     let _2 = (Parsing.peek_val __caml_parser_env 0 : 'dsymbol) in
     Obj.repr(
-# 273 "cparser2.mly"
+# 274 "cparser2.mly"
                                       (Ast0.DEREFOP(_1)::_2)
 # 1770 "cparser2.ml"
                : 'dsymbol))
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * int) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : string * (int * Parse_error.linetype)) in
     Obj.repr(
-# 274 "cparser2.mly"
+# 275 "cparser2.mly"
                                       ([Ast0.DEREFOP(_1)])
 # 1777 "cparser2.ml"
                : 'dsymbol))

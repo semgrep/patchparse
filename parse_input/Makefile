@@ -5,7 +5,7 @@ PARSER_SOURCES = cparser2.mly
 
 SRC=ast.ml ast0.ml ce.ml parse_error.ml \
 $(LEXER_SOURCES:.mll=.ml) $(PARSER_SOURCES:.mly=.ml) \
-small.ml diff.ml init.ml
+small.ml diff.ml no_modifs.ml init.ml
 
 SYSLIBS=str.cma unix.cma
 LIBS=../globals/globals.cma

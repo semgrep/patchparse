@@ -3,7 +3,8 @@ open Cparser2
 open Parse_error
 exception Eof
 exception InternalError of string
-let version = "Clexer V1.0f 10.8.99 Hugues Cassé"
+let version =
+  "Clexer V1.0f 10.8.99 Hugues Cassé"^"\nmany changes by Julia Lawall"
 
 
 
@@ -11,7 +12,9 @@ let _current_line = ref 0
 let set_current_line i = _current_line := i
 let current_line () = !_current_line
 
-let lexeme_line lexbuf = (Lexing.lexeme lexbuf, !_current_line)
+let linetype = ref CTX
+
+let lexeme_line lexbuf = (Lexing.lexeme lexbuf, (!_current_line, !linetype))
 
 (*
 ** Keyword hashtable
@@ -107,14 +110,15 @@ rule initial =
 	|		'\012'		{initial lexbuf} (* ^L *)
 (*	|		'#'		{line lexbuf}*)
 	
-	|		'"'		{let cur = current_line() in CST_STRING (str lexbuf, cur)(*ENOUGH ?*)} 
-	|		floatnum	{CST_INT (lexeme_line lexbuf)}
-	|		hexnum		{CST_INT (lexeme_line lexbuf)}
-	|		octnum		{CST_INT (lexeme_line lexbuf)}
-	|		intnum		{CST_INT (lexeme_line lexbuf)}
+	|'"' {let cur = current_line() in
+	      CST_STRING (str lexbuf, (cur, !linetype))(*ENOUGH ?*)} 
+	|	floatnum	{CST_INT (lexeme_line lexbuf)}
+	|	hexnum		{CST_INT (lexeme_line lexbuf)}
+	|	octnum		{CST_INT (lexeme_line lexbuf)}
+	|	intnum		{CST_INT (lexeme_line lexbuf)}
 
-	|		"!quit!"	{EOF}
-	|		"..."		{OPERATOR(lexeme_line lexbuf)}
+	|	"!quit!"	{EOF}
+	|	"..."		{OPERATOR(lexeme_line lexbuf)}
 	|		"+="		{EQ(lexeme_line lexbuf)}
 	|		"-="		{EQ(lexeme_line lexbuf)}
 	|		"*="		{EQ(lexeme_line lexbuf)}
@@ -125,39 +129,39 @@ rule initial =
 	|		"^="		{EQ(lexeme_line lexbuf)}
 	|		"<<="		{EQ(lexeme_line lexbuf)}
 	|		">>="		{EQ(lexeme_line lexbuf)}
-	|		"<<"		{OPERATOR(lexeme_line lexbuf)}
-	|		">>"		{OPERATOR(lexeme_line lexbuf)}
-	|		"=="		{OPERATOR(lexeme_line lexbuf)}
-	|		"!="		{OPERATOR(lexeme_line lexbuf)}
-	|		"<="		{OPERATOR(lexeme_line lexbuf)}
-	|		">="		{OPERATOR(lexeme_line lexbuf)}
-	|		"="		{EQ(lexeme_line lexbuf)}
-	|		"<"		{OPERATOR(lexeme_line lexbuf)}
-	|		">"		{OPERATOR(lexeme_line lexbuf)}
-	|		"++"		{SYMOP(lexeme_line lexbuf)}
-	|		"--"		{SYMOP(lexeme_line lexbuf)}
-	|		"->"		{SYMOP(lexeme_line lexbuf)}
-	|		'+'		{OPERATOR(lexeme_line lexbuf)}
-	|		'-'		{OPERATOR(lexeme_line lexbuf)}
-	|		'*'		{DEREFOP(lexeme_line lexbuf)}
-	|		'/'		{OPERATOR(lexeme_line lexbuf)}
-	|		'%'		{OPERATOR(lexeme_line lexbuf)}
-	|		'!'		{OPERATOR(lexeme_line lexbuf)}
-	|		"&&"		{OPERATOR(lexeme_line lexbuf)}
-	|		"||"		{OPERATOR(lexeme_line lexbuf)}
-	|		'&'		{DEREFOP(lexeme_line lexbuf)}
-	|		'|'		{OPERATOR(lexeme_line lexbuf)}
-	|		'^'		{OPERATOR(lexeme_line lexbuf)}
-	|		'?'		{OPERATOR(lexeme_line lexbuf)}
-	|		':'		{OPERATOR(lexeme_line lexbuf)}
-	|		'~'		{OPERATOR(lexeme_line lexbuf)}
+	|	"<<"		{OPERATOR(lexeme_line lexbuf)}
+	|	">>"		{OPERATOR(lexeme_line lexbuf)}
+	|	"=="		{OPERATOR(lexeme_line lexbuf)}
+	|	"!="		{OPERATOR(lexeme_line lexbuf)}
+	|	"<="		{OPERATOR(lexeme_line lexbuf)}
+	|	">="		{OPERATOR(lexeme_line lexbuf)}
+	|	"="		{EQ(lexeme_line lexbuf)}
+	|	"<"		{OPERATOR(lexeme_line lexbuf)}
+	|	">"		{OPERATOR(lexeme_line lexbuf)}
+	|	"++"		{SYMOP(lexeme_line lexbuf)}
+	|	"--"		{SYMOP(lexeme_line lexbuf)}
+	|	"->"		{SYMOP(lexeme_line lexbuf)}
+	|	'+'		{OPERATOR(lexeme_line lexbuf)}
+	|	'-'		{OPERATOR(lexeme_line lexbuf)}
+	|	'*'		{DEREFOP(lexeme_line lexbuf)}
+	|	'/'		{OPERATOR(lexeme_line lexbuf)}
+	|	'%'		{OPERATOR(lexeme_line lexbuf)}
+	|	'!'		{OPERATOR(lexeme_line lexbuf)}
+	|	"&&"		{OPERATOR(lexeme_line lexbuf)}
+	|	"||"		{OPERATOR(lexeme_line lexbuf)}
+	|	'&'		{DEREFOP(lexeme_line lexbuf)}
+	|	'|'		{OPERATOR(lexeme_line lexbuf)}
+	|	'^'		{OPERATOR(lexeme_line lexbuf)}
+	|	'?'		{OPERATOR(lexeme_line lexbuf)}
+	|	':'		{OPERATOR(lexeme_line lexbuf)}
+	|	'~'		{OPERATOR(lexeme_line lexbuf)}
 
-	|		'{'		{LBRACE (current_line())}
-	|		'}'		{RBRACE (current_line())}
-	|		'['		{LBRACK (current_line())}
-	|		']'		{RBRACK (current_line())}
-	|		'('		{LPAREN (current_line())}
-	|		')'		{RPAREN (current_line())}
+	|		'{'		{LBRACE (current_line(),!linetype)}
+	|		'}'		{RBRACE (current_line(),!linetype)}
+	|		'['		{LBRACK (current_line(),!linetype)}
+	|		']'		{RBRACK (current_line(),!linetype)}
+	|		'('		{LPAREN (current_line(),!linetype)}
+	|		')'		{RPAREN (current_line(),!linetype)}
 	|               "#define"       {endline lexbuf}
 	|               "#ifdef"        {endline lexbuf}
 	|               "#ifndef"       {endline lexbuf}
@@ -167,8 +171,8 @@ rule initial =
 	|               "#error"        {endline lexbuf}
 	|               "#warning"      {endline lexbuf}
 	|               "#include"      
-	    {let (x,_line) = lexeme_line lexbuf in
-	    INCLUDE (String.concat "" (x::(idline lexbuf)), _line)}
+	    {let (x,info) = lexeme_line lexbuf in
+	    INCLUDE (String.concat "" (x::(idline lexbuf)),info)}
 	|               "if"            {PRIM(lexeme_line lexbuf)}
 	|               "while"         {PRIM(lexeme_line lexbuf)}
 	|               "for"           {PRIM(lexeme_line lexbuf)}
@@ -184,7 +188,11 @@ rule initial =
 	|               "unsigned"      {TYPE(lexeme_line lexbuf)}
 	|               "struct"        {TYPE(lexeme_line lexbuf)}
 	|		ident		{scan_ident (lexeme_line lexbuf)}
-	|		'\''		{let cur = current_line() in CST_CHAR (chr lexbuf, cur) (*ENOUGH?*)}
+	| "++++plus_line++++"     { linetype := PLUS; initial lexbuf }
+	| "++++minus_line++++"    { linetype := MINUS; initial lexbuf }
+	| "++++context_line++++"  { linetype := CTX; initial lexbuf }
+	| '\''	{let cur = current_line() in
+	         CST_CHAR (chr lexbuf, (cur,!linetype)) (*ENOUGH?*)}
 	
 	|		eof		{EOF}
 	|		_		{display_error
@@ -201,8 +209,8 @@ and comment =
 (* # <line number> <file name> ... *)
 and line =
 	parse	'\n'			{initial lexbuf}
-	|	blank			{line lexbuf}
-	|	intnum			{set_line (int_of_string (Lexing.lexeme lexbuf));
+	| blank				{line lexbuf}
+	| intnum {set_line (int_of_string (Lexing.lexeme lexbuf));
 					  file lexbuf}
 	|	_			{endline lexbuf}
 and file =

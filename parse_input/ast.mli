@@ -2,15 +2,17 @@ type known = KNOWN | ENDUNKNOWN | FRONTUNKNOWN | BOTHUNKNOWN
 
 
 type line_number = int 
+type linetype = Parse_error.linetype
+type info = line_number * linetype
 type 'a extended = ('a * 'a kind) (* I also keep the 'a outside the closure cos I want to do pattern matching *)
- and 'a kind = Abstract | Concrete of (unit -> ('a * line_number))
+ and 'a kind = Abstract | Concrete of (unit -> ('a * info))
 
 (* build extended *)
-val bext: ('a * int) -> 'a extended
+val bext: ('a * info) -> 'a extended
 
 (* extract *)
 val eext: 'a extended  -> 'a
-val lext: 'a kind -> line_number
+val lext: 'a kind -> info
 
 type prim =
     IDENT of string extended

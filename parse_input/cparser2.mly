@@ -11,22 +11,23 @@ let parse_error _ =
 
 %}
 
-%token <string * int> IDENT
-%token <string * int> CST_CHAR
-%token <string * int> CST_INT
-%token <string * int> CST_STRING
-%token <string * int> SEP
-%token <string * int> ESEP
-%token <string * int> OPERATOR
-%token <string * int> EQ
-%token <string * int> SYMOP
-%token <string * int> DEREFOP
-%token <string * int> TYPE
-%token <string * int> PRIM
-%token <string * int> INCLUDE
+%token <string * (int * Parse_error.linetype)> IDENT
+%token <string * (int * Parse_error.linetype)> CST_CHAR
+%token <string * (int * Parse_error.linetype)> CST_INT
+%token <string * (int * Parse_error.linetype)> CST_STRING
+%token <string * (int * Parse_error.linetype)> SEP
+%token <string * (int * Parse_error.linetype)> ESEP
+%token <string * (int * Parse_error.linetype)> OPERATOR
+%token <string * (int * Parse_error.linetype)> EQ
+%token <string * (int * Parse_error.linetype)> SYMOP
+%token <string * (int * Parse_error.linetype)> DEREFOP
+%token <string * (int * Parse_error.linetype)> TYPE
+%token <string * (int * Parse_error.linetype)> PRIM
+%token <string * (int * Parse_error.linetype)> INCLUDE
 
 %token EOF 
-%token <int> LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK   DEFINE
+%token <int * Parse_error.linetype>
+  LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK   DEFINE
 
 /* operator precedence */
 %left	ESEP

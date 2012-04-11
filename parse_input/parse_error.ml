@@ -1,3 +1,5 @@
+type linetype = PLUS | MINUS | CTX
+
 let start_line = ref 0
 
 (*** input handle ***)

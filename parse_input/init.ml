@@ -68,7 +68,7 @@ let parse s =
     Clexer.init (true, "", "", 0, 0, stderr, s);
     (*Clexer.set_current_line line_number;*)
     let parsed = Cparser2.interpret Clexer.initial lexbuf in
-    Some (Ast0.convert parsed)
+    Some (No_modifs.drop_outer (Ast0.convert parsed))
   with
     Failure x -> Printf.printf "%s\n" x; None
   | Parsing.Parse_error -> None
@@ -219,6 +219,10 @@ let process_lines version dirname filename lines =
       (* ---------------- THIS IS THE IMPORTANT PLACE --------------- *)
 	match (parse m, parse p) with
 	  (Some mres,Some pres) ->
+	    List.iter (function mres ->
+	    Printf.printf "mres %s\n" (Ast.unparse_code_list mres)) mres;
+	    List.iter (function pres ->
+	    Printf.printf "pres %s\n" (Ast.unparse_code_list pres)) pres;
 	    (try
 	      let changelists = Diff.diff mres pres in
 	      List.map

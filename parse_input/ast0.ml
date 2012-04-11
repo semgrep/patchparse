@@ -1,17 +1,19 @@
 type line_number = int 
-let __unknown_line = -1
+type linetype = Parse_error.linetype
+type info = line_number * linetype
+let __unknown_line = (-1,Parse_error.CTX)
 
 type prim =
-    IDENT of (string    *line_number)
-  | CHAR of (string     *line_number)
-  | INT of (string      *line_number)
-  | STR of (string      *line_number)
-  | SYMOP of (string    *line_number)
-  | TYPE of (string     *line_number)
+    IDENT of (string    *info)
+  | CHAR of (string     *info)
+  | INT of (string      *info)
+  | STR of (string      *info)
+  | SYMOP of (string    *info)
+  | TYPE of (string     *info)
   | ARRAY of expr list * Ast.known
 
 and dprim =
-    DEREFOP of (string  *line_number)
+    DEREFOP of (string  *info)
 
 and symbol = prim list
 and dsymbol = dprim list
@@ -19,15 +21,15 @@ and dsymbol = dprim list
 and expr =
     SYMBOL of symbol
   | DSYMBOL of dsymbol
-  | EOP of (string    *line_number)
-  | ASSIGN of (string *line_number) * expr list * Ast.known
+  | EOP of (string    *info)
+  | ASSIGN of (string *info) * expr list * Ast.known
   | PAREN of code list * Ast.known
   | STRUCT of code list * Ast.known
-  | CALL of (string *line_number) * code list * Ast.known
+  | CALL of (string *info) * code list * Ast.known
 
 and code =
     EXPR of expr list
-  | SEP of (string     *line_number)
+  | SEP of (string     *info)
 
 (* ----------------------------------------------------------------- *)
 

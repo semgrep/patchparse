@@ -1,9 +1,11 @@
 type known = KNOWN | ENDUNKNOWN | FRONTUNKNOWN | BOTHUNKNOWN
 
 type line_number = int 
+type linetype = Parse_error.linetype
+type info = line_number * linetype
 (* I also keep the 'a outside the closure cos I want to do pattern matching *)
 type 'a extended = ('a * 'a kind)
-and 'a kind = Abstract | Concrete of (unit -> ('a * line_number))
+and 'a kind = Abstract | Concrete of (unit -> ('a * info))
 
 (* build extended *)
 let bext (x,line) = x, Concrete (fun () -> (x,line))

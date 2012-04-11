@@ -33,29 +33,37 @@ let tex_epilog o =
   Printf.fprintf o "\\end{document}\n"
 
 let pre_print_to_get_files o ct =
-  Printf.fprintf o "\nrule%d:\n" ct;
-  Printf.fprintf o "\tcd %s\n" !Config.gitdir
+  if !Config.git && not (!Config.gitpatch)
+  then
+    begin
+      Printf.fprintf o "\nrule%d:\n" ct;
+      Printf.fprintf o "\tcd %s\n" !Config.gitdir
+    end
 
 let print_to_get_files o ct code =
-  let diffs =
-    Aux.cmd_to_list
-      (Printf.sprintf "cd %s; /usr/bin/git show %s | /bin/grep ^diff"
-	 !Config.gitdir code) in
-  let files =
-    List.map
-      (function diff ->
-	match Str.split (Str.regexp " b/") diff with
-	  _::file::_ -> file
-	| _ -> failwith "bad diff")
-      diffs in
-  let dir = Sys.getcwd() in
-  List.iter
-    (function file ->
-      Printf.fprintf o
-	"\tgit cat-file blob %s^:%s > %s/%s/$(DEST)/%s\n\tgit cat-file blob %s:%s > %s/%s/$(DEST)/%s.res\n"
-	code file dir !Config.out_dir (Filename.basename file)
-	code file dir !Config.out_dir (Filename.basename file))
-    files
+  if !Config.git && not (!Config.gitpatch)
+  then
+    begin
+      let diffs =
+	Aux.cmd_to_list
+	  (Printf.sprintf "cd %s; /usr/bin/git show %s | /bin/grep ^diff"
+	     !Config.gitdir code) in
+      let files =
+	List.map
+	  (function diff ->
+	    match Str.split (Str.regexp " b/") diff with
+	      _::file::_ -> file
+	    | _ -> failwith "bad diff")
+	  diffs in
+      let dir = Sys.getcwd() in
+      List.iter
+	(function file ->
+	  Printf.fprintf o
+	    "\tgit cat-file blob %s^:%s > %s/%s/$(DEST)/%s\n\tgit cat-file blob %s:%s > %s/%s/$(DEST)/%s.res\n"
+	    code file dir !Config.out_dir (Filename.basename file)
+	    code file dir !Config.out_dir (Filename.basename file))
+	files
+    end
 
 let file_data tex_file out_file sp_file get_files
     (printer : 'change -> string)
@@ -318,7 +326,7 @@ let make_files (change_result,filtered_results) evolutions =
     then open_out (Printf.sprintf "%s/all%s.cocci" !Config.out_dir all_name)
     else open_out "/dev/null" in
   let get_files =
-    if !Config.print_sp
+    if !Config.print_sp && !Config.git && not !Config.gitpatch
     then
       begin
 	let o =
@@ -364,3 +372,4 @@ let make_files (change_result,filtered_results) evolutions =
 	(Printf.sprintf "cd %s ; %s all%s.tex" !Config.out_dir
 	   cmdfunc all_name) in
     () end
+

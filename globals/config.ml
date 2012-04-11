@@ -1,6 +1,7 @@
 (* All of the various global variables and flags. *)
 
 let git = ref true
+let gitpatch = ref false
 let gittag = ref ""
 
 let out_dir = ref "out"  (* for .tex and .cocci files *)

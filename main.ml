@@ -1,8 +1,17 @@
 let mega _ = Config.same_threshold := 100
 
 let setup_git gitdir =
-  Config.gitdir := gitdir;
-  Config.git := true
+  if Sys.is_directory gitdir
+  then
+    begin
+      Config.git := true;
+      Config.gitdir := gitdir
+    end
+  else
+    begin
+      Config.gitpatch := true;
+      Config.file := gitdir
+    end
 
 let setup_next gitdir =
   Config.gitdir := gitdir;

@@ -7,29 +7,29 @@ let rec drop_git_start in_lines =
 	match Str.split (Str.regexp " ") l with
 	  "commit"::_ -> drop_git_start ((n,l)::rest)
 	| "diff"::_ -> (ver,code,((n,l)::rest))
+	| "---"::_ -> (ver,code,((n,l)::rest))
 	| _ -> loop ver code rest in
   match in_lines with
     [] -> failwith "should not happen"
   | (nc,lc)::(na,la)::(nd,ld)::rest ->
-      let code =
-	match Str.split (Str.regexp " ") lc with
-          ["commit";code] -> code
-	| _ -> failwith "bad git file" in
-      (match
-        Str.split (Str.regexp " ")
-          (List.hd (Str.split (Str.regexp "<") la)) with
-        "Author:"::name ->
-	  let name = String.concat " " name in
-	  (match Str.split (Str.regexp " ") ld with
-	    "Date:"::_::_::_::month::day::_::year::_ ->
-	      let date = String.concat " " [month;day;year] in
-	      let ver = Printf.sprintf "%s %s %s" code name date in
-	      loop ver code rest
-	  | _ -> failwith (Printf.sprintf "bad git file %s" ld))
-      |	"Merge:"::_ -> loop "" "" rest
-      |	_ -> failwith (Printf.sprintf "bad git file %s" la))
+      (match Str.split (Str.regexp " ") lc with
+        ["commit";code] ->
+	  (match
+            Str.split (Str.regexp " ")
+              (List.hd (Str.split (Str.regexp "<") la)) with
+            "Author:"::name ->
+	      let name = String.concat " " name in
+	      (match Str.split (Str.regexp " ") ld with
+		"Date:"::_::_::_::month::day::_::year::_ ->
+		  let date = String.concat " " [month;day;year] in
+		  let ver = Printf.sprintf "%s %s %s" code name date in
+		  loop ver code rest
+	      | _ -> failwith (Printf.sprintf "bad git file %s" ld))
+	  | "Merge:"::_ -> loop "" "" rest
+	  | _ -> failwith (Printf.sprintf "bad git file %s" la))
+      | _ -> drop_git_start ((na,la)::(nd,ld)::rest))
   | _ -> failwith "bad git file"
-
+	    
 let drop_patch_start in_lines =
   ("no_ver","no_code",in_lines)
 
@@ -54,8 +54,11 @@ let counter l =
 let git fl =
   lines := 0;
   let in_lines =
-    Aux.cmd_to_list
-      (Printf.sprintf "cd %s ; /usr/bin/git log -p %s" !Config.gitdir fl) in
+    if !Config.gitpatch
+    then Aux.cmd_to_list (Printf.sprintf "/bin/cat %s" fl)
+    else
+      Aux.cmd_to_list
+	(Printf.sprintf "cd %s ; /usr/bin/git log -p %s" !Config.gitdir fl) in
   let in_lines = counter in_lines in
   let rec loop in_lines ctr =
     match in_lines with
@@ -69,7 +72,7 @@ let git fl =
 
 let patch fl =
   lines := 0;
-  let in_lines = Aux.cmd_to_list (Printf.sprintf "cat %s" fl) in
+  let in_lines = Aux.cmd_to_list (Printf.sprintf "/bin/cat %s" fl) in
   let in_lines = counter in_lines in
   let rec loop in_lines ctr =
     match in_lines with

@@ -132,14 +132,20 @@ let drop_initial_spaces all_start_with_star s =
 
 let collect_lines bounded str lines =
   let drop_control ln = (* drop +/- *)
-    String.sub ln 1 ((String.length ln) - 1) in
+      (String.get ln 0, String.sub ln 1 ((String.length ln) - 1)) in
   let rec collect_conforming = function
       [] -> ([],0,[])
     | ((n,ln)::rest) as lines ->
 	if start_string str ln
 	then
 	  let (rest,len,after) = collect_conforming rest in
-	  let ln = drop_control ln in
+	  let (ty,ln) = drop_control ln in
+	  let front =
+	    match ty with
+	      '-' -> "++++minus_line++++"
+	    | '+' -> "++++plus_line++++"
+	    | _ -> "++++context_line++++" in
+	  let ln = front ^ " " ^ ln in
 	  ((n,ln)::rest,String.length ln + len,after)
 	else ([],0,lines) in
   let (region,len,after) = collect_conforming lines in
@@ -219,10 +225,6 @@ let process_lines version dirname filename lines =
       (* ---------------- THIS IS THE IMPORTANT PLACE --------------- *)
 	match (parse m, parse p) with
 	  (Some mres,Some pres) ->
-	    List.iter (function mres ->
-	    Printf.printf "mres %s\n" (Ast.unparse_code_list mres)) mres;
-	    List.iter (function pres ->
-	    Printf.printf "pres %s\n" (Ast.unparse_code_list pres)) pres;
 	    (try
 	      let changelists = Diff.diff mres pres in
 	      List.map

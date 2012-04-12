@@ -25,6 +25,7 @@ and expr =
   | PAREN of code list * Ast.known
   | STRUCT of code list * Ast.known
   | CALL of (string *info) * code list * Ast.known
+  | DECLARER of (string *info) * code list * Ast.known
 
 and code =
     EXPR of expr list

@@ -134,6 +134,7 @@ let is_limited change =
 	Aux.substring "lock" lid or
 	Aux.substring "print" lid -> false
     | Ast.CALL(f1,x,y) -> true
+    | Ast.DECLARER(f1,x,y) -> true
     | Ast.PROTOTYPE(_,_,_,_,_,_) -> true
     | Ast.ASSIGN(Ast.SYMBOL(lhs),_,_,_) -> is_field lhs
     | Ast.SYMBOL(s) -> is_field s
@@ -143,6 +144,10 @@ let is_limited change =
       (ok e1 or ok e2) &&
       (match (e1,e2) with
 	(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2)) ->
+	  (not (Ast.al_expr f1 = Ast.al_expr f2)) or
+	  not(List.length a1 = List.length a2) or
+	  List.exists not_just_code a1 or List.exists not_just_code a2
+      |	(Ast.DECLARER(f1,a1,k1),Ast.DECLARER(f2,a2,k2)) ->
 	  (not (Ast.al_expr f1 = Ast.al_expr f2)) or
 	  not(List.length a1 = List.length a2) or
 	  List.exists not_just_code a1 or List.exists not_just_code a2
@@ -760,6 +765,17 @@ and compare_expr e1 e2 =
 	let res =
 	  compare_calls process_immediate fn1 fn2 args1 args2 known1 known2 in
 	top_level_diff (CE.EXPRCE(e1,e2)) make_immediate_code_change res
+    | (Ast.DECLARER(fn1,args1,known1),Ast.DECLARER(fn2,args2,known2)) ->
+	let process_immediate = function
+	    (CE.EXPRCE(s1,s2),CE.CODELCE(cl1,cl2)) ->
+	      CE.EXPRCE(Ast.DECLARER(s1,cl1,known1),Ast.DECLARER(s2,cl2,known2))
+	  | _ -> failwith "not possible 12" in
+	(* even if the change is deeply nested in the arguments, we want to
+	   see the whole function call, in case this complete change occurs
+	   in many cases *)
+	let res =
+	  compare_calls process_immediate fn1 fn2 args1 args2 known1 known2 in
+	top_level_diff (CE.EXPRCE(e1,e2)) make_immediate_code_change res
     (* all variants of function prototypes *)
     | (Ast.PROTOTYPE(fn1,ty1,vis1,nm1,args1,known1),
        Ast.PROTOTYPE(fn2,ty2,vis2,nm2,args2,known2)) ->
@@ -899,6 +915,12 @@ and compare_calls process_immediate fn1 fn2 args1 args2 known1 known2 =
 	       ((sequence_contexts_final change left_context
 		   [CE.expify false;CE.codify_expr_change;CE.codify_all_args])@
 		right_context))
+      |	CE.EXPRCE(Ast.DECLARER(fn1,args1,known1),Ast.DECLARER(fn2,args2,known2)) ->
+	  make_immediate_code_change change
+	    (mkCC change
+	       ((sequence_contexts_final change left_context
+		   [CE.expify false;CE.codify_expr_change;CE.codify_all_args])@
+		right_context))
       |	CE.EXPRCE(Ast.PROTOTYPE(fn1,ty1,vis1,nm1,args1,known1),
 		  Ast.PROTOTYPE(fn2,ty2,vis2,nm2,args2,known2)) ->
 	  (* left context is the function name and all modifiers, but
@@ -942,6 +964,7 @@ and compare_expr_lists l1 l2 =
        [(fun (x,y) -> Ast.al_expr x = Ast.al_expr y);
 	 (function
 	     (Ast.CALL(_,_,_),Ast.CALL(_,_,_)) -> true
+	   | (Ast.DECLARER(_,_,_),Ast.DECLARER(_,_,_)) -> true
 	   | (Ast.PROTOTYPE(_,_,_,_,_,_),Ast.PROTOTYPE(_,_,_,_,_,_)) -> true
 	   | (Ast.ASSIGN(_,_,_,_),Ast.ASSIGN(_,_,_,_)) -> true
 	   | _ -> false)]
@@ -1025,6 +1048,9 @@ and compare_toplevel_lists l1 l2 =
 	     (Ast.EXPR([Ast.CALL(fn1,_,_)]),
 	      Ast.EXPR([Ast.CALL(fn2,_,_)])) ->
 		Ast.al_expr fn1 = Ast.al_expr fn2
+	   | (Ast.EXPR([Ast.DECLARER(fn1,_,_)]),
+	      Ast.EXPR([Ast.DECLARER(fn2,_,_)])) ->
+		Ast.al_expr fn1 = Ast.al_expr fn2
 	   | (Ast.EXPR([Ast.PROTOTYPE(_,_,_,nm1,_,_)]),
 	      Ast.EXPR([Ast.PROTOTYPE(_,_,_,nm2,_,_)])) -> nm1=nm2
 	   | (Ast.EXPR([Ast.ASSIGN(e1,_,_,_)]),
@@ -1034,6 +1060,9 @@ and compare_toplevel_lists l1 l2 =
 	 (function
 	     (Ast.EXPR([Ast.CALL(fn1,_,_)]),
 	      Ast.EXPR([Ast.CALL(fn2,_,_)])) -> CE.real_fn fn1 = CE.real_fn fn2
+	   | (Ast.EXPR([Ast.DECLARER(fn1,_,_)]),
+	      Ast.EXPR([Ast.DECLARER(fn2,_,_)])) ->
+		CE.real_fn fn1 = CE.real_fn fn2
 	   | (Ast.EXPR([Ast.ASSIGN(e1,_,_,_)]),
 	      Ast.EXPR([Ast.CALL(fn2,_,_)])) -> CE.memory_mover fn2
 	   | (Ast.EXPR([Ast.CALL(fn1,_,_)]),

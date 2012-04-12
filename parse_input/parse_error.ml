@@ -1,4 +1,5 @@
 type linetype = PLUS | MINUS | CTX
+type atfront = FRONT | AFTER
 
 let start_line = ref 0
 

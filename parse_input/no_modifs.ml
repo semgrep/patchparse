@@ -26,7 +26,7 @@ and contains_modif_expr = function
   | Ast.ASSIGN(symbol,(op),exprlist,known) ->
       (contains_modif_expr symbol) or (contains_modif op) or
       (contains_modif_expr_list exprlist)
-  | Ast.CALL(symbol,codelist,known) ->
+  | Ast.CALL(symbol,codelist,known) | Ast.DECLARER(symbol,codelist,known) ->
       (contains_modif_expr symbol) or
       (contains_modif_code_list codelist)
   | Ast.PROTOTYPE(symbol,ty,attrs,nm,codelist,known) ->

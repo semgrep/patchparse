@@ -38,6 +38,7 @@ and expr =
      the function part of a call (same for assignments) into a symbol so
      that it matches with other occurrences of the same change. *)
   | CALL of expr * code list * known
+  | DECLARER of expr * code list * known
   | PROTOTYPE of expr (*name*) * symbol (*type*) *
 	string list (*static,init,inline,etc*) *
 	string (*name*) * code list * known

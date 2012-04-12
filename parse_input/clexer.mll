@@ -13,8 +13,12 @@ let set_current_line i = _current_line := i
 let current_line () = !_current_line
 
 let linetype = ref CTX
+let atfront = ref FRONT
 
-let lexeme_line lexbuf = (Lexing.lexeme lexbuf, (!_current_line, !linetype))
+let lexeme_line lexbuf =
+  let af = !atfront in
+  atfront := AFTER;
+  (Lexing.lexeme lexbuf, (!_current_line, !linetype,af))
 
 (*
 ** Keyword hashtable
@@ -103,7 +107,8 @@ let oct_escape = '\\' octdigit  octdigit octdigit
 rule initial =
 	parse 	"/*"		{let _ = comment lexbuf in initial lexbuf}
 (*        |  '\n'                 { incr _current_line; initial lexbuf } *)
-        | "___line=" (['0' - '9']+ as line_num) { set_current_line (int_of_string line_num); initial lexbuf }
+        | "___line=" (['0' - '9']+ as line_num)
+	    { set_current_line (int_of_string line_num); initial lexbuf }
 	|		blank		{initial lexbuf}
 	|		"*/"		{initial lexbuf}
 	|		"//"		{endline lexbuf}
@@ -111,7 +116,7 @@ rule initial =
 (*	|		'#'		{line lexbuf}*)
 	
 	|'"' {let cur = current_line() in
-	      CST_STRING (str lexbuf, (cur, !linetype))(*ENOUGH ?*)} 
+	      CST_STRING (str lexbuf, (cur, !linetype,!atfront))(*ENOUGH ?*)} 
 	|	floatnum	{CST_INT (lexeme_line lexbuf)}
 	|	hexnum		{CST_INT (lexeme_line lexbuf)}
 	|	octnum		{CST_INT (lexeme_line lexbuf)}
@@ -156,12 +161,12 @@ rule initial =
 	|	':'		{OPERATOR(lexeme_line lexbuf)}
 	|	'~'		{OPERATOR(lexeme_line lexbuf)}
 
-	|		'{'		{LBRACE (current_line(),!linetype)}
-	|		'}'		{RBRACE (current_line(),!linetype)}
-	|		'['		{LBRACK (current_line(),!linetype)}
-	|		']'		{RBRACK (current_line(),!linetype)}
-	|		'('		{LPAREN (current_line(),!linetype)}
-	|		')'		{RPAREN (current_line(),!linetype)}
+	|		'{'		{LBRACE (current_line(),!linetype,!atfront)}
+	|		'}'		{RBRACE (current_line(),!linetype,!atfront)}
+	|		'['		{LBRACK (current_line(),!linetype,!atfront)}
+	|		']'		{RBRACK (current_line(),!linetype,!atfront)}
+	|		'('		{LPAREN (current_line(),!linetype,!atfront)}
+	|		')'		{RPAREN (current_line(),!linetype,!atfront)}
 	|               "#define"       {endline lexbuf}
 	|               "#ifdef"        {endline lexbuf}
 	|               "#ifndef"       {endline lexbuf}
@@ -188,11 +193,16 @@ rule initial =
 	|               "unsigned"      {TYPE(lexeme_line lexbuf)}
 	|               "struct"        {TYPE(lexeme_line lexbuf)}
 	|		ident		{scan_ident (lexeme_line lexbuf)}
-	| "++++plus_line++++"     { linetype := PLUS; initial lexbuf }
-	| "++++minus_line++++"    { linetype := MINUS; initial lexbuf }
-	| "++++context_line++++"  { linetype := CTX; initial lexbuf }
+	| "++++plus_line++++"
+	    { linetype := PLUS; atfront := FRONT; initial lexbuf }
+	| "++++minus_line++++"
+	    { linetype := MINUS; atfront := FRONT; initial lexbuf }
+	| "++++context_line++++"
+	    { linetype := CTX; atfront := FRONT; initial lexbuf }
+	| "++++space++++"
+	    { atfront := AFTER; initial lexbuf }
 	| '\''	{let cur = current_line() in
-	         CST_CHAR (chr lexbuf, (cur,!linetype)) (*ENOUGH?*)}
+	         CST_CHAR (chr lexbuf, (cur,!linetype,!atfront)) (*ENOUGH?*)}
 	
 	|		eof		{EOF}
 	|		_		{display_error

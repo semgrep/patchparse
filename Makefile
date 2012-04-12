@@ -101,3 +101,10 @@ depend:
 	$(OCAMLDEP) $(INCLUDE_PATH) *.mli *.ml > .depend
 
 include .depend
+
+release:
+	$(MAKE) -C tools licensify
+	tools/licensify
+	set -e; for i in $(MAKESUBDIRS); cd $$i ; licensify; done 
+	$(MAKE) -C . clean
+	/bin/rm -r -f .svn */.svn

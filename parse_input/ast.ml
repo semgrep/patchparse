@@ -40,6 +40,7 @@ and expr =
      the function part of a call (same for assignments) into a symbol so
      that it matches with other occurrences of the same change. *)
   | CALL of expr * code list * known
+  | DECLARER of expr * code list * known
   | PROTOTYPE of expr (*name*) * symbol (*type*) *
 	string list (*static,init,inline,etc*) *
 	string (*name*) * code list * known
@@ -89,6 +90,10 @@ and ast_unparse_expr = function
 	(ast_unparse_known known)
   | CALL(symbol,codelist,known) ->
       Printf.sprintf "CALL(%s,%s,%s)" (ast_unparse_expr symbol)
+	(ast_unparse_code_list codelist)
+	(ast_unparse_known known)
+  | DECLARER(symbol,codelist,known) ->
+      Printf.sprintf "DECLARER(%s,%s,%s)" (ast_unparse_expr symbol)
 	(ast_unparse_code_list codelist)
 	(ast_unparse_known known)
   | PROTOTYPE(symbol,ty,attrs,nm,codelist,known) ->
@@ -158,7 +163,7 @@ and unparse_expr = function
   | ASSIGN(symbol,(op,_),exprlist,_) ->
       Printf.sprintf "%s %s %s" (unparse_expr symbol) op
 	(unparse_expr_list exprlist)
-  | CALL(symbol,codelist,known) ->
+  | CALL(symbol,codelist,known) | DECLARER(symbol,codelist,known) ->
       Printf.sprintf "%s(%s%s" (unparse_expr symbol)
 	 (unparse_code_list codelist)
 	(if known = KNOWN || known = FRONTUNKNOWN then ")" else "")
@@ -235,7 +240,7 @@ and unparse_sp_expr minus = function
   | ASSIGN(symbol,(op,_),exprlist,_) ->
       Printf.sprintf "%s %s %s" (unparse_sp_expr minus symbol) op
 	(unparse_sp_expr_list minus exprlist)
-  | CALL(symbol,codelist,known) ->
+  | CALL(symbol,codelist,known) | DECLARER(symbol,codelist,known) ->
       let fn = unparse_sp_expr minus symbol in
       let res fn =
 	Printf.sprintf "%s(%s%s" fn
@@ -330,6 +335,8 @@ and al_expr = function
      that it matches with other occurrences of the same change. *)
   | CALL (expr, code_list, known) ->
       CALL (al_expr expr, List.map al_code code_list, known)
+  | DECLARER (expr, code_list, known) ->
+      DECLARER (al_expr expr, List.map al_code code_list, known)
   | PROTOTYPE (expr (*name*) , symbol (*type*) ,
 	string_list (*static,init,inline,etc*) ,
 	string (*name*) , code_list , known)  -> 
@@ -368,7 +375,7 @@ and have_al_expr = function
   | ASSIGN (expr , (string, line_number) , expr_list , known) -> 
        (have_al_expr expr || (is_al line_number) ||
        (List.exists have_al_expr expr_list))
-  | CALL (expr, code_list, known) ->
+  | CALL (expr, code_list, known) | DECLARER (expr, code_list, known) ->
       (have_al_expr expr || (List.exists have_al_code code_list))
   | PROTOTYPE (expr (*name*) , symbol (*type*) ,
 	string_list (*static,init,inline,etc*) ,

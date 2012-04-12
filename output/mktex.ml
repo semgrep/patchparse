@@ -32,11 +32,19 @@ let tex_prolog o =
 let tex_epilog o =
   Printf.fprintf o "\\end{document}\n"
 
+let cocci_prolog o =
+  Printf.fprintf o "virtual invalid\n\n"
+
 let pre_print_to_get_files o ct =
   if !Config.git && not (!Config.gitpatch)
   then
     begin
       Printf.fprintf o "\nrule%d:\n" ct;
+      let dir = Sys.getcwd() in
+      Printf.fprintf o "\t/bin/rm -f %s/%s/$(DEST)/index\n"
+	dir !Config.out_dir;
+      Printf.fprintf o "\t/usr/bin/touch %s/%s/$(DEST)/index\n"
+	dir !Config.out_dir;
       Printf.fprintf o "\tcd %s\n" !Config.gitdir
     end
 
@@ -61,7 +69,9 @@ let print_to_get_files o ct code =
 	  Printf.fprintf o
 	    "\tgit cat-file blob %s^:%s > %s/%s/$(DEST)/%s\n\tgit cat-file blob %s:%s > %s/%s/$(DEST)/%s.res\n"
 	    code file dir !Config.out_dir (Filename.basename file)
-	    code file dir !Config.out_dir (Filename.basename file))
+	    code file dir !Config.out_dir (Filename.basename file);
+	  Printf.fprintf o "\techo %s %s.res >> %s/%s/$(DEST)/index\n"
+	    file file dir !Config.out_dir)
 	files
     end
 
@@ -346,6 +356,7 @@ let make_files (change_result,filtered_results) evolutions =
       end
     else open_out "/dev/null" in
   tex_prolog tex_file;
+  cocci_prolog sp_file;
   if not !Config.noall
   then
     begin

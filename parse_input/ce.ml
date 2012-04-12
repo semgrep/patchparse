@@ -98,35 +98,36 @@ let process_ce combiner mapper primfn exprfn codefn = function
 		mapper (List.map codefn code_list2))
 
 let spunparser ct e =
-  let finish before metas after =
-    Printf.sprintf "@rule%d@\n%s%s@@\n%s\n%s\n\n"
-      ct (String.concat "\n" metas) (if metas = [] then "" else "\n")
+  let finish before metas after cc =
+    Printf.sprintf "@rule%d%s@\n%s%s@@\n%s\n%s\n\n"
+      ct (if cc then " depends on invalid" else "")
+      (String.concat "\n" metas) (if metas = [] then "" else "\n")
       before after in
   match e with
     PRIMCE(prim1, prim2) ->
       let before = Ast.unparse_minus Ast.unparse_sp_prim prim1 in
       let (metas,after) = Ast.unparse_plus Ast.unparse_sp_prim prim2 in
-      finish before metas after
+      finish before metas after (Contains_code.contains_code_prim prim2)
   | SYMCE(s1,s2) ->
       let before = Ast.unparse_minus Ast.unparse_sp_symbol s1 in
       let (metas,after) = Ast.unparse_plus Ast.unparse_sp_symbol s2 in
-      finish before metas after
+      finish before metas after (Contains_code.contains_code_symbol s2)
   | EXPRCE(expr1,  expr2) ->
       let before = Ast.unparse_minus Ast.unparse_sp_expr expr1 in
       let (metas,after) = Ast.unparse_plus Ast.unparse_sp_expr expr2 in
-      finish before metas after
+      finish before metas after (Contains_code.contains_code_expr expr2)
   | EXPRLCE(el1, el2) ->
       let before = Ast.unparse_minus Ast.unparse_sp_expr_list el1 in
       let (metas,after) = Ast.unparse_plus Ast.unparse_sp_expr_list el2 in
-      finish before metas after
+      finish before metas after (Contains_code.contains_code_expr_list el2)
   | CODECE(code1, code2) ->
       let before = Ast.unparse_minus Ast.unparse_sp_code code1 in
       let (metas,after) = Ast.unparse_plus Ast.unparse_sp_code code2 in
-      finish before metas after
+      finish before metas after (Contains_code.contains_code_code code2)
   | CODELCE(cl1, cl2) ->
       let before = Ast.unparse_minus Ast.unparse_sp_code_list cl1 in
       let (metas,after) = Ast.unparse_plus Ast.unparse_sp_code_list cl2 in
-      finish before metas after
+      finish before metas after (Contains_code.contains_code_code_list cl2)
 
 (* ---------------------------------------------------------------------- *)
 
@@ -159,6 +160,12 @@ let rebuild_term rebuild_prim rebuild_expr rebuild_code =
 	    let fn = do_expr fn in
 	    let args = List.map do_code args in
 	    Ast.CALL(fn,args,known)
+	| Ast.DECLARER(fn,args,Ast.FRONTUNKNOWN) ->
+	    Ast.DECLARER(fn,List.map do_code args,Ast.FRONTUNKNOWN)
+	| Ast.DECLARER(fn,args,known) ->
+	    let fn = do_expr fn in
+	    let args = List.map do_code args in
+	    Ast.DECLARER(fn,args,known)
 	| Ast.PROTOTYPE(fn,x,y,z,params,known) ->
 	    let fn = do_expr fn in
 	    let params = List.map do_code params in
@@ -196,9 +203,11 @@ let process_term combiner process_prim process_expr process_code =
 	    combiner (List.map do_expr rhs)
 	| Ast.ASSIGN(lhs,op,rhs,known) ->
 	    combiner (do_expr lhs :: List.map do_expr rhs)
-	| Ast.CALL(fn,args,Ast.FRONTUNKNOWN) ->
+	| Ast.CALL(fn,args,Ast.FRONTUNKNOWN)
+	| Ast.DECLARER(fn,args,Ast.FRONTUNKNOWN) ->
 	    combiner (List.map do_code args)
-	| Ast.CALL(fn,args,known) ->
+	| Ast.CALL(fn,args,known)
+	| Ast.DECLARER(fn,args,known)->
 	    combiner (do_expr fn :: List.map do_code args)
 	| Ast.PROTOTYPE(fn,_,_,_,params,known) ->
 	    combiner (do_expr fn :: List.map do_code params)
@@ -363,6 +372,8 @@ let do_codify all_args =
   let rebuild_expr p e c = function
       Ast.CALL(fn,args,known) when real_fn fn ->
 	Some (Ast.CALL(e fn,codify all_args args,known))
+    | Ast.DECLARER(fn,args,known) when real_fn fn ->
+	Some (Ast.DECLARER(e fn,codify all_args args,known))
     | _ -> None in
   let rebuild_code p e c _ = None in
   let (codify_prim,codify_expr,codify_code) =
@@ -434,6 +445,8 @@ let expify do_proto expify_n ce =
 	Some(Ast.SYMBOL(expify_symbol false true expify_n env s p))
     | Ast.CALL(Ast.SYMBOL(fn),args,known) ->
 	Some(Ast.CALL(Ast.SYMBOL(fn),List.map c args,known))
+    | Ast.DECLARER(Ast.SYMBOL(fn),args,known) ->
+	Some(Ast.DECLARER(Ast.SYMBOL(fn),List.map c args,known))
     | Ast.PROTOTYPE((Ast.SYMBOL(fn)) as f,ty,vis,nm,args,known) ->
 	if do_proto
 	then
@@ -517,6 +530,7 @@ let get_characters ce =
 let get_function_names ce =
   let process_prim _ _ = None in
   let process_expr (do_prim,do_code) = function
+      (* no declarer here - not a protocol *)
       Ast.CALL(fn,args,Ast.FRONTUNKNOWN) -> None
     | Ast.CALL(fn,args,known) ->
 	Some
@@ -536,6 +550,8 @@ let function_change ce =
   let process_prim _ _ = None in
   let process_expr _ = function
       Ast.CALL(_,_,Ast.KNOWN) | Ast.CALL(_,_,Ast.ENDUNKNOWN) -> Some true
+    | Ast.DECLARER(_,_,Ast.KNOWN) (* not sure if this should be here *)
+    | Ast.DECLARER(_,_,Ast.ENDUNKNOWN) -> Some true
     | _ -> None in
   let process_code _ _ = None in
   let exists = List.exists (function x -> x) in

@@ -30,7 +30,7 @@ and size_expr = function
   | Ast.EOP(s,_) -> 1
   | Ast.ASSIGN(lhs,op,rhs,known) ->
       1 + (size_expr lhs) + (size_exprlist rhs)
-  | Ast.CALL(fn,args,known) ->
+  | Ast.CALL(fn,args,known) | Ast.DECLARER(fn,args,known) ->
       if (List.for_all
 	    (function Ast.CODE -> true | Ast.SEP(_) -> true | _ -> false)
 	    args)

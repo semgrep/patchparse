@@ -3,6 +3,7 @@
 let git = ref true
 let gitpatch = ref false
 let gittag = ref ""
+let git_restrict = ref ""
 
 let out_dir = ref "out"  (* for .tex and .cocci files *)
 let dest_dir = ref "." (* for files obtained from git *)

@@ -132,20 +132,25 @@ let drop_initial_spaces all_start_with_star s =
 
 let collect_lines bounded str lines =
   let drop_control ln = (* drop +/- *)
-      (String.get ln 0, String.sub ln 1 ((String.length ln) - 1)) in
+    let len = String.length ln in
+      (String.get ln 0,
+       len > 1 && (List.mem (String.get ln 1) [' ';'\t']),
+       String.sub ln 1 (len - 1)) in
   let rec collect_conforming = function
       [] -> ([],0,[])
     | ((n,ln)::rest) as lines ->
 	if start_string str ln
 	then
 	  let (rest,len,after) = collect_conforming rest in
-	  let (ty,ln) = drop_control ln in
+	  let (ty,space_start,ln) = drop_control ln in
 	  let front =
 	    match ty with
 	      '-' -> "++++minus_line++++"
 	    | '+' -> "++++plus_line++++"
 	    | _ -> "++++context_line++++" in
-	  let ln = front ^ " " ^ ln in
+	  let middle =
+	    if space_start then "" else "++++space++++" in
+	  let ln = front ^ " " ^ middle ^ " " ^ ln in
 	  ((n,ln)::rest,String.length ln + len,after)
 	else ([],0,lines) in
   let (region,len,after) = collect_conforming lines in

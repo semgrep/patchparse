@@ -3,7 +3,7 @@ TARGET=parse_input
 LEXER_SOURCES = clexer.mll
 PARSER_SOURCES = cparser2.mly
 
-SRC=ast.ml ast0.ml ce.ml parse_error.ml \
+SRC=ast.ml ast0.ml contains_code.ml ce.ml parse_error.ml \
 $(LEXER_SOURCES:.mll=.ml) $(PARSER_SOURCES:.mly=.ml) \
 small.ml diff.ml no_modifs.ml init.ml
 

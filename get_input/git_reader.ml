@@ -58,7 +58,9 @@ let git fl =
     then Aux.cmd_to_list (Printf.sprintf "/bin/cat %s" fl)
     else
       Aux.cmd_to_list
-	(Printf.sprintf "cd %s ; /usr/bin/git log -p %s" !Config.gitdir fl) in
+	(Printf.sprintf
+	   "cd %s ; /usr/bin/git log -p %s %s"
+	   !Config.gitdir fl !Config.git_restrict) in
   let in_lines = counter in_lines in
   let rec loop in_lines ctr =
     match in_lines with

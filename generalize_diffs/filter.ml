@@ -16,7 +16,7 @@ and expr_in_expr f expr =
     (match expr with
       Ast.ASSIGN(lhs,op,rhs,known) ->
 	expr_in_expr f lhs || expr_in_exprlist f rhs
-    | Ast.CALL(fn,args,known) ->
+    | Ast.CALL(fn,args,known) | Ast.DECLARER(fn,args,known) ->
 	expr_in_expr f fn || expr_in_codelist f args
     | Ast.STRUCT(fields,known) -> expr_in_codelist f fields
     | _ -> false)
@@ -31,28 +31,24 @@ and expr_in_codelist f codelist = List.exists (expr_in_code f) codelist
 
 (* --------------------------------------------------------------------- *)
 
+let is_real_fn = function
+    Ast.CALL(fn,_,_) | Ast.DECLARER(fn,_,_) -> CE.real_fn fn
+  | _ -> false
+
 (* Function added *)
 let addfn = function
     CE.EXPRLCE([],expr_list) ->
-      expr_in_exprlist
-	(function Ast.CALL(fn,_,_) -> CE.real_fn fn | _ -> false)
-	expr_list
+      expr_in_exprlist is_real_fn expr_list
   | CE.CODELCE([],code_list) ->
-      expr_in_codelist
-	(function Ast.CALL(fn,_,_) -> CE.real_fn fn | _ -> false)
-	code_list
+      expr_in_codelist is_real_fn code_list
   | _ -> false
 
 (* Function dropped *)
 let dropfn = function
     CE.EXPRLCE(expr_list,[]) ->
-      expr_in_exprlist
-	(function Ast.CALL(fn,_,_) -> CE.real_fn fn | _ -> false)
-	expr_list
+      expr_in_exprlist is_real_fn expr_list
   | CE.CODELCE(code_list,[]) ->
-      expr_in_codelist
-	(function Ast.CALL(fn,_,_) -> CE.real_fn fn | _ -> false)
-	code_list
+      expr_in_codelist is_real_fn code_list
   | _ -> false
 
 (* Function change, no change of argument *)
@@ -60,11 +56,15 @@ let new_fn_same_args = function
     CE.EXPRCE(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2)) ->
       not(f1=f2) && a1=a2 && k1=k2 &&
       not (contains_code a1) && not (contains_code a2)
+  | CE.EXPRCE(Ast.DECLARER(f1,a1,k1),Ast.DECLARER(f2,a2,k2)) ->
+      not(f1=f2) && a1=a2 && k1=k2 &&
+      not (contains_code a1) && not (contains_code a2)
   | _ -> false
 
 (* Function change, drop arguments, ignore argument order *)
 let new_fn_drop_args = function
-    CE.EXPRCE(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2)) ->
+    CE.EXPRCE(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2))
+  | CE.EXPRCE(Ast.DECLARER(f1,a1,k1),Ast.DECLARER(f2,a2,k2)) ->
       not(f1=f2) && not(a1=a2) &&
       List.for_all (function a -> List.mem a a1) a2 &&
       List.exists (function a1 -> not(List.mem a1 a2)) a1 &&
@@ -74,7 +74,8 @@ let new_fn_drop_args = function
 
 (* Function change, add arguments, ignore argument order *)
 let new_fn_add_args = function
-    CE.EXPRCE(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2)) ->
+    CE.EXPRCE(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2))
+  | CE.EXPRCE(Ast.DECLARER(f1,a1,k1),Ast.DECLARER(f2,a2,k2)) ->
       not(f1=f2) && not(a1=a2) &&
       List.for_all (function a -> List.mem a a2) a1 &&
       List.exists (function a2 -> not(List.mem a2 a1)) a2 &&
@@ -84,7 +85,8 @@ let new_fn_add_args = function
     
 (* Function change, add and drop arguments, ignore argument order *)
 let new_fn_add_and_drop_args = function
-    CE.EXPRCE(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2)) ->
+    CE.EXPRCE(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2))
+  | CE.EXPRCE(Ast.DECLARER(f1,a1,k1),Ast.DECLARER(f2,a2,k2)) ->
       not(f1=f2) &&
       (((contains_code a1) && (contains_code a2)) ||
       (List.exists (function a -> not (List.mem a a1)) a2 &&
@@ -94,7 +96,8 @@ let new_fn_add_and_drop_args = function
     
 (* Function same, drop arguments, ignore argument order *)
 let same_fn_drop_args = function
-    CE.EXPRCE(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2)) ->
+    CE.EXPRCE(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2))
+  | CE.EXPRCE(Ast.DECLARER(f1,a1,k1),Ast.DECLARER(f2,a2,k2)) ->
       f1=f2 && not(a1=a2) &&
       List.for_all (function a -> List.mem a a1) a2 &&
       (if contains_code a1 then not (contains_code a2) else true) &&
@@ -103,7 +106,8 @@ let same_fn_drop_args = function
     
 (* Function same, add arguments, ignore argument order *)
 let same_fn_add_args = function
-    CE.EXPRCE(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2)) ->
+    CE.EXPRCE(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2))
+  | CE.EXPRCE(Ast.DECLARER(f1,a1,k1),Ast.DECLARER(f2,a2,k2)) ->
       f1=f2 && not(a1=a2) &&
       List.for_all (function a -> List.mem a a2) a1 &&
       (if contains_code a2 then not (contains_code a1) else true) &&
@@ -112,7 +116,8 @@ let same_fn_add_args = function
     
 (* Function same, add and drop arguments, ignore argument order *)
 let same_fn_add_and_drop_args = function
-    CE.EXPRCE(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2)) ->
+    CE.EXPRCE(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2))
+  | CE.EXPRCE(Ast.DECLARER(f1,a1,k1),Ast.DECLARER(f2,a2,k2)) ->
       f1=f2 &&
       (((contains_code a1) && (contains_code a2)) ||
       (List.exists (function a -> not (List.mem a a1)) a2 &&
@@ -124,7 +129,8 @@ let same_fn_add_and_drop_args = function
 (* Function change, add and drop arguments, ignore argument order *)
 let any_change_in_call c =
   match c with
-    CE.EXPRCE(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2)) ->
+    CE.EXPRCE(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2))
+  | CE.EXPRCE(Ast.DECLARER(f1,a1,k1),Ast.DECLARER(f2,a2,k2)) ->
       not(f1=f2) ||
       (((contains_code a1) && (contains_code a2)) ||
       (List.exists (function a -> not (List.mem a a1)) a2 ||
@@ -259,6 +265,8 @@ x as an argument.  For parens, we could consider with and without (more
 likely) the parentheses.  But for now, we just allow any conversion of a
 dereference to a function call, to see what happens. *)
 
+(* no declarers here *)
+
 let make_private = function
     CE.EXPRCE(Ast.SYMBOL(l),Ast.CALL(fn,_,_)) ->
       CE.real_fn fn &&
@@ -308,6 +316,8 @@ let econst s =
   s = String.uppercase s &&
   (try String.get s 0 = 'E' with _ -> false)
 
+(* no declarers here *)
+
 let err_const n = function
     Ast.CALL(Ast.SYMBOL([Ast.IDENT("return",_)]),
 	     [Ast.EXPR([Ast.SYMBOL([Ast.INT(n1,_)])])],_) -> n1 = n
@@ -337,6 +347,8 @@ let unerrorify_return = function
   | CE.EXPRLCE(e1,[e2]) when err_const "0" e2 && err_id_expr_list e1 -> true
   | _ -> false
 
+(* no declarers here *)
+
 let ifzeroone = function
     [Ast.CALL(_,_,_); Ast.EOP("==",_); Ast.SYMBOL([Ast.INT(n,_)])]
       when List.mem n ["0";"1"] -> Some (int_of_string n)
@@ -351,7 +363,8 @@ let ifnonzeroone = function
       when List.mem n ["0";"1"] -> Some (int_of_string n)
   | [Ast.CALL(_,_,_); Ast.EOP("!=",_); Ast.SYMBOL([Ast.INT(n,_)])]
       when List.mem n ["0";"1"] -> Some (if n = "0" then 1 else 0)
-  | [Ast.CALL(_,_,_); Ast.EOP(op,_); Ast.EOP("-",_); Ast.SYMBOL([Ast.IDENT(err)])]
+  | [Ast.CALL(_,_,_); Ast.EOP(op,_); Ast.EOP("-",_);
+      Ast.SYMBOL([Ast.IDENT(err)])]
     -> Some (-1)
   | [Ast.CALL(_,_,_)] -> Some 1
   | [Ast.EOP("!",_); Ast.CALL(_,_,_)] -> Some 0
@@ -359,13 +372,13 @@ let ifnonzeroone = function
 
 let errorify_value = function
     CE.EXPRCE(Ast.CALL(Ast.SYMBOL([Ast.IDENT("if",_)]),[Ast.EXPR(arg1)],_),
-		Ast.CALL(Ast.SYMBOL([Ast.IDENT("if",_)]),[Ast.EXPR(arg2)],_)) ->
+	      Ast.CALL(Ast.SYMBOL([Ast.IDENT("if",_)]),[Ast.EXPR(arg2)],_)) ->
 		  (match (ifzeroone arg1,ifnonzeroone arg2) with
 		    (Some 0,Some -1) -> true
 		  | (Some 1,Some 0) -> true
 		  | _ -> false)
   | CE.EXPRCE(Ast.CALL(Ast.SYMBOL([Ast.IDENT("if",_)]),[Ast.EXPR(arg1)],_),
-		Ast.CALL(Ast.SYMBOL([Ast.IDENT("switch",_)]),
+	      Ast.CALL(Ast.SYMBOL([Ast.IDENT("switch",_)]),
 			 [Ast.EXPR([Ast.CALL(_,_,_)])],
 			 _)) ->
 		  (match ifzeroone arg1 with
@@ -376,15 +389,15 @@ let errorify_value = function
 
 let unerrorify_value = function
     CE.EXPRCE(Ast.CALL(Ast.SYMBOL([Ast.IDENT("if",_)]),[Ast.EXPR(arg1)],_),
-		Ast.CALL(Ast.SYMBOL([Ast.IDENT("if",_)]),[Ast.EXPR(arg2)],_)) ->
+	      Ast.CALL(Ast.SYMBOL([Ast.IDENT("if",_)]),[Ast.EXPR(arg2)],_)) ->
 		  (match (ifzeroone arg2,ifnonzeroone arg1) with
 		    (Some 0,Some -1) -> true
 		  | (Some 1,Some 0) -> true
 		  | _ -> false)
   | CE.EXPRCE(Ast.CALL(Ast.SYMBOL([Ast.IDENT("switch",_)]),
-			 [Ast.EXPR([Ast.CALL(_,_,_)])],
-			 _),
-		Ast.CALL(Ast.SYMBOL([Ast.IDENT("if",_)]),[Ast.EXPR(arg1)],_)) ->
+		       [Ast.EXPR([Ast.CALL(_,_,_)])],
+		       _),
+	      Ast.CALL(Ast.SYMBOL([Ast.IDENT("if",_)]),[Ast.EXPR(arg1)],_)) ->
 		  (match ifzeroone arg1 with
 		    Some 0 -> true
 		  | Some 1 -> true
@@ -393,6 +406,8 @@ let unerrorify_value = function
 
 (* --------------------------------------------------------------------- *)
 (* Add the storage or testing of the result of a function call *)
+
+(* no declarers here *)
 
 let addstorage = function
     CE.EXPRCE(Ast.CALL(fn,_,_),

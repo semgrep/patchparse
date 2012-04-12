@@ -30,7 +30,9 @@ let setup_next gitdir =
 let set_out_dir s = Config.out_dir := s
 
 let speclist = Arg.align
- ["--git",   Arg.String setup_git, "  use a git directory";
+ ["--git",   Arg.String setup_git, "  use a git patch or directory";
+  "--restrict", Arg.Set_string Config.git_restrict,
+   "  restrict patches obtained from git to the given directory";
   "--giturl", Arg.String Config.set_git_url, "  url of git repository";
   "--destdir", Arg.Set_string Config.dest_dir, "  destination of files";
   "--patch", Arg.Clear Config.git, "  use a patch file";

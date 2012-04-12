@@ -26,6 +26,7 @@ and expr =
   | PAREN of code list * Ast.known
   | STRUCT of code list * Ast.known
   | CALL of (string *info) * code list * Ast.known
+  | DECLARER of (string *info) * code list * Ast.known
 
 and code =
     EXPR of expr list
@@ -59,7 +60,7 @@ and unparse_expr = function
   | STRUCT(codelist,known) ->
       Printf.sprintf "{%s%s" (unparse_code_list codelist)
 	(if known = Ast.KNOWN then "}" else "")
-  | CALL((nm,_),args,known) ->
+  | CALL((nm,_),args,known) | DECLARER((nm,_),args,known) ->
       Printf.sprintf "%s(%s%s" nm (unparse_code_list args)
 	(if known = Ast.KNOWN then ")" else "")
       
@@ -234,6 +235,9 @@ and convert_expr = function
   | STRUCT(codelist,known) -> Ast.STRUCT(convert_codelist false codelist,known)
   | CALL((nm,_line),args,known) ->
       Ast.CALL(Ast.SYMBOL([Ast.IDENT(Ast.bext (mkident nm, _line))]),
+	       convert_codelist false args, known)
+  | DECLARER((nm,_line),args,known) ->
+      Ast.DECLARER(Ast.SYMBOL([Ast.IDENT(Ast.bext (mkident nm, _line))]),
 	       convert_codelist false args, known)
   | e ->
       failwith

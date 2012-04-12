@@ -1,3 +1,21 @@
+# Copyright 2012, INRIA, Julia Lawall
+#
+# Patchparse is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, according to version 2 of the License.
+#
+# Patchparse is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Patchparse.  If not, see <http://www.gnu.org/licenses/>.
+#
+# The authors reserve the right to distribute this or future versions of
+# Patchparse under other licenses.
+
+
 TARGET=patchparse
 
 SRC=main.ml
@@ -105,6 +123,6 @@ include .depend
 release:
 	$(MAKE) -C tools licensify
 	tools/licensify
-	set -e; for i in $(MAKESUBDIRS); cd $$i ; licensify; done 
+	set -e; for i in $(MAKESUBDIRS); do cd $$i ; ../tools/licensify; done 
 	$(MAKE) -C . clean
 	/bin/rm -r -f .svn */.svn

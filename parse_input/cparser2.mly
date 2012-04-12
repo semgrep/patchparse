@@ -167,17 +167,20 @@ expressions4:
   LPAREN args RPAREN expressions    {Ast0.PAREN($2,Ast.KNOWN)::$4}
 | OPERATOR expressions              {Ast0.EOP(mkinfo $1)::$2}
 | PRIM LPAREN args RPAREN expressions {(mkcall $1 $3 Ast.KNOWN)::$5}
+| IDENT LPAREN args RPAREN expressions {(mkcall $1 $3 Ast.KNOWN)::$5}
 | PRIM expressionsd                 {Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])::$2}
 | EQ assignrhs                      {[Ast0.ASSIGN(mkinfo $1,$2,Ast.KNOWN)]}
 | LPAREN args RPAREN                {[Ast0.PAREN($2,Ast.KNOWN)]}
 | OPERATOR                          {[Ast0.EOP(mkinfo $1)]}
 | PRIM LPAREN args RPAREN           {[mkcall $1 $3 Ast.KNOWN]}
+| IDENT LPAREN args RPAREN          {[mkcall $1 $3 Ast.KNOWN]}
 | PRIM                              {[Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])]}
 
 expressions4end:
   LPAREN args RPAREN expressionsend {Ast0.PAREN($2,Ast.KNOWN)::$4}
 | OPERATOR expressionsend           {Ast0.EOP(mkinfo $1)::$2}
 | PRIM LPAREN args RPAREN expressionsend {(mkcall $1 $3 Ast.KNOWN)::$5}
+| IDENT LPAREN args RPAREN expressionsend {(mkcall $1 $3 Ast.KNOWN)::$5}
 | PRIM expressionsdend              {Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])::$2}
 | EQ assignrhsend                   {[Ast0.ASSIGN(mkinfo $1,$2,Ast.KNOWN)]}
 | EQ                               {[Ast0.ASSIGN(mkinfo $1,[],Ast.ENDUNKNOWN)]}
@@ -186,6 +189,8 @@ expressions4end:
 | OPERATOR                          {[Ast0.EOP(mkinfo $1)]}
 | PRIM LPAREN args RPAREN           {[mkcall $1 $3 Ast.KNOWN]}
 | PRIM LPAREN argsend               {[mkcall $1 $3 Ast.ENDUNKNOWN]}
+| IDENT LPAREN args RPAREN          {[mkcall $1 $3 Ast.KNOWN]}
+| IDENT LPAREN argsend              {[mkcall $1 $3 Ast.ENDUNKNOWN]}
 | PRIM                              {[Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])]}
 
 /* cannot start with a lparen */
@@ -196,10 +201,12 @@ expressionsd:
 | dsymbol                           {[Ast0.DSYMBOL($1)]}
 | OPERATOR expressions              {Ast0.EOP(mkinfo $1)::$2}
 | PRIM LPAREN args RPAREN expressions {(mkcall $1 $3 Ast.KNOWN)::$5}
+| IDENT LPAREN args RPAREN expressions {(mkcall $1 $3 Ast.KNOWN)::$5}
 | PRIM expressionsd                 {Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])::$2}
 | EQ assignrhs                      {[Ast0.ASSIGN(mkinfo $1,$2,Ast.KNOWN)]}
 | OPERATOR                          {[Ast0.EOP(mkinfo $1)]}
 | PRIM LPAREN args RPAREN           {[mkcall $1 $3 Ast.KNOWN]}
+| IDENT LPAREN args RPAREN          {[mkcall $1 $3 Ast.KNOWN]}
 | PRIM                              {[Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])]}
 
 expressionsdend:
@@ -209,12 +216,15 @@ expressionsdend:
 | dsymbol                           {[Ast0.DSYMBOL($1)]}
 | OPERATOR expressionsend           {Ast0.EOP(mkinfo $1)::$2}
 | PRIM LPAREN args RPAREN expressionsend {(mkcall $1 $3 Ast.KNOWN)::$5}
+| IDENT LPAREN args RPAREN expressionsend {(mkcall $1 $3 Ast.KNOWN)::$5}
 | PRIM expressionsdend              {Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])::$2}
 | EQ assignrhsend                   {[Ast0.ASSIGN(mkinfo $1,$2,Ast.KNOWN)]}
 | EQ                               {[Ast0.ASSIGN(mkinfo $1,[],Ast.ENDUNKNOWN)]}
 | OPERATOR                          {[Ast0.EOP(mkinfo $1)]}
 | PRIM LPAREN args RPAREN           {[mkcall $1 $3 Ast.KNOWN]}
 | PRIM LPAREN argsend               {[mkcall $1 $3 Ast.ENDUNKNOWN]}
+| IDENT LPAREN args RPAREN          {[mkcall $1 $3 Ast.KNOWN]}
+| IDENT LPAREN argsend              {[mkcall $1 $3 Ast.ENDUNKNOWN]}
 | PRIM                              {[Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])]}
 
 args:

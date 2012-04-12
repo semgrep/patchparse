@@ -75,6 +75,8 @@ let print_to_get_files o ct code =
 	files
     end
 
+let ct = ref 0 (* semantic patch counter *)
+
 let file_data tex_file out_file sp_file get_files
     (printer : 'change -> string)
     (printer_parsable : 'change -> string)
@@ -105,7 +107,6 @@ let file_data tex_file out_file sp_file get_files
       end in
   let pcm data = (* multidirectory *)
     Printf.fprintf tex_file "%d changes in all\n\n" (List.length data);
-      let ct = ref 0 in
       List.iter
         (function (change,data) ->
           ct := !ct + 1;

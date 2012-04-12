@@ -149,7 +149,7 @@ let collect_lines bounded str lines =
 	    | '+' -> "++++plus_line++++"
 	    | _ -> "++++context_line++++" in
 	  let middle =
-	    if space_start then "" else "++++space++++" in
+	    if space_start then "++++space++++" else "" in
 	  let ln = front ^ " " ^ middle ^ " " ^ ln in
 	  ((n,ln)::rest,String.length ln + len,after)
 	else ([],0,lines) in

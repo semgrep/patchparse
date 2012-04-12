@@ -81,7 +81,8 @@ val unparse_sp_code_list : bool -> code list -> string
 
 val unparse_minus : (bool -> 'a -> string) -> 'a -> string
 val unparse_plus :
-    (bool -> 'a -> string) -> 'a -> (string list (* metavars *) * string)
+    (bool -> 'a -> string) -> 'a ->
+      (string list (* metavars *) * bool (*invalid*) * string)
 
 
 val al_prim:   prim -> prim

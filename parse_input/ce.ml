@@ -98,36 +98,42 @@ let process_ce combiner mapper primfn exprfn codefn = function
 		mapper (List.map codefn code_list2))
 
 let spunparser ct e =
-  let finish before metas after cc =
+  let finish before metas invalid after =
     Printf.sprintf "@rule%d%s@\n%s%s@@\n%s\n%s\n\n"
-      ct (if cc then " depends on invalid" else "")
+      ct (if invalid then " depends on invalid" else "")
       (String.concat "\n" metas) (if metas = [] then "" else "\n")
       before after in
   match e with
     PRIMCE(prim1, prim2) ->
       let before = Ast.unparse_minus Ast.unparse_sp_prim prim1 in
-      let (metas,after) = Ast.unparse_plus Ast.unparse_sp_prim prim2 in
-      finish before metas after (Contains_code.contains_code_prim prim2)
+      let (metas,invalid,after) =
+	Ast.unparse_plus Ast.unparse_sp_prim prim2 in
+      finish before metas invalid after
   | SYMCE(s1,s2) ->
       let before = Ast.unparse_minus Ast.unparse_sp_symbol s1 in
-      let (metas,after) = Ast.unparse_plus Ast.unparse_sp_symbol s2 in
-      finish before metas after (Contains_code.contains_code_symbol s2)
+      let (metas,invalid,after) =
+	Ast.unparse_plus Ast.unparse_sp_symbol s2 in
+      finish before metas invalid after
   | EXPRCE(expr1,  expr2) ->
       let before = Ast.unparse_minus Ast.unparse_sp_expr expr1 in
-      let (metas,after) = Ast.unparse_plus Ast.unparse_sp_expr expr2 in
-      finish before metas after (Contains_code.contains_code_expr expr2)
+      let (metas,invalid,after) =
+	Ast.unparse_plus Ast.unparse_sp_expr expr2 in
+      finish before metas invalid after
   | EXPRLCE(el1, el2) ->
       let before = Ast.unparse_minus Ast.unparse_sp_expr_list el1 in
-      let (metas,after) = Ast.unparse_plus Ast.unparse_sp_expr_list el2 in
-      finish before metas after (Contains_code.contains_code_expr_list el2)
+      let (metas,invalid,after) =
+	Ast.unparse_plus Ast.unparse_sp_expr_list el2 in
+      finish before metas invalid after
   | CODECE(code1, code2) ->
       let before = Ast.unparse_minus Ast.unparse_sp_code code1 in
-      let (metas,after) = Ast.unparse_plus Ast.unparse_sp_code code2 in
-      finish before metas after (Contains_code.contains_code_code code2)
+      let (metas,invalid,after) =
+	Ast.unparse_plus Ast.unparse_sp_code code2 in
+      finish before metas invalid after
   | CODELCE(cl1, cl2) ->
       let before = Ast.unparse_minus Ast.unparse_sp_code_list cl1 in
-      let (metas,after) = Ast.unparse_plus Ast.unparse_sp_code_list cl2 in
-      finish before metas after (Contains_code.contains_code_code_list cl2)
+      let (metas,invalid,after) =
+	Ast.unparse_plus Ast.unparse_sp_code_list cl2 in
+      finish before metas invalid after
 
 (* ---------------------------------------------------------------------- *)
 

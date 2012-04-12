@@ -1,6 +1,5 @@
 type line_number = int 
-type linetype = Parse_error.linetype
-type info = line_number * linetype
+type info = line_number * Parse_error.linetype
 
 type prim =
     IDENT of (string    *info)

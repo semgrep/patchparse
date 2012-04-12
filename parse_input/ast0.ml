@@ -313,7 +313,8 @@ and find_symbol l in_assignment =
       SYMBOL(s)::rest -> (convert_symbol s,rest)
     | rest -> ([],rest) in
   let get_colon = function
-      EOP(":",_line)::rest when in_assignment -> ([Ast.SYMOP(Ast.bext (":",_line))],rest)
+      EOP(":",_line)::rest when in_assignment ->
+	([Ast.SYMOP(Ast.bext (":",_line))],rest)
     | rest -> ([],rest) in
   (* getting the pieces *)
   let (colon_part,rest) = get_colon l in

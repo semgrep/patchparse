@@ -193,6 +193,8 @@ let unparse l = String.concat "" (List.map unparse_code l)
 
 let code_counter = ref 0
 let metavariables = ref ([] : string list)
+let metanames = ref ([] : string list)
+let invalid = ref false
 
 let new_meta s =
   let res = Printf.sprintf "%s%d" s !code_counter in
@@ -200,6 +202,7 @@ let new_meta s =
   res
 
 let add_meta ty name =
+  metanames := name :: !metanames;
   metavariables := Printf.sprintf "%s %s;" ty name :: !metavariables
 
 let rec local_unparse_sp_prim minus after = function
@@ -221,7 +224,12 @@ let rec local_unparse_sp_prim minus after = function
 	(if known = KNOWN then ")" else "")
   | EXP(n,_) ->
       let exp = Printf.sprintf "EXP%d" n in
-      (if minus then add_meta "expression" exp);
+      (if not (List.mem exp !metanames)
+      then
+	begin
+	  (if not minus then invalid := true);
+	  add_meta "expression" exp
+	end);
       exp
 
 and unparse_sp_prim minus = local_unparse_sp_prim minus ""
@@ -277,6 +285,7 @@ and unparse_sp_code minus = function
   | CODE ->
       let exp = new_meta "CODE" in
       add_meta "expression" exp;
+      (if not minus then invalid := true);
       exp
 
 and unparse_sp_symbol_list minus l =
@@ -289,6 +298,8 @@ and unparse_sp_code_list minus l =
 let unparse_minus fn l =
   code_counter := 0;
   metavariables := [];
+  metanames := [];
+  invalid := false;
   let res = fn true l in
   if res = ""
   then res
@@ -298,10 +309,10 @@ let unparse_minus fn l =
 let unparse_plus fn l =
   let res = fn false l in
   if res = ""
-  then (!metavariables,res)
+  then (!metavariables,false,res)
   else
     let res = String.concat "\n+ " (Str.split (Str.regexp_string "\n") res) in
-    (List.rev !metavariables,Printf.sprintf "+ %s" res)
+    (List.rev !metavariables,!invalid,Printf.sprintf "+ %s" res)
 
 (* ---------------------------- abstract line --------------------------- *)
 

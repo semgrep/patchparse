@@ -48,6 +48,9 @@ let pre_print_to_get_files o ct =
       Printf.fprintf o "\tcd %s\n" !Config.gitdir
     end
 
+let mkname file =
+  (Filename.basename (Filename.dirname file)) ^"_"^ (Filename.basename file)
+
 let print_to_get_files o ct code =
   if !Config.git && not (!Config.gitpatch)
   then
@@ -68,10 +71,10 @@ let print_to_get_files o ct code =
 	(function file ->
 	  Printf.fprintf o
 	    "\tgit cat-file blob %s^:%s > %s/%s/$(DEST)/%s\n\tgit cat-file blob %s:%s > %s/%s/$(DEST)/%s.res\n"
-	    code file dir !Config.out_dir (Filename.basename file)
-	    code file dir !Config.out_dir (Filename.basename file);
+	    code file dir !Config.out_dir (mkname file)
+	    code file dir !Config.out_dir (mkname file);
 	  Printf.fprintf o "\techo %s %s.res >> %s/%s/$(DEST)/index\n"
-	    file file dir !Config.out_dir)
+	    (mkname file) (mkname file) dir !Config.out_dir)
 	files
     end
 

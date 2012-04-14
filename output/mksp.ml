@@ -33,7 +33,7 @@ let pre_print_to_get_files o ct =
     end
 
 let mkname file =
-  (Filename.basename (Filename.dirname file)) ^"_"^ (Filename.basename file)
+  String.concat "__" (Str.split (Str.regexp "/") file)
 
 let print_to_get_files o ct code =
   if !Config.git && not (!Config.gitpatch)
@@ -69,11 +69,12 @@ let file_data sp_file get_files
     (printer_sp : int -> 'change -> string)
     pre_print_to_get_files print_to_get_files
     ((version_table,dir_table,multidir_table,multiver_table1,multiver_table2):
-       Questions.result) =
-
+       Questions.result) =  
   let pcm data = (* multi git code *)
       List.iter
         (function (change,data) ->
+          ct := !ct + 1;
+	  pre_print_to_get_files get_files !ct;
 	  let comment =
 	    let rec loop prev = function
                 [] -> []
@@ -91,19 +92,13 @@ let file_data sp_file get_files
 				version)
 			with Not_found -> 0 in
 		      let front =
-			Printf.sprintf "%s: %d unused tokens" git_code
+			Printf.sprintf "%s: %d unused hunks" git_code
 			  unused_tokens in
-		      front :: (loop prev rest)
+		      front :: (loop git_code rest)
 		    end in
             loop "" data in
 	  Printf.fprintf sp_file "/*\n%s\n*/\n\n" (String.concat "\n" comment);
-          ct := !ct + 1;
-	  (if !Config.print_sp
-	  then
-	    begin
-	      Printf.fprintf sp_file "%s" (printer_sp !ct change);
-	      pre_print_to_get_files get_files !ct
-	    end))
+	  Printf.fprintf sp_file "%s" (printer_sp !ct change))
       data in
   pcm multidir_table
 

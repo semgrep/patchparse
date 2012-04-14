@@ -37,6 +37,21 @@ should exist already.  The produced files have the original pathnames with
 directory.
 
 
+A semantic patch is preceded by a list of the git codes that motivated its
+construction.  This list includes the number of hunks that are not matched
+by the given rule.  This number may be approximate, as it may refer to the
+number of hunks not matched by any rule derived from the patch not the
+given rule specifically (I don't know :).  Still this number can be used as
+a hint as to how reliable the inferred patch is.
+
+A semantic patch in which the + code uses some variables that are not
+defined by the - code depends on the virtul rule invalid.  This makes it
+possible to run the semantic patch as is.  If one finds other rules that
+one does not like, one can add depends on invalid in their headers.
+Likewise, if one can see how to fix an invalid rule, one can remove the
+depends on invalid.
+
+
 The --restrict argument restricts git to a particular directory, eg drivers.
 
 

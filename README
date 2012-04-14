@@ -32,9 +32,12 @@ all of the files in all of the patches from which the rule was derived.
 The makefile is expected to be run from within the out directory.  Giving
 make the extra argument DEST=path specifies a relative path from the out
 directory where the files should be places.  The destination directory
-should exist already.  The produced files have their basenames but not
-their full pathnames, so there is the danger that two files with the same
-name may overwrite each other.
+should exist already.  The produced files have the original pathnames with
+/ replaced by __, ie all files appear directly in the destination
+directory.
+
+
+The --restrict argument restricts git to a particular directory, eg drivers.
 
 
 It is also possible to generate a latex file which can be nicer for

@@ -70,6 +70,7 @@ let file_data sp_file get_files
     pre_print_to_get_files print_to_get_files
     ((version_table,dir_table,multidir_table,multiver_table1,multiver_table2):
        Questions.result) =
+
   let pcm data = (* multi git code *)
       List.iter
         (function (change,data) ->
@@ -87,7 +88,7 @@ let file_data sp_file get_files
 		      print_to_get_files get_files !ct git_code;
 		      let unused_tokens =
 			try !(Hashtbl.find Eqclasses.version_unused_table
-				git_code)
+				version)
 			with Not_found -> 0 in
 		      let front =
 			Printf.sprintf "%s: %d unused tokens" git_code
@@ -95,7 +96,7 @@ let file_data sp_file get_files
 		      front :: (loop prev rest)
 		    end in
             loop "" data in
-	  Printf.fprintf sp_file "/*\n%s\n*/\n" (String.concat "\n" comment);
+	  Printf.fprintf sp_file "/*\n%s\n*/\n\n" (String.concat "\n" comment);
           ct := !ct + 1;
 	  (if !Config.print_sp
 	  then

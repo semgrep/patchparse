@@ -1,6 +1,6 @@
 TARGET=output
 
-SRC=mktex.ml
+SRC=mktex.ml mksp.ml
 
 SYSLIBS=str.cma unix.cma
 LIBS=../globals/globals.cma

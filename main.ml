@@ -94,6 +94,8 @@ let main _ =
     else [] in
   Printf.printf "done with evolutions\n"; flush stdout;
 
-  Mktex.make_files (change_result,filtered_category_results) evolutions
+  Mktex.make_files (change_result,filtered_category_results) evolutions;
+  if !Config.print_sp
+  then Mksp.make_files (change_result,filtered_category_results) evolutions
 
 let _ = main ()

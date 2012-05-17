@@ -211,6 +211,7 @@ let rec local_unparse_sp_prim minus after = function
   | INT(string,_) -> string^after
   | STR (_) (*string*) ->
       let str = new_meta "string" in
+      (if not minus then invalid := true);
       add_meta "constant char []" str;
       str^after
   | SYMOP(string,_) -> string

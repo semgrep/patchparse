@@ -99,8 +99,12 @@ let process_ce combiner mapper primfn exprfn codefn = function
 
 let spunparser ct e =
   let finish before metas invalid after =
-    Printf.sprintf "@rule%d%s@\n%s%s@@\n%s\n%s\n\n"
-      ct (if invalid then " depends on invalid" else "")
+    let depends =
+      if invalid
+      then
+	Printf.sprintf " depends on invalid && (!select || select_rule%d)" ct
+      else Printf.sprintf " depends on !select || select_rule%d" ct in
+    Printf.sprintf "@rule%d%s@\n%s%s@@\n%s\n%s\n\n" ct depends
       (String.concat "\n" metas) (if metas = [] then "" else "\n")
       before after in
   match e with

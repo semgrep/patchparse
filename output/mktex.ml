@@ -268,7 +268,7 @@ let print_summary tex_file desired_info
 (* Entry point *)
 	
 let make_files (change_result,filtered_results) evolutions =
-  let all_name = "_"^(!Config.file) in
+  let all_name = "_"^(!Config.outfile) in
   let tex_file =
     open_out
       (Printf.sprintf "%s/all%s.tex" !Config.out_dir

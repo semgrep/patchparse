@@ -10,6 +10,7 @@ let dest_dir = ref "." (* for files obtained from git *)
 let name_depth = ref 3
 
 let file = ref ""
+let outfile = ref "" (* for use with all_, often the same as file *)
 let filename = ref ""
 let complete_filename = ref ""
 

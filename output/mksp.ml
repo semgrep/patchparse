@@ -11,8 +11,19 @@ let split_git_version version =
 (* -------------------------------------------------------------------- *)
 (* Semantic patch stuff *)
 	
-let cocci_prolog o =
-  Printf.fprintf o "virtual invalid\n\n"
+let cocci_prolog o rules =
+  Printf.fprintf o "virtual invalid\nvirtual select\n\n";
+  let ct = ref 0 in
+  List.iter
+    (function (label,change_table,change_result) ->
+      let (_,_,multidir_table,_,_) = change_result in
+      List.iter
+	(function _ ->
+	  ct := !ct + 1;
+	  Printf.fprintf o "virtual select_rule%d\n" !ct)
+	multidir_table)
+    rules;
+  if !ct > 0 then Printf.fprintf o "\n"
 
 let ct = ref 0 (* semantic patch counter *)
 
@@ -24,11 +35,8 @@ let pre_print_to_get_files o ct =
   then
     begin
       Printf.fprintf o "\nrule%d:\n" ct;
-      let dir = Sys.getcwd() in
-      Printf.fprintf o "\t/bin/rm -f %s/%s/$(DEST)/index\n"
-	dir !Config.out_dir;
-      Printf.fprintf o "\t/usr/bin/touch %s/%s/$(DEST)/index\n"
-	dir !Config.out_dir;
+      Printf.fprintf o "\t/bin/rm -f $(OUT)/index\n";
+      Printf.fprintf o "\t/usr/bin/touch $(OUT)/index\n";
       Printf.fprintf o "\tcd %s\n" !Config.gitdir
     end
 
@@ -50,17 +58,39 @@ let print_to_get_files o ct code =
 	      _::file::_ -> file
 	    | _ -> failwith "bad diff")
 	  diffs in
-      let dir = Sys.getcwd() in
       List.iter
 	(function file ->
 	  Printf.fprintf o
-	    "\tgit cat-file blob %s^:%s > %s/%s/$(DEST)/%s\n\tgit cat-file blob %s:%s > %s/%s/$(DEST)/%s.res\n"
-	    code file dir !Config.out_dir (mkname file)
-	    code file dir !Config.out_dir (mkname file);
-	  Printf.fprintf o "\techo %s %s.res >> %s/%s/$(DEST)/index\n"
-	    (mkname file) (mkname file) dir !Config.out_dir)
+	    "\tgit cat-file blob %s^:%s > $(OUT)/%s\n\tgit cat-file blob %s:%s > $(OUT)/%s.res\n"
+	    code file (mkname file)
+	    code file (mkname file);
+	  Printf.fprintf o "\techo %s %s.res >> $(OUT)/index\n"
+	    (mkname file) (mkname file))
 	files
     end
+
+let run_coccis cocci o rules =
+  Printf.fprintf o
+    "\nCMD=spatch.opt -quiet -timeout 120 -dir %s -use_glimpse \\\n-cocci_file %s.cocci -D select\n\n"
+    !Config.gitdir cocci;
+  let ct = ref 0 in
+  List.iter
+    (function (label,change_table,change_result) ->
+      let (_,_,multidir_table,_,_) = change_result in
+      List.iter
+	(function _ ->
+	  ct := !ct + 1;
+	  Printf.fprintf o
+	    "rule%d.out:\n\t$(CMD) -D select_rule%d > $(OUT)/rule%d.out 2> $(OUT)/rule%d.tmp\n\n"
+	    !ct !ct !ct !ct)
+	multidir_table)
+    rules;
+  Printf.fprintf o "runall: %s\n"
+    (String.concat " "
+       (let rec loop = function
+	   0 -> []
+	 | n -> (Printf.sprintf "rule%d" n) :: (loop (n-1)) in
+       List.rev (loop !ct)))
 
 (* -------------------------------------------------------------------- *)
 (* Printing *)
@@ -106,7 +136,7 @@ let file_data sp_file get_files
 (* Entry point *)
 	
 let make_files (change_result,filtered_results) evolutions =
-  let all_name = "_"^(!Config.file) in
+  let all_name = "_"^(!Config.outfile) in
   let sp_file =
     if !Config.print_sp
     then
@@ -123,10 +153,12 @@ let make_files (change_result,filtered_results) evolutions =
 	    (Printf.sprintf "%s/all%s.make" !Config.out_dir
 	       (Filename.basename all_name)) in
 	Printf.fprintf o "DEST ?= %s\n" !Config.dest_dir;
+	let dir = Sys.getcwd() in
+	Printf.fprintf o "OUT = %s/%s/$(DEST)\n" dir !Config.out_dir;
 	o
       end
     else open_out "/dev/null" in
-  cocci_prolog sp_file;
+  cocci_prolog sp_file filtered_results;
   (* filtered results only *)
   List.iter
     (function (label,change_table,change_result) ->
@@ -134,6 +166,6 @@ let make_files (change_result,filtered_results) evolutions =
 	pre_print_to_get_files print_to_get_files
 	change_result)
     filtered_results;
+  run_coccis ("all"^(Filename.basename all_name)) get_files filtered_results;
   close_out sp_file;
   close_out get_files
-

@@ -10,7 +10,8 @@ let setup_git gitdir =
   else
     begin
       Config.gitpatch := true;
-      Config.file := gitdir
+      Config.file := gitdir;
+      Config.outfile := gitdir
     end
 
 let setup_next gitdir =
@@ -24,8 +25,20 @@ let setup_next gitdir =
   Config.noall := true;
   Config.print_sp := true;
   match lasttwo with
-    [from;upto] -> Config.file := Printf.sprintf "%s..%s" from upto
+    [from;upto] ->
+      Config.file := Printf.sprintf "%s..%s" from upto;
+      Config.outfile := !Config.file
   | _ -> failwith "bad git file"
+
+(* to be used with --git argument *)
+let setup_days n =
+  Config.git := true;
+  Config.noev := true;
+  Config.noall := true;
+  Config.print_sp := true;
+  Config.file := Printf.sprintf "--since=\"%s days ago\"" n;
+  let date = List.hd (Aux.cmd_to_list (Printf.sprintf "date +%%m.%%d.%%y")) in
+  Config.outfile := Printf.sprintf "%s_%s_days_ago" date n
 
 let set_out_dir s = Config.out_dir := s
 
@@ -37,6 +50,7 @@ let speclist = Arg.align
   "--destdir", Arg.Set_string Config.dest_dir, "  destination of files";
   "--patch", Arg.Clear Config.git, "  use a patch file";
   "--next", Arg.String setup_next, "  use most recent tag in linux-next";
+  "--days", Arg.String setup_days, "  use patches since n days ago";
 
   "--min",   Arg.Set_int Config.same_threshold, "set same_threshold";
   "--minf",  Arg.Set_int Config.file_threshold, "set file_threshold";

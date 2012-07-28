@@ -12,7 +12,7 @@ Two suggested usage scenarios for focusing on semantic patches
 This uses the local git directory "directory" and considers all patches
 from version "start" to version "end".  Each generated rule must apply at
 least 20 times and in at least 3 files (the default value of the --minf
-option).  There are some restrictions on what it printed (--noall and
+option).  There are some restrictions on what is printed (--noall and
 --noev) and a semantic patch is generated but not a latex/pdf file.  The
 semantic patch is generated in the "out" subdirectory which must already
 exist.  The name of this directory can be controlled using the --out-dir

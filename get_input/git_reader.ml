@@ -34,22 +34,21 @@ let drop_patch_start in_lines =
   ("no_ver","no_code",in_lines)
 
 let get_diffs in_lines =
-  let rec loop = function
-      [] -> ([],[])
-    | (n,"")::rest -> loop rest
+  let rec loop acc = function
+      [] -> (List.rev acc,[])
+    | (n,"")::rest -> loop acc rest
     | (n,l)::rest ->
 	match Str.split (Str.regexp " ") l with
-	  ["commit";code] -> ([],(n,l)::rest)
+	  ["commit";code] -> (List.rev acc,(n,l)::rest)
 	| _ ->
-	    let (lines,after) = loop rest in
-	    ((n,l) :: lines,after) in
-  loop in_lines
+	    loop ((n,l) :: acc) rest in
+  loop [] in_lines
 
 let counter l =
-  let rec loop n = function
-      [] -> []
-    | x::xs -> (n,x) :: loop (n+1) xs in
-  loop 1 l
+  let rec loop acc n = function
+      [] -> List.rev acc
+    | x::xs -> loop ((n,x) :: acc) (n+1) xs in
+  loop [] 1 l
 
 let git fl =
   lines := 0;
@@ -62,15 +61,15 @@ let git fl =
 	   "cd %s ; /usr/bin/git log -p %s %s"
 	   !Config.gitdir fl !Config.git_restrict) in
   let in_lines = counter in_lines in
-  let rec loop in_lines ctr =
+  let rec loop acc in_lines ctr =
     match in_lines with
-      [] -> []
+      [] -> List.rev acc
     | in_lines ->
 	let (info,code,in_lines) = drop_git_start in_lines in
 	let (lines,in_lines) = get_diffs in_lines in
 	Hashtbl.add Config.version_table ctr (Printf.sprintf "%s" info);
-	(ctr,lines) :: loop in_lines (ctr + 1) in
-  loop in_lines 0
+	loop ((ctr,lines) :: acc) in_lines (ctr + 1) in
+  loop [] in_lines 0
 
 let patch fl =
   lines := 0;

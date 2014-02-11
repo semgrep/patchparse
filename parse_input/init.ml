@@ -136,24 +136,36 @@ let collect_lines bounded str lines =
       (String.get ln 0,
        len > 1 && (List.mem (String.get ln 1) [' ';'\t']),
        String.sub ln 1 (len - 1)) in
-  let rec collect_conforming = function
-      [] -> ([],0,[])
-    | ((n,ln)::rest) as lines ->
-	if start_string str ln
-	then
-	  let (rest,len,after) = collect_conforming rest in
-	  let (ty,space_start,ln) = drop_control ln in
-	  let front =
-	    match ty with
-	      '-' -> "++++minus_line++++"
-	    | '+' -> "++++plus_line++++"
-	    | _ -> "++++context_line++++" in
-	  let middle =
-	    if space_start then "++++space++++" else "" in
-	  let ln = front ^ " " ^ middle ^ " " ^ ln in
-	  ((n,ln)::rest,String.length ln + len,after)
-	else ([],0,lines) in
-  let (region,len,after) = collect_conforming lines in
+  let rec collect_conforming bounded (region,len) lines =
+    if bounded && len > Config.length_threshold
+    then
+      let rec drop = function
+	  [] -> ([],len,[])
+	| ((n,ln)::xs) as lines ->
+	    if start_string str ln
+	    then drop xs
+	    else ([],len,lines) in
+      drop lines
+    else
+      match lines with
+	[] -> (List.rev region,len,[])
+      | ((n,ln)::rest) as lines ->
+	  if start_string str ln
+	  then
+	    let (ty,space_start,ln) = drop_control ln in
+	    let front =
+	      match ty with
+		'-' -> "++++minus_line++++"
+	      | '+' -> "++++plus_line++++"
+	      | _ -> "++++context_line++++" in
+	    let middle =
+	      if space_start then "++++space++++" else "" in
+	    let ln = front ^ " " ^ middle ^ " " ^ ln in
+	    collect_conforming bounded
+	      ((n,ln)::region,String.length ln + len)
+	      rest
+	  else (List.rev region,len,lines) in
+  let (region,len,after) = collect_conforming bounded ([],0) lines in
   if bounded && len > Config.length_threshold
   then ("",after)
   else
@@ -315,4 +327,5 @@ let process_file (version,lines) =
   in loop lines
 
 let process_all_files (lines : (int * (int * string) list) list) =
+  Printf.printf "in process all files\n"; flush stdout;
   List.concat (List.map process_file lines)

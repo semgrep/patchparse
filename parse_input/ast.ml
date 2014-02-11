@@ -285,7 +285,7 @@ and unparse_sp_code minus = function
       exp
   | CODE ->
       let exp = new_meta "CODE" in
-      add_meta "expression" exp;
+      add_meta (if minus then "expression" else "symbol") exp;
       (if not minus then invalid := true);
       exp
 

@@ -31,20 +31,20 @@ let ct = ref 0 (* semantic patch counter *)
 (* Make file stuff *)
 	
 let pre_print_to_get_files o ct =
-  if !Config.git && not (!Config.gitpatch)
+  if !Config.git && not (!Config.gitdir = "")
   then
     begin
       Printf.fprintf o "\nrule%d:\n" ct;
-      Printf.fprintf o "\t/bin/rm -f $(OUT)/index\n";
-      Printf.fprintf o "\t/usr/bin/touch $(OUT)/index\n";
-      Printf.fprintf o "\tcd %s\n" !Config.gitdir
+      Printf.fprintf o "\t/bin/mkdir -p $(OUT)/rule%d\n" ct;
+      Printf.fprintf o "\t/bin/rm -f $(OUT)/rule%d/index\n" ct;
+      Printf.fprintf o "\t/usr/bin/touch $(OUT)/rule%d/index\n" ct
     end
 
 let mkname file =
   String.concat "__" (Str.split (Str.regexp "/") file)
 
 let print_to_get_files o ct code =
-  if !Config.git && not (!Config.gitpatch)
+  if !Config.git && not (!Config.gitdir = "")
   then
     begin
       let diffs =
@@ -60,14 +60,46 @@ let print_to_get_files o ct code =
 	  diffs in
       List.iter
 	(function file ->
+	  Printf.fprintf o "\tcd %s ; \\\n" !Config.gitdir;
+	  let resfile s =
+	    match List.rev (Str.split (Str.regexp_string ".") s) with
+	      x::xs -> String.concat "." (List.rev (x :: "res" :: xs))
+	    | _ -> failwith "bad file" in
 	  Printf.fprintf o
-	    "\tgit cat-file blob %s^:%s > $(OUT)/%s\n\tgit cat-file blob %s:%s > $(OUT)/%s.res\n"
-	    code file (mkname file)
-	    code file (mkname file);
-	  Printf.fprintf o "\techo %s %s.res >> $(OUT)/index\n"
-	    (mkname file) (mkname file))
-	files
+	    "\tgit cat-file blob %s^:%s > $(OUT)/rule%d/%s ; \\\n\tgit cat-file blob %s:%s > $(OUT)/rule%d/%s ; \\\n"
+	    code file ct (mkname file)
+	    code file ct (resfile(mkname file));
+	  Printf.fprintf o "\techo %s %s >> $(OUT)/rule%d/index\n"
+	    (mkname file) (resfile(mkname file)) ct)
+	files;
+      List.length files
     end
+  else 0
+
+let run_spdiff cocci o rules =
+(*  Printf.fprintf o
+    "\nSCMD=spdiff -specfile index -spatch -prune -filter_spatches -only_changes -threshold\n\n"; *)
+  Printf.fprintf o
+    "\nSCMD=spdiff -specfile index -prune -filter_spatches -only_changes -threshold\n\n";
+  let ct = ref 0 in
+  List.iter
+    (function (label,change_table,change_result) ->
+      let (_,_,multidir_table,_,_) = change_result in
+      List.iter
+	(function _ ->
+	  ct := !ct + 1;
+	  Printf.fprintf o "rule%d.spd: rule%d\n" !ct !ct;
+	  Printf.fprintf o
+	    "\tcd $(OUT)/rule%d; $(SCMD) $(FILES%d) > $(OUT)/rule%d/spdiff.out 2> $(OUT)/rule%d/spdiff.tmp\n\n"
+	    !ct !ct !ct !ct)
+	multidir_table)
+    rules;
+  Printf.fprintf o "spdiffall: %s\n"
+    (String.concat " "
+       (let rec loop = function
+	   0 -> []
+	 | n -> (Printf.sprintf "rule%d.spd" n) :: (loop (n-1)) in
+       List.rev (loop !ct)))
 
 let run_coccis cocci o rules =
   Printf.fprintf o
@@ -80,16 +112,20 @@ let run_coccis cocci o rules =
       List.iter
 	(function _ ->
 	  ct := !ct + 1;
+	  Printf.fprintf o "rule%d.out:\n" !ct;
+	  Printf.fprintf o "\tmkdir -p $(OUT)\n";
 	  Printf.fprintf o
-	    "rule%d.out:\n\t$(CMD) -D select_rule%d > $(OUT)/rule%d.out 2> $(OUT)/rule%d.tmp\n\n"
-	    !ct !ct !ct !ct)
+	    "\tgrep invalid %s.cocci | grep -q rule%d || \\\n" cocci !ct;
+	  Printf.fprintf o
+	    "\t$(CMD) -D select_rule%d > $(OUT)/rule%d.out 2> $(OUT)/rule%d.tmp\n\n"
+	    !ct !ct !ct)
 	multidir_table)
     rules;
   Printf.fprintf o "runall: %s\n"
     (String.concat " "
        (let rec loop = function
 	   0 -> []
-	 | n -> (Printf.sprintf "rule%d" n) :: (loop (n-1)) in
+	 | n -> (Printf.sprintf "rule%d.out" n) :: (loop (n-1)) in
        List.rev (loop !ct)))
 
 (* -------------------------------------------------------------------- *)
@@ -105,7 +141,7 @@ let file_data sp_file get_files
         (function (change,data) ->
           ct := !ct + 1;
 	  pre_print_to_get_files get_files !ct;
-	  let comment =
+	  let fct_comment =
 	    let rec loop prev = function
                 [] -> []
               | ((version,dir),count)::rest ->
@@ -116,7 +152,7 @@ let file_data sp_file get_files
                   then loop prev rest
 		  else
 		    begin
-		      print_to_get_files get_files !ct git_code;
+		      let fct = print_to_get_files get_files !ct git_code in
 		      let unused_tokens =
 			try !(Hashtbl.find Eqclasses.version_unused_table
 				version)
@@ -124,9 +160,12 @@ let file_data sp_file get_files
 		      let front =
 			Printf.sprintf "%s: %d unused hunks" git_code
 			  unused_tokens in
-		      front :: (loop git_code rest)
+		      (fct,front) :: (loop git_code rest)
 		    end in
             loop "" data in
+	  let (fcts,comment) = List.split fct_comment in
+	  let fct = List.fold_left (+) 0 fcts in
+	  Printf.fprintf get_files "FILES%d=%d\n" !ct fct;
 	  Printf.fprintf sp_file "/*\n%s\n*/\n\n" (String.concat "\n" comment);
 	  Printf.fprintf sp_file "%s" (printer_sp !ct change))
       data in
@@ -145,7 +184,7 @@ let make_files (change_result,filtered_results) evolutions =
 	   (Filename.basename all_name))
     else open_out "/dev/null" in
   let get_files =
-    if !Config.print_sp && !Config.git && not !Config.gitpatch
+    if !Config.print_sp && !Config.git && not (!Config.gitdir = "")
     then
       begin
 	let o =
@@ -166,6 +205,7 @@ let make_files (change_result,filtered_results) evolutions =
 	pre_print_to_get_files print_to_get_files
 	change_result)
     filtered_results;
+  run_spdiff ("all"^(Filename.basename all_name)) get_files filtered_results;
   run_coccis ("all"^(Filename.basename all_name)) get_files filtered_results;
   close_out sp_file;
   close_out get_files

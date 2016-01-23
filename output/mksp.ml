@@ -107,7 +107,7 @@ let cocci_header cocci o =
     "\nCMD=spatch.opt -quiet -timeout 120 -dir %s -use_glimpse \\\n-cocci_file %s.cocci -D select\n\n"
     !Config.gitdir cocci;
   Printf.fprintf o
-    "\nPCMD=~/prequel/implem2/prequel --git %s -use_glimpse \\\n--sp %s.cocci --commit v3.0..v4.4 --pct 0 -D select --cores 24 --all-lines \\\n--cocci-args \"--very-quiet -D select -D invalid -D prequel --no-includes\"\n\n"
+    "\nPCMD=~/prequel/implem2/prequel --git %s \\\n--sp %s.cocci --commit v3.0..v4.4 --pct 0 -D select --cores 24 \\\n--all-lines \\\n--cocci-args \"--very-quiet -D select -D invalid -D prequel --no-includes\"\n\n"
     !Config.gitdir cocci
 
 let run_coccis cocci o rules =

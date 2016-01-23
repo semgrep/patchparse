@@ -104,6 +104,9 @@ let run_spdiff cocci o rules =
 let cocci_header cocci o =
   Printf.fprintf o
     "\nCMD=spatch.opt -quiet -timeout 120 -dir %s -use_glimpse \\\n-cocci_file %s.cocci -D select\n\n"
+    !Config.gitdir cocci;
+  Printf.fprintf o
+    "\nPCMD=~/prequel/implem2/prequel --git %s -use_glimpse \\\n--sp %s.cocci --commit v3.0..v4.4 --pct 0 -D select --cores 24 --all-lines \\\n--cocci-args \"--very-quiet -D select -D invalid -D prequel --no-includes\"\n\n"
     !Config.gitdir cocci
 
 let run_coccis cocci o rules =
@@ -153,6 +156,29 @@ let run_icoccis cocci o rules =
 	 | n -> (Printf.sprintf "irule%d.out" n) :: (loop (n-1)) in
        List.rev (loop !ct)))
 
+(* run prequel *)
+let run_pcoccis cocci o rules =
+  let ct = ref 0 in
+  List.iter
+    (function (label,change_table,change_result) ->
+      let (_,_,multidir_table,_,_) = change_result in
+      List.iter
+	(function _ ->
+	  ct := !ct + 1;
+	  Printf.fprintf o "prule%d.out:\n" !ct;
+	  Printf.fprintf o "\tmkdir -p $(OUT)\n";
+	  Printf.fprintf o
+	    "\t$(PCMD) -D prequel -D invalid -D select_rule%d > $(OUT)/rule%d.pout 2> $(OUT)/rule%d.ptmp\n\n"
+	    !ct !ct !ct)
+	multidir_table)
+    rules;
+  Printf.fprintf o "prunall: %s\n"
+    (String.concat " "
+       (let rec loop = function
+	   0 -> []
+	 | n -> (Printf.sprintf "prule%d.out" n) :: (loop (n-1)) in
+       List.rev (loop !ct)))
+
 (* count opportunities *)
 let run_ococcis cocci o rules =
   let ct = ref 0 in
@@ -177,7 +203,7 @@ let run_ococcis cocci o rules =
        List.rev (loop !ct)))
 
 let cocci_tail cocci o =
-  Printf.fprintf o "\nrunall: vrunall irunall orunall\n\n"
+  Printf.fprintf o "\nrunall: vrunall irunall orunall prunall\n\n"
 
 (* -------------------------------------------------------------------- *)
 (* Printing *)
@@ -262,6 +288,7 @@ let make_files (change_result,filtered_results) evolutions =
   run_coccis cocci get_files filtered_results;
   run_icoccis cocci get_files filtered_results;
   run_ococcis cocci get_files filtered_results;
+  run_pcoccis cocci get_files filtered_results;
   cocci_tail cocci get_files;
   close_out sp_file;
   close_out get_files

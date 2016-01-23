@@ -296,17 +296,18 @@ and unparse_sp_expr_list minus l =
 and unparse_sp_code_list minus l =
   String.concat "" (List.map (unparse_sp_code minus) l)
 
-let unparse_minus fn l =
+let unparse_minus fn l annot =
   code_counter := 0;
   metavariables := [];
   metanames := [];
   invalid := false;
   let res = fn true l in
+  let between = Printf.sprintf "\n%s " annot in
   if res = ""
   then res
   else
-    let res = String.concat "\n- " (Str.split (Str.regexp_string "\n") res) in
-    Printf.sprintf "- %s" res
+    let res = String.concat between (Str.split (Str.regexp_string "\n") res) in
+    Printf.sprintf "%s %s" annot res
 let unparse_plus fn l =
   let res = fn false l in
   if res = ""

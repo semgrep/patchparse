@@ -115,7 +115,7 @@ let spunparser ct e =
 	depends ct in
     let opportunities2 =
       Printf.sprintf
-	"Printf.printf \"opportunity for rule%d in: %%s:%%s\\n\"\n  (List.hd p).file, (List.hd p).current_element\n\n"
+	"Printf.printf \"opportunity for rule%d in: %%s:%%s\\n\"\n  (List.hd p).file (List.hd p).current_element\n\n"
 	ct in
     let prequel =
       Printf.sprintf

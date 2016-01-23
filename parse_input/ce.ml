@@ -104,9 +104,10 @@ let spunparser ct e =
       then
 	Printf.sprintf " depends on invalid && (!select || select_rule%d)" ct
       else Printf.sprintf " depends on !select || select_rule%d" ct in
-    Printf.sprintf "@rule%d%s@\n%s%s@@\n%s\n%s\n\n" ct depends
+    Printf.sprintf "@rule%d%s@\n%s%sposition __p;@@\n%s@__p\n%s\n\n@script:ocaml (%s) && opportunities@p << rule%d.__p;@@ Printf.printf \"opportunity for rule%d in: (List.hd p).file, (List.hd p).current_element\\n\"\n\n"
+      ct depends
       (String.concat "\n" metas) (if metas = [] then "" else "\n")
-      before after in
+      before after depends ct ct in
   match e with
     PRIMCE(prim1, prim2) ->
       let before = Ast.unparse_minus Ast.unparse_sp_prim prim1 in

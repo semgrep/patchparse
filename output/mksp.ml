@@ -12,7 +12,7 @@ let split_git_version version =
 (* Semantic patch stuff *)
 	
 let cocci_prolog o rules =
-  Printf.fprintf o "virtual invalid\nvirtual select\n\n";
+  Printf.fprintf o "virtual invalid\nvirtual opportunities\nvirtual select\n\n";
   let ct = ref 0 in
   List.iter
     (function (label,change_table,change_result) ->
@@ -101,10 +101,12 @@ let run_spdiff cocci o rules =
 	 | n -> (Printf.sprintf "rule%d.spd" n) :: (loop (n-1)) in
        List.rev (loop !ct)))
 
-let run_coccis cocci o rules =
+let cocci_header cocci o =
   Printf.fprintf o
     "\nCMD=spatch.opt -quiet -timeout 120 -dir %s -use_glimpse \\\n-cocci_file %s.cocci -D select\n\n"
-    !Config.gitdir cocci;
+    !Config.gitdir cocci
+
+let run_coccis cocci o rules =
   let ct = ref 0 in
   List.iter
     (function (label,change_table,change_result) ->
@@ -121,12 +123,61 @@ let run_coccis cocci o rules =
 	    !ct !ct !ct)
 	multidir_table)
     rules;
-  Printf.fprintf o "runall: %s\n"
+  Printf.fprintf o "vrunall: %s\n"
     (String.concat " "
        (let rec loop = function
 	   0 -> []
 	 | n -> (Printf.sprintf "rule%d.out" n) :: (loop (n-1)) in
        List.rev (loop !ct)))
+
+(* include invalids *)
+let run_icoccis cocci o rules =
+  let ct = ref 0 in
+  List.iter
+    (function (label,change_table,change_result) ->
+      let (_,_,multidir_table,_,_) = change_result in
+      List.iter
+	(function _ ->
+	  ct := !ct + 1;
+	  Printf.fprintf o "irule%d.out:\n" !ct;
+	  Printf.fprintf o "\tmkdir -p $(OUT)\n";
+	  Printf.fprintf o
+	    "\t$(CMD) -D invalid -D select_rule%d > $(OUT)/rule%d.iout 2> $(OUT)/rule%d.itmp\n\n"
+	    !ct !ct !ct)
+	multidir_table)
+    rules;
+  Printf.fprintf o "irunall: %s\n"
+    (String.concat " "
+       (let rec loop = function
+	   0 -> []
+	 | n -> (Printf.sprintf "irule%d.out" n) :: (loop (n-1)) in
+       List.rev (loop !ct)))
+
+(* count opportunities *)
+let run_ococcis cocci o rules =
+  let ct = ref 0 in
+  List.iter
+    (function (label,change_table,change_result) ->
+      let (_,_,multidir_table,_,_) = change_result in
+      List.iter
+	(function _ ->
+	  ct := !ct + 1;
+	  Printf.fprintf o "orule%d.out:\n" !ct;
+	  Printf.fprintf o "\tmkdir -p $(OUT)\n";
+	  Printf.fprintf o
+	    "\t$(CMD) -no_show_diff -D opportunities -D invalid -D select_rule%d > $(OUT)/rule%d.oout 2> $(OUT)/rule%d.otmp\n\n"
+	    !ct !ct !ct)
+	multidir_table)
+    rules;
+  Printf.fprintf o "orunall: %s\n"
+    (String.concat " "
+       (let rec loop = function
+	   0 -> []
+	 | n -> (Printf.sprintf "orule%d.out" n) :: (loop (n-1)) in
+       List.rev (loop !ct)))
+
+let cocci_tail cocci o =
+  Printf.fprintf o "\nrunall: vrunall irunall orunall\n\n"
 
 (* -------------------------------------------------------------------- *)
 (* Printing *)
@@ -205,7 +256,12 @@ let make_files (change_result,filtered_results) evolutions =
 	pre_print_to_get_files print_to_get_files
 	change_result)
     filtered_results;
-  run_spdiff ("all"^(Filename.basename all_name)) get_files filtered_results;
-  run_coccis ("all"^(Filename.basename all_name)) get_files filtered_results;
+  let cocci = "all"^(Filename.basename all_name) in
+  run_spdiff cocci get_files filtered_results;
+  cocci_header cocci get_files;
+  run_coccis cocci get_files filtered_results;
+  run_icoccis cocci get_files filtered_results;
+  run_ococcis cocci get_files filtered_results;
+  cocci_tail cocci get_files;
   close_out sp_file;
   close_out get_files

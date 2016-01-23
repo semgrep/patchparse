@@ -119,7 +119,7 @@ let spunparser ct e =
 	ct in
     let prequel =
       Printf.sprintf
-	"@rule%d%s && prequel@\n%s%sposition __p;@@\n%s@__p\n%s\n\n"
+	"@prule%d%s && prequel@\n%s%sposition __p;@@\n%s@__p\n%s\n\n"
       ct depends
       (String.concat "\n" rawmetas) (if metas = [] then "" else "\n")
 	before after in

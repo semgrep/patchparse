@@ -192,6 +192,7 @@ let unparse l = String.concat "" (List.map unparse_code l)
 (* ----------------------------- unparse sp ----------------------------- *)
 
 let code_counter = ref 0
+let raw_metavariables = ref ([] : string list)
 let metavariables = ref ([] : string list)
 let metanames = ref ([] : string list)
 let invalid = ref false
@@ -201,9 +202,14 @@ let new_meta s =
   code_counter := !code_counter + 1;
   res
 
-let add_meta ty name =
+let do_add_meta rawty ty name =
   metanames := name :: !metanames;
+  raw_metavariables := (* real metavars for invalids *)
+    Printf.sprintf "%s %s;" rawty name :: !raw_metavariables;
   metavariables := Printf.sprintf "%s %s;" ty name :: !metavariables
+
+let add_meta ty name = do_add_meta ty ty name
+let invalid_add_meta rawty ty name = do_add_meta rawty ty name
 
 let rec local_unparse_sp_prim minus after = function
     IDENT(string,_) -> string^after
@@ -229,7 +235,9 @@ let rec local_unparse_sp_prim minus after = function
       then
 	begin
 	  (if not minus then invalid := true);
-	  add_meta "expression" exp
+	  invalid_add_meta "expression"
+	    (if minus then "expression" else "symbol")
+	    exp
 	end);
       exp
 
@@ -285,7 +293,9 @@ and unparse_sp_code minus = function
       exp
   | CODE ->
       let exp = new_meta "CODE" in
-      add_meta (if minus then "expression" else "symbol") exp;
+      invalid_add_meta "expression"
+	(if minus then "expression" else "symbol")
+	exp;
       (if not minus then invalid := true);
       exp
 
@@ -296,25 +306,25 @@ and unparse_sp_expr_list minus l =
 and unparse_sp_code_list minus l =
   String.concat "" (List.map (unparse_sp_code minus) l)
 
-let unparse_minus fn l annot =
+let unparse_minus fn l =
   code_counter := 0;
   metavariables := [];
   metanames := [];
   invalid := false;
   let res = fn true l in
-  let between = Printf.sprintf "\n%s " annot in
   if res = ""
   then res
   else
-    let res = String.concat between (Str.split (Str.regexp_string "\n") res) in
-    Printf.sprintf "%s %s" annot res
+    let res = String.concat "\n- " (Str.split (Str.regexp_string "\n") res) in
+    Printf.sprintf "- %s" res
 let unparse_plus fn l =
   let res = fn false l in
   if res = ""
-  then (!metavariables,false,res)
+  then (List.rev !raw_metavariables,List.rev !metavariables,false,res)
   else
     let res = String.concat "\n+ " (Str.split (Str.regexp_string "\n") res) in
-    (List.rev !metavariables,!invalid,Printf.sprintf "+ %s" res)
+    (List.rev !raw_metavariables,List.rev !metavariables,
+     !invalid,Printf.sprintf "+ %s" res)
 
 (* ---------------------------- abstract line --------------------------- *)
 

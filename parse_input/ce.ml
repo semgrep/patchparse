@@ -98,7 +98,7 @@ let process_ce combiner mapper primfn exprfn codefn = function
 		mapper (List.map codefn code_list2))
 
 let spunparser ct e =
-  let finish before beforematch metas invalid after =
+  let finish before metas rawmetas invalid after =
     let depends =
       if invalid
       then
@@ -108,8 +108,7 @@ let spunparser ct e =
       Printf.sprintf "@rule%d%s@\n%s%sposition __p;\n@@\n%s@__p\n%s\n\n"
 	ct depends
 	(String.concat "\n" metas) (if metas = [] then "" else "\n")
-	(if invalid then beforematch() else before)
-	(if invalid then "" else after)in
+	before after in
     let opportunities1 =
       Printf.sprintf
 	"@script:ocaml\n%s && opportunities@\np << rule%d.__p;\n@@\n"
@@ -122,46 +121,40 @@ let spunparser ct e =
       Printf.sprintf
 	"@rule%d%s && prequel@\n%s%sposition __p;@@\n%s@__p\n%s\n\n"
       ct depends
-      (String.concat "\n" metas) (if metas = [] then "" else "\n")
+      (String.concat "\n" rawmetas) (if metas = [] then "" else "\n")
 	before after in
     normal ^ opportunities1 ^ opportunities2 ^ prequel ^ "\n" in
   match e with
     PRIMCE(prim1, prim2) ->
-      let before = Ast.unparse_minus Ast.unparse_sp_prim prim1 "-" in
-      let beforematch _ = Ast.unparse_minus Ast.unparse_sp_prim prim1 "" in
-      let (metas,invalid,after) =
+      let before = Ast.unparse_minus Ast.unparse_sp_prim prim1 in
+      let (rawmetas,metas,invalid,after) =
 	Ast.unparse_plus Ast.unparse_sp_prim prim2 in
-      finish before beforematch metas invalid after
+      finish before metas rawmetas invalid after
   | SYMCE(s1,s2) ->
-      let before = Ast.unparse_minus Ast.unparse_sp_symbol s1 "-" in
-      let beforematch _ = Ast.unparse_minus Ast.unparse_sp_symbol s1 "" in
-      let (metas,invalid,after) =
+      let before = Ast.unparse_minus Ast.unparse_sp_symbol s1 in
+      let (rawmetas,metas,invalid,after) =
 	Ast.unparse_plus Ast.unparse_sp_symbol s2 in
-      finish before beforematch metas invalid after
+      finish before metas rawmetas invalid after
   | EXPRCE(expr1,  expr2) ->
-      let before = Ast.unparse_minus Ast.unparse_sp_expr expr1 "-" in
-      let beforematch _ = Ast.unparse_minus Ast.unparse_sp_expr expr1 "" in
-      let (metas,invalid,after) =
+      let before = Ast.unparse_minus Ast.unparse_sp_expr expr1 in
+      let (rawmetas,metas,invalid,after) =
 	Ast.unparse_plus Ast.unparse_sp_expr expr2 in
-      finish before beforematch metas invalid after
+      finish before metas rawmetas invalid after
   | EXPRLCE(el1, el2) ->
-      let before = Ast.unparse_minus Ast.unparse_sp_expr_list el1 "-" in
-      let beforematch _ = Ast.unparse_minus Ast.unparse_sp_expr_list el1 "" in
-      let (metas,invalid,after) =
+      let before = Ast.unparse_minus Ast.unparse_sp_expr_list el1 in
+      let (rawmetas,metas,invalid,after) =
 	Ast.unparse_plus Ast.unparse_sp_expr_list el2 in
-      finish before beforematch metas invalid after
+      finish before metas rawmetas invalid after
   | CODECE(code1, code2) ->
-      let before = Ast.unparse_minus Ast.unparse_sp_code code1 "-" in
-      let beforematch _ = Ast.unparse_minus Ast.unparse_sp_code code1 "" in
-      let (metas,invalid,after) =
+      let before = Ast.unparse_minus Ast.unparse_sp_code code1 in
+      let (rawmetas,metas,invalid,after) =
 	Ast.unparse_plus Ast.unparse_sp_code code2 in
-      finish before beforematch metas invalid after
+      finish before metas rawmetas invalid after
   | CODELCE(cl1, cl2) ->
-      let before = Ast.unparse_minus Ast.unparse_sp_code_list cl1 "-" in
-      let beforematch _ = Ast.unparse_minus Ast.unparse_sp_code_list cl1 "" in
-      let (metas,invalid,after) =
+      let before = Ast.unparse_minus Ast.unparse_sp_code_list cl1 in
+      let (rawmetas,metas,invalid,after) =
 	Ast.unparse_plus Ast.unparse_sp_code_list cl2 in
-      finish before beforematch metas invalid after
+      finish before metas rawmetas invalid after
 
 (* ---------------------------------------------------------------------- *)
 

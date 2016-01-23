@@ -103,8 +103,8 @@ let spunparser ct e =
       if invalid
       then
 	Printf.sprintf " depends on invalid && (!select || select_rule%d)" ct
-      else Printf.sprintf " depends on !select || select_rule%d" ct in
-    Printf.sprintf "@rule%d%s@\n%s%sposition __p;@@\n%s@__p\n%s\n\n@script:ocaml (%s) && opportunities@p << rule%d.__p;@@ Printf.printf \"opportunity for rule%d in: (List.hd p).file, (List.hd p).current_element\\n\"\n\n"
+      else Printf.sprintf " depends on (!select || select_rule%d)" ct in
+    Printf.sprintf "@rule%d%s@\n%s%sposition __p;@@\n%s@__p\n%s\n\n@script:ocaml %s && opportunities@\np << rule%d.__p;@@ Printf.printf \"opportunity for rule%d in: (List.hd p).file, (List.hd p).current_element\\n\"\n\n"
       ct depends
       (String.concat "\n" metas) (if metas = [] then "" else "\n")
       before after depends ct ct in

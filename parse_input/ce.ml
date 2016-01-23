@@ -110,16 +110,21 @@ let spunparser ct e =
 	(String.concat "\n" metas) (if metas = [] then "" else "\n")
 	(if invalid then beforematch() else before)
 	(if invalid then "" else after)in
-    let opportunities =
-      Printf.sprintf "@script:ocaml %s && opportunities@\np << rule%d.__p;@@ Printf.printf \"opportunity for rule%d in: (List.hd p).file, (List.hd p).current_element\\n\"\n\n"
-	depends ct ct in
+    let opportunities1 =
+      Printf.sprintf
+	"@script:ocaml\n%s && opportunities@\np << rule%d.__p;\n@@\n"
+	depends ct in
+    let opportunities2 =
+      Printf.sprintf
+	"Printf.printf \"opportunity for rule%d in: %%s:%%s\\n\"\n  (List.hd p).file, (List.hd p).current_element\n\n"
+	ct in
     let prequel =
       Printf.sprintf
 	"@rule%d%s && prequel@\n%s%sposition __p;@@\n%s@__p\n%s\n\n"
       ct depends
       (String.concat "\n" metas) (if metas = [] then "" else "\n")
 	before after in
-    normal ^ opportunities ^ prequel in
+    normal ^ opportunities1 ^ opportunities2 ^ prequel ^ "\n" in
   match e with
     PRIMCE(prim1, prim2) ->
       let before = Ast.unparse_minus Ast.unparse_sp_prim prim1 "-" in

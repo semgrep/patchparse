@@ -12,7 +12,8 @@ let split_git_version version =
 (* Semantic patch stuff *)
 	
 let cocci_prolog o rules =
-  Printf.fprintf o "virtual invalid\nvirtual opportunities\nvirtual select\n\n";
+  Printf.fprintf o
+    "virtual invalid\nvirtual opportunities\nvirtual select\nvirtual prequel\n\n";
   let ct = ref 0 in
   List.iter
     (function (label,change_table,change_result) ->

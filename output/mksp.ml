@@ -169,7 +169,7 @@ let run_pcoccis cocci o rules =
 	  Printf.fprintf o "prule%d.out:\n" !ct;
 	  Printf.fprintf o "\tmkdir -p $(OUT)\n";
 	  Printf.fprintf o
-	    "\t$(PCMD) -D prequel -D invalid -D select_rule%d > $(OUT)/rule%d.pout 2> $(OUT)/rule%d.ptmp\n\n"
+	    "\t$(PCMD) --cocciargs \"-D select_rule%d\" > $(OUT)/rule%d.pout 2> $(OUT)/rule%d.ptmp\n\n"
 	    !ct !ct !ct)
 	multidir_table)
     rules;

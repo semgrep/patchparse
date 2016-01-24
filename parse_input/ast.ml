@@ -309,6 +309,7 @@ and unparse_sp_code_list minus l =
 let unparse_minus fn l =
   code_counter := 0;
   metavariables := [];
+  raw_metavariables := [];
   metanames := [];
   invalid := false;
   let res = fn true l in

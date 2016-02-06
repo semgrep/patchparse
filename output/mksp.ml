@@ -76,8 +76,8 @@ let print_to_get_files o ct code =
 	  Printf.fprintf o "\techo %s %s >> $(OUT)/rule%d/index\n"
 	    (mkname file) (resfile(mkname file)) ct;
 	  Printf.fprintf o
-	    "\techo diff -u %s %s \\| diffstat >> $(OUT)/rule%d/redodiff\n"
-	    (resfile(mkname file)) (cocciresfile(mkname file)) ct)
+	    "\techo diff -u rule%d/%s rule%d/%s \\| diffstat >> $(OUT)/rule%d/redodiff\n"
+	    ct (resfile(mkname file)) ct (cocciresfile(mkname file)) ct)
 	files;
       List.length files
     end

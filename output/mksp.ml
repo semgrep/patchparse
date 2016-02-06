@@ -76,7 +76,7 @@ let print_to_get_files o ct code =
 	  Printf.fprintf o "\techo %s %s >> $(OUT)/rule%d/index\n"
 	    (mkname file) (resfile(mkname file)) ct;
 	  Printf.fprintf o
-	    "\techo test -e rule%d/%s \\&\\& (diff -u rule%d/%s rule%d/%s \\| diffstat) >> $(OUT)/rule%d/redodiff\n"
+	    "\techo test -e rule%d/%s \\&\\& \\(diff -u rule%d/%s rule%d/%s \\| diffstat\\) >> $(OUT)/rule%d/redodiff\n"
 	    ct (cocciresfile(mkname file)) ct (resfile(mkname file))
 	    ct (cocciresfile(mkname file)) ct)
 	files;

@@ -38,7 +38,9 @@ let pre_print_to_get_files o ct =
       Printf.fprintf o "\nrule%d:\n" ct;
       Printf.fprintf o "\t/bin/mkdir -p $(OUT)/rule%d\n" ct;
       Printf.fprintf o "\t/bin/rm -f $(OUT)/rule%d/index\n" ct;
-      Printf.fprintf o "\t/usr/bin/touch $(OUT)/rule%d/index\n" ct
+      Printf.fprintf o "\t/usr/bin/touch $(OUT)/rule%d/index\n" ct;
+      Printf.fprintf o "\t/bin/rm -f $(OUT)/rule%d/redodiff\n" ct;
+      Printf.fprintf o "\t/usr/bin/touch $(OUT)/rule%d/redodiff\n" ct
     end
 
 let mkname file =
@@ -66,12 +68,16 @@ let print_to_get_files o ct code =
 	    match List.rev (Str.split (Str.regexp_string ".") s) with
 	      x::xs -> String.concat "." (List.rev (x :: "res" :: xs))
 	    | _ -> failwith "bad file" in
+	  let cocciresfile s = s ^ ".cocci_res" in
 	  Printf.fprintf o
 	    "\tgit cat-file blob %s^:%s > $(OUT)/rule%d/%s ; \\\n\tgit cat-file blob %s:%s > $(OUT)/rule%d/%s ; \\\n"
 	    code file ct (mkname file)
 	    code file ct (resfile(mkname file));
 	  Printf.fprintf o "\techo %s %s >> $(OUT)/rule%d/index\n"
-	    (mkname file) (resfile(mkname file)) ct)
+	    (mkname file) (resfile(mkname file)) ct;
+	  Printf.fprintf o
+	    "\techo diff -u %s %s \\| diffstat >> $(OUT)/rule%d/redodiff\n"
+	    (resfile(mkname file)) (cocciresfile(mkname file)) ct)
 	files;
       List.length files
     end
@@ -176,7 +182,9 @@ let rerun_coccis cocci o rules =
 	  Printf.fprintf o
 	    "\t$(REDOCMD) -dir rule%d -D select_rule%d > $(OUT)/rule%d.rout "
 	    !ct !ct !ct;
-	  Printf.fprintf o "2> $(OUT)/rule%d.rtmp\\\n" !ct)
+	  Printf.fprintf o "2> $(OUT)/rule%d.rtmp\n" !ct;
+	  Printf.fprintf o "\tsh rule%d/redodiff > $(OUT)/rule%d.rdiff\n\n"
+	    !ct !ct)
 	multidir_table)
     rules;
   Printf.fprintf o "redorunall: %s\n\n"
@@ -201,7 +209,9 @@ let rerun_icoccis cocci o rules =
 	  Printf.fprintf o
 	    "\t$(REDOCMD) -dir rule%d -D invalid -D select_rule%d "
 	    !ct !ct;
-	  Printf.fprintf o "> $(OUT)/rule%d.irout 2> $(OUT)/rule%d.irtmp\n\n"
+	  Printf.fprintf o "> $(OUT)/rule%d.irout 2> $(OUT)/rule%d.irtmp\n"
+	    !ct !ct;
+	  Printf.fprintf o "\tsh rule%d/redodiff > $(OUT)/rule%d.irdiff\n\n"
 	    !ct !ct)
 	multidir_table)
     rules;

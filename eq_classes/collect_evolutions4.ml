@@ -188,7 +188,7 @@ let compute_distances key_change_files key =
 		old_wfunctions = new_wfunctions
 	      then 1.0
 	      else
-		if List.length (Aux.union old_functions old_wfunctions) > 1 or
+		if List.length (Aux.union old_functions old_wfunctions) > 1 ||
 		  List.length (Aux.union new_functions new_wfunctions) > 1
 		then weight *. weight
 		else weight in

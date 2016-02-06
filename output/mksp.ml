@@ -104,8 +104,10 @@ let run_spdiff cocci o rules =
 
 let cocci_header cocci o =
   Printf.fprintf o
-    "\nCMD=spatch.opt -quiet -timeout 120 -dir %s -use_glimpse \\\n-cocci_file %s.cocci -D select\n\n"
+    "\nCMD=spatch.opt -quiet -timeout 120 -dir %s -use_glimpse \\\n-cocci_file %s.cocci -D select\n"
     !Config.gitdir cocci;
+  Printf.fprintf o
+    "\nREDOCMD=spatch.opt -quiet -timeout 120 \\\n-cocci_file %s.cocci -D select\n";
   Printf.fprintf o
     "\nPCMD=~/prequel/implem2/prequel --git %s \\\n--sp %s.cocci --commits v3.0.. --pct 0 --cores 24 \\\n--all-lines \\\n--cocciargs \"--very-quiet -D select -D invalid -D prequel --no-includes\"\n\n"
     !Config.gitdir cocci
@@ -127,7 +129,7 @@ let run_coccis cocci o rules =
 	    !ct !ct !ct)
 	multidir_table)
     rules;
-  Printf.fprintf o "vrunall: %s\n"
+  Printf.fprintf o "vrunall: %s\n\n"
     (String.concat " "
        (let rec loop = function
 	   0 -> []
@@ -150,7 +152,7 @@ let run_icoccis cocci o rules =
 	    !ct !ct !ct)
 	multidir_table)
     rules;
-  Printf.fprintf o "irunall: %s\n"
+  Printf.fprintf o "irunall: %s\n\n"
     (String.concat " "
        (let rec loop = function
 	   0 -> []
@@ -173,7 +175,7 @@ let run_pcoccis cocci o rules =
 	    !ct !ct !ct)
 	multidir_table)
     rules;
-  Printf.fprintf o "prunall: %s\n"
+  Printf.fprintf o "prunall: %s\n\n"
     (String.concat " "
        (let rec loop = function
 	   0 -> []
@@ -196,7 +198,7 @@ let run_ococcis cocci o rules =
 	    !ct !ct !ct)
 	multidir_table)
     rules;
-  Printf.fprintf o "orunall: %s\n"
+  Printf.fprintf o "orunall: %s\n\n"
     (String.concat " "
        (let rec loop = function
 	   0 -> []

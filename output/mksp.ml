@@ -76,8 +76,9 @@ let print_to_get_files o ct code =
 	  Printf.fprintf o "\techo %s %s >> $(OUT)/rule%d/index\n"
 	    (mkname file) (resfile(mkname file)) ct;
 	  Printf.fprintf o
-	    "\techo diff -u rule%d/%s rule%d/%s \\| diffstat >> $(OUT)/rule%d/redodiff\n"
-	    ct (resfile(mkname file)) ct (cocciresfile(mkname file)) ct)
+	    "\techo test -e rule%d/%s \\&\\& (diff -u rule%d/%s rule%d/%s \\| diffstat) >> $(OUT)/rule%d/redodiff\n"
+	    ct (cocciresfile(mkname file)) ct (resfile(mkname file))
+	    ct (cocciresfile(mkname file)) ct)
 	files;
       List.length files
     end
@@ -113,7 +114,7 @@ let cocci_header cocci o =
     "\nCMD=spatch.opt -quiet -timeout 120 -dir %s -use_glimpse \\\n-cocci_file %s.cocci -D select\n"
     !Config.gitdir cocci;
   Printf.fprintf o
-    "\nREDOCMD=spatch.opt -quiet -out-place -timeout 120 \\\n-cocci_file %s.cocci -D select\n"
+    "\nREDOCMD=spatch.opt -include-headers -quiet -out-place -timeout 120 \\\n-cocci_file %s.cocci -D select\n"
     cocci;
   Printf.fprintf o
     "\nPCMD=~/prequel/implem2/prequel --git %s \\\n--sp %s.cocci --commits v3.0.. --pct 0 --cores 24 \\\n--all-lines \\\n--cocciargs \"--very-quiet -D select -D invalid -D prequel --no-includes\"\n\n"

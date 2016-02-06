@@ -180,10 +180,10 @@ let rerun_coccis cocci o rules =
 	  Printf.fprintf o
 	    "\tgrep invalid %s.cocci | grep -q \"rule%d \" || \\\n" cocci !ct;
 	  Printf.fprintf o
-	    "\t$(REDOCMD) -dir rule%d -D select_rule%d > $(OUT)/rule%d.rout "
+	    "\t$((REDOCMD) -dir rule%d -D select_rule%d > $(OUT)/rule%d.rout "
 	    !ct !ct !ct;
-	  Printf.fprintf o "2> $(OUT)/rule%d.rtmp\n" !ct;
-	  Printf.fprintf o "\tsh rule%d/redodiff > $(OUT)/rule%d.rdiff\n\n"
+	  Printf.fprintf o "2> $(OUT)/rule%d.rtmp && \\\n" !ct;
+	  Printf.fprintf o "\tsh rule%d/redodiff > $(OUT)/rule%d.rdiff)\n\n"
 	    !ct !ct)
 	multidir_table)
     rules;

@@ -53,6 +53,4 @@ let set_anything _ = filter := Anything
 (*let url = "http://grmso.net:8090/commit/"*)
 let url = ref "http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h="
 
-let set_git_url s = url := s ^ ";a=commit;h="
-
 let gitdir = ref "" (* local directory containing the git repository *)

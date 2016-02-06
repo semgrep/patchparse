@@ -105,7 +105,7 @@ let spunparser ct e =
 	Printf.sprintf " depends on invalid && (!select || select_rule%d)" ct
       else Printf.sprintf " depends on (!select || select_rule%d)" ct in
     let normal =
-      Printf.sprintf "@rule%d%s@\n%s%sposition __p;\n@@\n%s@__p\n%s\n\n"
+      Printf.sprintf "@rule%d%s && !prequel@\n%s%sposition __p;\n@@\n%s@__p\n%s\n\n"
 	ct depends
 	(String.concat "\n" metas) (if metas = [] then "" else "\n")
 	before after in
@@ -119,7 +119,7 @@ let spunparser ct e =
 	ct in
     let prequel =
       Printf.sprintf
-	"@prule%d%s && prequel@\n%s%sposition __p;@@\n%s@__p\n%s\n\n"
+	"@prule%d%s && prequel@\n%s%sposition __p;\n@@\n%s@__p\n%s\n\n"
       ct depends
       (String.concat "\n" rawmetas) (if metas = [] then "" else "\n")
 	before after in

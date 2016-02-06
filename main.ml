@@ -47,7 +47,7 @@ let speclist = Arg.align
   "--gitdir", Arg.Set_string Config.gitdir, "  set git dir";
   "--restrict", Arg.Set_string Config.git_restrict,
    "  restrict patches obtained from git to the given directory";
-  "--giturl", Arg.String Config.set_git_url, "  url of git repository";
+  "--giturl", Arg.Set_string Config.url, "  url of git repository";
   "--destdir", Arg.Set_string Config.dest_dir, "  destination of files";
   "--patch", Arg.Clear Config.git, "  use a patch file";
   "--next", Arg.String setup_next, "  use most recent tag in linux-next";

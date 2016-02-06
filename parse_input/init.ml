@@ -50,7 +50,7 @@ let rec find_driver_diff = function
       if start_string file_indicator ln
       then
 	let (path,file) as dd = driver_directory ln in
-	if Filename.check_suffix file ".c" or Filename.check_suffix file ".h"
+	if Filename.check_suffix file ".c" || Filename.check_suffix file ".h"
 	then Some (dd,rest) else find_driver_diff rest
       else find_driver_diff rest
 
@@ -261,11 +261,11 @@ let process_lines version dirname filename lines =
 	 start line is the number of the first line in this region *)
       [] -> ([],[])
     | ((n,ln)::rest) as lines ->
-	if start_string "diff " ln or start_string "--- " ln or
-	  start_string "index " ln or
-	  start_string "new file mode " ln or
-	  start_string "old file mode " ln or
-	  start_string "new mode " ln or
+	if start_string "diff " ln || start_string "--- " ln ||
+	  start_string "index " ln ||
+	  start_string "new file mode " ln ||
+	  start_string "old file mode " ln ||
+	  start_string "new mode " ln ||
 	  start_string "old mode " ln
 	then ([],rest)
 	else

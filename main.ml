@@ -44,32 +44,35 @@ let set_out_dir s = Config.out_dir := s
 
 let speclist = Arg.align
  ["--git",   Arg.String setup_git, "  use a git patch or directory";
-  "--gitdir", Arg.Set_string Config.gitdir, "  set git dir";
-  "--restrict", Arg.Set_string Config.git_restrict,
+   "--gitdir", Arg.Set_string Config.gitdir, "  set git dir";
+   "--restrict", Arg.Set_string Config.git_restrict,
    "  restrict patches obtained from git to the given directory";
-  "--giturl", Arg.Set_string Config.url, "  url of git repository";
-  "--destdir", Arg.Set_string Config.dest_dir, "  destination of files";
-  "--patch", Arg.Clear Config.git, "  use a patch file";
-  "--next", Arg.String setup_next, "  use most recent tag in linux-next";
-  "--days", Arg.String setup_days, "  use patches since n days ago";
+   "--giturl", Arg.Set_string Config.url, "  url of git repository";
+   "--gitcommitlist", Arg.Set Config.gitcommitlist,
+   "  list of relevant commits";
+   "--destdir", Arg.Set_string Config.dest_dir, "  destination of files";
+   "--patch", Arg.Clear Config.git, "  use a patch file";
+   "--next", Arg.String setup_next, "  use most recent tag in linux-next";
+   "--days", Arg.String setup_days, "  use patches since n days ago";
 
-  "--min",   Arg.Set_int Config.same_threshold, "set same_threshold";
-  "--minf",  Arg.Set_int Config.file_threshold, "set file_threshold";
-  "--mega",  Arg.Unit mega, "set same_threshold to 100";
+   "--min",   Arg.Set_int Config.same_threshold, "set same_threshold";
+   "--minf",  Arg.Set_int Config.file_threshold, "set file_threshold";
+   "--mega",  Arg.Unit mega, "set same_threshold to 100";
 
-  "--notex",  Arg.Set Config.notex, "   no latex output";
-  "--noev",  Arg.Set Config.noev, "   no evolutions";
-  "--noall", Arg.Set Config.noall, "   only specialized changes";
-  "--nofilters", Arg.Set Config.nofilters, "   no specialized changes";
-  "--constants_only", Arg.Unit Config.set_constants_only, "   constants only";
-  "--anything", Arg.Unit Config.set_anything, "   all results";
+   "--notex",  Arg.Set Config.notex, "   no latex output";
+   "--noev",  Arg.Set Config.noev, "   no evolutions";
+   "--noall", Arg.Set Config.noall, "   only specialized changes";
+   "--nofilters", Arg.Set Config.nofilters, "   no specialized changes";
+   "--constants_only", Arg.Unit Config.set_constants_only, "   constants only";
+   "--anything", Arg.Unit Config.set_anything, "   all results";
 
-  "--verbose", Arg.Set Config.verbose, "   print all equivalence classes";
+   "--verbose", Arg.Set Config.verbose, "   print all equivalence classes";
 
-  "--print-parsable", Arg.Set Config.print_parsable,
+   "--print-parsable", Arg.Set Config.print_parsable,
    "   print parsable changes on stdout";
-  "--print-sp", Arg.Set Config.print_sp, "   print semantic patch";
-  "--out-dir", Arg.String set_out_dir, "     <dirname> specify output directory"
+   "--print-sp", Arg.Set Config.print_sp, "   print semantic patch";
+   "--out-dir", Arg.String set_out_dir,
+   "     <dirname> specify output directory"
  ]
   
 

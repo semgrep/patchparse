@@ -55,6 +55,15 @@ let git fl =
   let in_lines =
     if !Config.gitpatch
     then Aux.cmd_to_list (Printf.sprintf "/bin/cat %s" fl)
+    else if !Config.gitcommitlist
+    then
+      let commits = Aux.cmd_to_list (Printf.sprintf "/bin/cat %s" fl) in
+      List.fold_left
+	(fun prev commit ->
+	  (Aux.cmd_to_list
+	    (Printf.sprintf "cd %s ; /usr/bin/git show %s"
+	       !Config.gitdir commit)) @ prev)
+	[] commits
     else
       Aux.cmd_to_list
 	(Printf.sprintf

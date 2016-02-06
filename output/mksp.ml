@@ -175,7 +175,7 @@ let rerun_coccis cocci o rules =
       List.iter
 	(function _ ->
 	  ct := !ct + 1;
-	  Printf.fprintf o "redorule%d.out: rule %d\n" !ct !ct;
+	  Printf.fprintf o "redorule%d.out: rule%d\n" !ct !ct;
 	  Printf.fprintf o "\tmkdir -p $(OUT)\n";
 	  Printf.fprintf o
 	    "\tgrep invalid %s.cocci | grep -q \"rule%d \" || \\\n" cocci !ct;
@@ -191,7 +191,7 @@ let rerun_coccis cocci o rules =
     (String.concat " "
        (let rec loop = function
 	   0 -> []
-	 | n -> (Printf.sprintf "rule%d.rout" n) :: (loop (n-1)) in
+	 | n -> (Printf.sprintf "redorule%d.out" n) :: (loop (n-1)) in
        List.rev (loop !ct)))
 
 (* include invalids *)
@@ -219,7 +219,7 @@ let rerun_icoccis cocci o rules =
     (String.concat " "
        (let rec loop = function
 	   0 -> []
-	 | n -> (Printf.sprintf "irule%d.rout" n) :: (loop (n-1)) in
+	 | n -> (Printf.sprintf "iredorule%d.out" n) :: (loop (n-1)) in
        List.rev (loop !ct)))
   
 (* run prequel *)

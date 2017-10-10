@@ -76,6 +76,7 @@ let parse version s =
       let ver =
 	try Hashtbl.find Config.version_table version
 	with Not_found -> string_of_int version in
+      let ver = if String.length ver < 12 then ver else String.sub ver 0 12 in
       Printf.printf "%s: %s\n" ver x; None
   | Parsing.Parse_error -> None
 (*  | x -> None*)

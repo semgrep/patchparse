@@ -63,7 +63,6 @@ and unparse_expr = function
   | CALL((nm,_),args,known) | DECLARER((nm,_),args,known) ->
       Printf.sprintf "%s(%s%s" nm (unparse_code_list args)
 	(if known = Ast.KNOWN then ")" else "")
-      
 
 and unparse_symbol l = String.concat "" (List.map unparse_prim l)
 and unparse_dsymbol l = String.concat "" (List.map unparse_dprim l)
@@ -352,7 +351,12 @@ and convert_exprlist no_fn_name_allowed no_assign_lhs_allowed exprlist =
 	  (None,rest) -> failwith "symbol: can't happen"
 	| (Some sym,rest) -> Ast.SYMBOL(sym)::loop rest)
     (* assignments: find the left-hand side *)
-    | ASSIGN(op,exprlist,known)::rest ->(* must be in the first position *)
+    | (ASSIGN(op,exprlist,known) as e)::
+      ((CALL _ | DECLARER _ ) as call)::rest ->
+	Ast.ASSIGN(convert_expr call,Ast.bext op,
+		   convert_exprlist true false exprlist,known) ::
+	loop rest
+    | (ASSIGN(op,exprlist,known) as e)::rest ->(* must be in the first position *)
 	let (lhs,rest) = find_symbol rest true in
 	(match lhs with
 	  None ->
@@ -363,7 +367,18 @@ and convert_exprlist no_fn_name_allowed no_assign_lhs_allowed exprlist =
 			 Ast.bext op,
 			 convert_exprlist true false exprlist,known) ::
 	      loop rest
-	    else failwith "missing assignment left hand side"
+	    else
+	      (match rest with
+		e1::_ ->
+		  failwith
+		    (Printf.sprintf
+		       "missing assignment left hand side: %s %s"
+		       (unparse_expr e1) (unparse_expr e))
+	      | [] ->
+		  failwith
+		    (Printf.sprintf
+		       "no available assignment left hand side: %s"
+		       (unparse_expr e)))
 	| Some lhs ->
 	    Ast.ASSIGN(Ast.SYMBOL(lhs),Ast.bext op,
 		       convert_exprlist true false exprlist,known) ::
@@ -406,11 +421,11 @@ and convert_exprlist no_fn_name_allowed no_assign_lhs_allowed exprlist =
 		    (Ast.SYMBOL([Ast.IDENT(Ast.bext ("",__unknown_line))]),
 		     convert_codelist false args,known)::loop rest
 		else
-		  begin
-		    Printf.eprintf "exprlist: %s\n"
-		      (unparse_expr_list l); flush stderr;
-		    failwith "missing function name"
-		  end)
+		  failwith
+		    (Printf.sprintf "missing function name: %s %s"
+		       (if rest = [] then "nothing"
+		       else (unparse_expr (List.hd rest)))
+		       (unparse_expr_list l)))
 	| Some fn ->
 	    let new_args = convert_codelist false args in
 	    if rest = [] && function_declaration fn new_args

@@ -301,11 +301,11 @@ let make_files (change_result,filtered_results) evolutions =
     let cmdfunc = "/usr/bin/pdflatex" in
     let _ =
       Sys.command
-	(Printf.sprintf "cd %s ; %s all%s.tex" !Config.out_dir
+	(Printf.sprintf "cd %s ; %s all%s.tex > /dev/null 2&>1" !Config.out_dir
 	   cmdfunc (Filename.basename all_name)) in
     let _ =
       Sys.command
-	(Printf.sprintf "cd %s ; %s all%s.tex" !Config.out_dir
+	(Printf.sprintf "cd %s ; %s all%s.tex > /dev/null 2&>1" !Config.out_dir
 	   cmdfunc (Filename.basename all_name)) in
     () end
 

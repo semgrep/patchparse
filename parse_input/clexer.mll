@@ -192,6 +192,8 @@ rule initial =
 	|               "void"          {TYPE(lexeme_line lexbuf)}
 	|               "unsigned"      {TYPE(lexeme_line lexbuf)}
 	|               "struct"        {TYPE(lexeme_line lexbuf)}
+	| ident '<' ident '>'		{scan_ident (lexeme_line lexbuf)}
+	| ident '<' '>'			{scan_ident (lexeme_line lexbuf)}
 	|		ident		{scan_ident (lexeme_line lexbuf)}
 	| "++++plus_line++++"
 	    { linetype := PLUS; atfront := FRONT; initial lexbuf }

@@ -131,7 +131,7 @@ let is_limited change =
   let ok = function
       Ast.CALL(Ast.SYMBOL([Ast.IDENT(f,_)]),x,y) when
 	let lid = String.lowercase f in
-	Aux.substring "lock" lid or
+	Aux.substring "lock" lid ||
 	Aux.substring "print" lid -> false
     | Ast.CALL(f1,x,y) -> true
     | Ast.DECLARER(f1,x,y) -> true
@@ -141,19 +141,19 @@ let is_limited change =
     | _ -> false in
   match change with
     CE.EXPRCE(e1,e2) ->
-      (ok e1 or ok e2) &&
+      (ok e1 || ok e2) &&
       (match (e1,e2) with
 	(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2)) ->
-	  (not (Ast.al_expr f1 = Ast.al_expr f2)) or
-	  not(List.length a1 = List.length a2) or
-	  List.exists not_just_code a1 or List.exists not_just_code a2
+	  (not (Ast.al_expr f1 = Ast.al_expr f2)) ||
+	  not(List.length a1 = List.length a2) ||
+	  List.exists not_just_code a1 || List.exists not_just_code a2
       |	(Ast.DECLARER(f1,a1,k1),Ast.DECLARER(f2,a2,k2)) ->
-	  (not (Ast.al_expr f1 = Ast.al_expr f2)) or
-	  not(List.length a1 = List.length a2) or
-	  List.exists not_just_code a1 or List.exists not_just_code a2
+	  (not (Ast.al_expr f1 = Ast.al_expr f2)) ||
+	  not(List.length a1 = List.length a2) ||
+	  List.exists not_just_code a1 || List.exists not_just_code a2
       |	_ -> true)
   | CE.EXPRLCE([],[e]) | CE.EXPRLCE([e],[]) -> ok e
-  | CE.SYMCE(s1,s2) -> is_field s1 or is_field s2
+  | CE.SYMCE(s1,s2) -> is_field s1 || is_field s2
   | _ -> false
 
 let mkCC change context =

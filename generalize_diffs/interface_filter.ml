@@ -65,7 +65,7 @@ let data_layout_change change =
       match mg with
 	CE.SYMCE(prims1,prims2) ->
 	  Filter.diff_path_same_field mg &&
-	  (structure_access prims1 or structure_access prims2)
+	  (structure_access prims1 || structure_access prims2)
       | _ -> false)
     change
 
@@ -73,7 +73,7 @@ let data_layout_change change =
 
 let public_private change =
   analyze_bottom
-    (function mg -> Filter.make_public mg or Filter.make_private mg)
+    (function mg -> Filter.make_public mg || Filter.make_private mg)
     change
 
 (* --------------------------------------------------------------------- *)
@@ -84,7 +84,7 @@ let public_private change =
 work. *)
 
 let calls_added_or_removed change =
-  analyze_bottom (function mg -> Filter.addfn mg or Filter.dropfn mg) change
+  analyze_bottom (function mg -> Filter.addfn mg || Filter.dropfn mg) change
 
 (* --------------------------------------------------------------------- *)
 

@@ -24,14 +24,14 @@ and contains_modif_expr = function
     Ast.SYMBOL(symbol) -> contains_modif_symbol symbol
   | Ast.EOP(string) -> contains_modif string
   | Ast.ASSIGN(symbol,(op),exprlist,known) ->
-      (contains_modif_expr symbol) or (contains_modif op) or
+      (contains_modif_expr symbol) || (contains_modif op) ||
       (contains_modif_expr_list exprlist)
   | Ast.CALL(symbol,codelist,known) | Ast.DECLARER(symbol,codelist,known) ->
-      (contains_modif_expr symbol) or
+      (contains_modif_expr symbol) ||
       (contains_modif_code_list codelist)
   | Ast.PROTOTYPE(symbol,ty,attrs,nm,codelist,known) ->
-      (contains_modif_expr symbol) or
-      (contains_modif_symbol ty) or
+      (contains_modif_expr symbol) ||
+      (contains_modif_symbol ty) ||
       (contains_modif_code_list codelist)
   | Ast.STRUCT(codelist,known) ->
       contains_modif_code_list codelist

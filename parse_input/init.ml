@@ -50,13 +50,15 @@ let rec find_driver_diff = function
       if start_string file_indicator ln
       then
 	let (path,file) as dd = driver_directory ln in
-	if Filename.check_suffix file ".c" || Filename.check_suffix file ".h"
+	let last =
+	  List.hd (List.rev (Str.split (Str.regexp_string ".") file)) in
+	if List.mem last ["c";"java";"cpp";"h"]
 	then Some (dd,rest) else find_driver_diff rest
       else find_driver_diff rest
 
 (* -------------------------------------------------------------------- *)
 
-let parse s =
+let parse version s =
   (* put the __line at the beginning of the line *)
   let s =
     Str.global_replace
@@ -70,7 +72,11 @@ let parse s =
     let parsed = Cparser2.interpret Clexer.initial lexbuf in
     Some (No_modifs.drop_outer (Ast0.convert parsed))
   with
-    Failure x -> Printf.printf "%s\n" x; None
+    Failure x ->
+      let ver =
+	try Hashtbl.find Config.version_table version
+	with Not_found -> string_of_int version in
+      Printf.printf "%s: %s\n" ver x; None
   | Parsing.Parse_error -> None
 (*  | x -> None*)
 
@@ -240,7 +246,7 @@ let process_lines version dirname filename lines =
 	Parse_error.start_line := start_line;
 
       (* ---------------- THIS IS THE IMPORTANT PLACE --------------- *)
-	match (parse m, parse p) with
+	match (parse version m, parse version p) with
 	  (Some mres,Some pres) ->
 	    (try
 	      let changelists = Diff.diff mres pres in

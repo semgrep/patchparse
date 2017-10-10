@@ -5,7 +5,7 @@ let boring_ids id =
     (List.mem id
        ["return"; "dbg"; "err"; "dev_dbg"; "dev_err"; "dev_warn";
 	 "printk"; "sprintf"; "sizeof";
-	 "strcpy"; "strncpy"; "strcmp"; "strncmp"; "EXPORT_SYMBOL"]) or
+	 "strcpy"; "strncpy"; "strcmp"; "strncmp"; "EXPORT_SYMBOL"]) ||
     Aux.substring "debug" (String.lowercase id) in
   boring_fns id ||
   (List.mem id
@@ -523,9 +523,9 @@ let expify do_proto expify_n ce =
 	| _ -> SYMCE(acc@s1,acc@s2) in
       let rec loop acc = function
 	  (x1::rest1,x2::rest2)
-	  when (match x1 with Ast.SYMOP(".",_) -> true | _ -> false) or
-	    (match x1 with Ast.SYMOP("->",_) -> true | _ -> false) or
-	    (match x2 with Ast.SYMOP(".",_) -> true | _-> false) or
+	  when (match x1 with Ast.SYMOP(".",_) -> true | _ -> false) ||
+	    (match x1 with Ast.SYMOP("->",_) -> true | _ -> false) ||
+	    (match x2 with Ast.SYMOP(".",_) -> true | _-> false) ||
 	    (match x2 with Ast.SYMOP("->",_) -> true |_ -> false) ->
 	      expify [] os1 os2
 	| (x1::rest1,x2::rest2) when Ast.al_prim x1 = Ast.al_prim x2 ->

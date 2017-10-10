@@ -91,6 +91,7 @@ let main _ =
   let changelists = Init.process_all_files patch_data in
   (* filter the changelists *)
   let changelists = Select_diffs.select_diffs changelists in
+  Printf.eprintf "changelists: %d\n" (List.length changelists);
   (* convert the changelist to a table for further processing *)
   List.iter
     (function (changelist,info) -> Prepare_eq.eqworklists changelist info)

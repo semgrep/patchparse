@@ -40,7 +40,9 @@ let pre_print_to_get_files o ct =
       Printf.fprintf o "\t/bin/rm -f $(OUT)/rule%d/index\n" ct;
       Printf.fprintf o "\t/usr/bin/touch $(OUT)/rule%d/index\n" ct;
       Printf.fprintf o "\t/bin/rm -f $(OUT)/rule%d/redodiff\n" ct;
-      Printf.fprintf o "\t/usr/bin/touch $(OUT)/rule%d/redodiff\n" ct
+      Printf.fprintf o "\t/usr/bin/touch $(OUT)/rule%d/redodiff\n" ct;
+      Printf.fprintf o "\t/bin/rm -f $(OUT)/rule%d/diff\n" ct;
+      Printf.fprintf o "\t/usr/bin/touch $(OUT)/rule%d/diff\n" ct
     end
 
 let mkname file =
@@ -78,17 +80,21 @@ let print_to_get_files o ct code =
 	  Printf.fprintf o
 	    "\techo test -e rule%d/%s \\&\\& \\(diff -u rule%d/%s rule%d/%s \\| diffstat\\) >> $(OUT)/rule%d/redodiff\n"
 	    ct (cocciresfile(mkname file)) ct (resfile(mkname file))
-	    ct (cocciresfile(mkname file)) ct)
+	    ct (cocciresfile(mkname file)) ct;
+	  Printf.fprintf o
+	    "\techo git diff %s %s >> $(OUT)/rule%d/diff\n"
+	    (mkname file) (resfile(mkname file)) ct)
 	files;
       List.length files
     end
   else 0
 
-let run_spdiff cocci o rules =
+let run_spdiff cocci o rules = (* also spinfer *)
 (*  Printf.fprintf o
     "\nSCMD=spdiff -specfile index -spatch -prune -filter_spatches -only_changes -threshold\n\n"; *)
   Printf.fprintf o
-    "\nSCMD=spdiff -specfile index -prune -filter_spatches -only_changes -threshold\n\n";
+    "\nSCMD=cd $(OUT)/$<; spdiff -specfile index -prune -filter_spatches -only_changes -threshold\n\n";
+  Printf.fprintf o "SPICMD=cd $(OUT)/$<; spinfer -f index --output-file $(OUT)/$</spinfer.cocci > $(OUT)/$</spinfer.out 2> $(OUT)/$</spinfer.tmp\n\n";
   let ct = ref 0 in
   List.iter
     (function (label,change_table,change_result) ->
@@ -98,8 +104,10 @@ let run_spdiff cocci o rules =
 	  ct := !ct + 1;
 	  Printf.fprintf o "rule%d.spd: rule%d\n" !ct !ct;
 	  Printf.fprintf o
-	    "\tcd $(OUT)/rule%d; $(SCMD) $(FILES%d) > $(OUT)/rule%d/spdiff.out 2> $(OUT)/rule%d/spdiff.tmp\n\n"
-	    !ct !ct !ct !ct)
+	    "\t$(SCMD) $(FILES%d) > $(OUT)/$</spdiff.out 2> $(OUT)/$</spdiff.tmp\n\n"
+	    !ct;
+	  Printf.fprintf o "rule%d.spi: rule%d\n" !ct !ct;
+	  Printf.fprintf o "\t$(SPICMD)\n\n")
 	multidir_table)
     rules;
   Printf.fprintf o "spdiffall: %s\n"
@@ -107,6 +115,12 @@ let run_spdiff cocci o rules =
        (let rec loop = function
 	   0 -> []
 	 | n -> (Printf.sprintf "rule%d.spd" n) :: (loop (n-1)) in
+       List.rev (loop !ct)));
+  Printf.fprintf o "spinferall: %s\n"
+    (String.concat " "
+       (let rec loop = function
+	   0 -> []
+	 | n -> (Printf.sprintf "rule%d.spi" n) :: (loop (n-1)) in
        List.rev (loop !ct)))
 
 let cocci_header cocci o =
@@ -343,14 +357,8 @@ let make_files (change_result,filtered_results) evolutions =
       end
     else open_out "/dev/null" in
   cocci_prolog sp_file filtered_results;
-  (* filtered results only *)
-  List.iter
-    (function (label,change_table,change_result) ->
-      file_data sp_file get_files CE.ce2sp
-	pre_print_to_get_files print_to_get_files
-	change_result)
-    filtered_results;
   let cocci = "all"^(Filename.basename all_name) in
+  cocci_tail cocci get_files;
   run_spdiff cocci get_files filtered_results;
   cocci_header cocci get_files;
   run_coccis cocci get_files filtered_results;
@@ -359,6 +367,12 @@ let make_files (change_result,filtered_results) evolutions =
   rerun_icoccis cocci get_files filtered_results;
   run_ococcis cocci get_files filtered_results;
   run_pcoccis cocci get_files filtered_results;
-  cocci_tail cocci get_files;
+  (* filtered results only *)
+  List.iter
+    (function (label,change_table,change_result) ->
+      file_data sp_file get_files CE.ce2sp
+	pre_print_to_get_files print_to_get_files
+	change_result)
+    filtered_results;
   close_out sp_file;
   close_out get_files

@@ -108,16 +108,16 @@ let get_max l =
 
 (* turn - into _ because - cannot occur in the middle of an identifier *)
 let normalize s =
-  let s = String.copy s in
+  let s = Bytes.of_string s in
   let ctr = ref 0 in
   String.iter
     (function c ->
       (match c with
-	'-' -> String.set s !ctr '_'
+	'-' -> Bytes.set s !ctr '_'
       |	_ -> ());
       ctr := !ctr + 1)
     s;
-  s
+  Bytes.to_string s
 
 (* -------------------------------------------------------------------- *)
 (* strings *)

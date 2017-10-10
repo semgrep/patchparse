@@ -180,8 +180,7 @@ let function_declaration fn args =
   (  (*old: (args = [Ast.EXPR([Ast.SYMBOL([Ast.IDENT("void")])])]) *)
    (match args with
      [Ast.EXPR([Ast.SYMBOL([Ast.IDENT("void",_)])])] -> true
-   | _ -> false)
-     or
+   | _ -> false) ||
   (all_ids fn &&
    (List.exists
       (function Ast.EXPR([Ast.SYMBOL(s)]) -> List.length s > 1 | _ -> false)
@@ -391,7 +390,7 @@ and convert_exprlist no_fn_name_allowed no_assign_lhs_allowed exprlist =
     | PAREN([EXPR(arg)],known)::((PAREN(args,known1)::_) as rest)
       when not(List.length args = 1) ->
 	Ast.SYMBOL([mkparen arg known])::(loop rest)
-    | PAREN(args,known)::rest ->
+    | (PAREN(args,known)::rest) as l ->
 	let (fn,rest) = find_symbol rest false in
 	(match fn with
 	  None ->
@@ -406,7 +405,12 @@ and convert_exprlist no_fn_name_allowed no_assign_lhs_allowed exprlist =
 		  Ast.CALL
 		    (Ast.SYMBOL([Ast.IDENT(Ast.bext ("",__unknown_line))]),
 		     convert_codelist false args,known)::loop rest
-		else failwith "missing function name")
+		else
+		  begin
+		    Printf.eprintf "exprlist: %s\n"
+		      (unparse_expr_list l); flush stderr;
+		    failwith "missing function name"
+		  end)
 	| Some fn ->
 	    let new_args = convert_codelist false args in
 	    if rest = [] && function_declaration fn new_args
@@ -421,5 +425,5 @@ and convert_exprlist no_fn_name_allowed no_assign_lhs_allowed exprlist =
 
 
 let convert c =
-(*  Printf.printf "converting %s\n" (unparse_code_list c);*)
+(*Printf.eprintf "converting %s\n" (unparse_code_list c); flush stderr;*)
   top_convert_codelist true c

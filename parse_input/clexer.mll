@@ -28,7 +28,10 @@ let lexeme_line lexbuf =
 ** Useful primitives
 *)
 let rem_quotes str = String.sub str 1 ((String.length str) - 2)
-let scan_ident id = IDENT id
+let scan_ident id =
+  match List.rev (Str.split (Str.regexp "_") (fst id)) with
+    "t"::_|"T"::_ -> TYPE id (* typically typedef, at least for Linux *)
+  | _ -> IDENT id
 (*
 ** Buffer processor
 *)
@@ -191,6 +194,8 @@ rule initial =
 	|               "ulong"         {TYPE(lexeme_line lexbuf)}
 	|               "void"          {TYPE(lexeme_line lexbuf)}
 	|               "unsigned"      {TYPE(lexeme_line lexbuf)}
+	|               "u8"|"u16"|"u32"|"u64" {TYPE(lexeme_line lexbuf)}
+	|               "s8"|"s16"|"s32"|"s64" {TYPE(lexeme_line lexbuf)}
 	|               "struct"        {TYPE(lexeme_line lexbuf)}
 	| ident '<' ident '>'		{scan_ident (lexeme_line lexbuf)}
 	| ident '<' '>'			{scan_ident (lexeme_line lexbuf)}

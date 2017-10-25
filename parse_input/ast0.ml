@@ -61,7 +61,7 @@ and unparse_expr = function
       Printf.sprintf "{%s%s" (unparse_code_list codelist)
 	(if known = Ast.KNOWN then "}" else "")
   | CALL((nm,_),args,known) | DECLARER((nm,_),args,known) ->
-      Printf.sprintf "%s(%s%s" nm (unparse_code_list args)
+      Printf.sprintf "c:%s(%s%s" nm (unparse_code_list args)
 	(if known = Ast.KNOWN then ")" else "")
 
 and unparse_symbol l = String.concat "" (List.map unparse_prim l)

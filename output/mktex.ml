@@ -279,7 +279,7 @@ let make_files (change_result,filtered_results) evolutions =
     if !Config.print_parsable
     then
       open_out
-	(Printf.sprintf "%s/all%s.out" !Config.out_dir
+	(Printf.sprintf "%s/all%s.pout" !Config.out_dir
 	   (Filename.basename all_name))
     else open_out "/dev/null" in
   tex_prolog tex_file;

@@ -212,7 +212,7 @@ let postprocess_md_table table =
   let versions_of_all =
     List.map
       (function entry ->
-	List.map (function ((ver,data),ct) -> ver) (snd entry))
+	(entry, List.map (function ((ver,data),ct) -> ver) (snd entry)))
       convert_version_numbers in
   (* cluster overlapping commits *)
   let rec merge_intersecting_versions = function
@@ -220,11 +220,11 @@ let postprocess_md_table table =
     | [x] -> [[fst x]]
     | (x,versions)::xs ->
 	let (others,rest) =
-	  List.filter
+	  List.partition
 	    (function (y,versions2) -> intersects versions versions2)
 	    xs in
 	(x::List.map fst others) :: merge_intersecting_versions rest in
-  merge_intersecting_versions convert_version_numbers
+  merge_intersecting_versions versions_of_all
 
 let stddev l =
   let ave = (float_of_int(Aux.sum l)) /. (float_of_int(List.length l)) in
@@ -338,7 +338,8 @@ type result =
       (string (*dir*) *
 	 (string (*version*) * (CE.ce * int (*count*)) list) list) list *
       (CE.ce *
-	 ((string (*version*) * string (*dir*)) * int (*count*)) list) list *
+	 ((string (*version*) * string (*dir*)) * int (*count*)) list)
+      list list *
       (CE.ce *
 	 ((string (*version*) * string (*dir*)) * int (*count*)) list) list *
       (CE.ce *

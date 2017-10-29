@@ -311,36 +311,26 @@ let file_data sp_file get_files
 	let fct_comment =
 	  List.map
 	    (function version ->
-	      
+	      let version = CE.clean version in
+              let (git_code,grest) = split_git_version version in
+		  (* there is an entry for each dir, but don't print them *)
+	      let fct = print_to_get_files get_files !ct git_code in
+	      let unused_tokens =
+		try !(Hashtbl.find Eqclasses.version_unused_table version)
+		with Not_found -> 0 in
+	      let front =
+		Printf.sprintf "%s: %d unused hunks" git_code unused_tokens in
+	      (fct,(version,front)))
+	    versions in
+	let (fcts,comment) = List.split fct_comment in
+	let fct = List.fold_left (+) 0 fcts in
+	Printf.fprintf get_files "FILES%d=%d\n" !ct fct;
 	List.iter
 	  (function (change,data) ->
-	    let fct_comment =
-	      let rec loop prev = function
-		  [] -> []
-		| ((version,dir),count)::rest ->
-                    let version = CE.clean version in
-                    let (git_code,grest) = split_git_version version in
-		  (* there is an entry for each dir, but don't print them *)
-                    if prev = git_code
-                    then loop prev rest
-		    else
-		      begin
-			let fct = print_to_get_files get_files !ct git_code in
-			let unused_tokens =
-			  try !(Hashtbl.find Eqclasses.version_unused_table
-				  version)
-			  with Not_found -> 0 in
-			let front =
-			  Printf.sprintf "%s: %d unused hunks" git_code
-			    unused_tokens in
-			(fct,front) :: (loop git_code rest)
-		      end in
-              loop "" data in
-	    let (fcts,comment) = List.split fct_comment in
-	    let fct = List.fold_left (+) 0 fcts in
-	    Printf.fprintf get_files "FILES%d=%d\n" !ct fct;
 	    Printf.fprintf sp_file "/*\n%s\n*/\n\n"
-	      (String.concat "\n" comment);
+	      (String.concat "\n"
+		 (List.map (function ((ver,_),_) -> List.assoc ver comment)
+		    data));
 	    Printf.fprintf sp_file "%s" (printer_sp !ct change))
 	  data)
       data in

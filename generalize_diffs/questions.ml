@@ -169,7 +169,7 @@ let postprocess_directory_table table =
     table
 
 (* try to collect similar versions together, so we don't end up with too
-many colors in the final graph *)
+many colors in the final graph. Then cluster when overlapping commits. *)
 
 let postprocess_md_table table =
   let table_data =
@@ -208,8 +208,23 @@ let postprocess_md_table table =
 	     ((Config.get_version version,data),ct))
 	   data))
       sort_by_version in
-  convert_version_numbers
-
+  let intersects l1 l2 = List.exists (fun x -> List.mem x l2) l1 in
+  let versions_of_all =
+    List.map
+      (function entry ->
+	List.map (function ((ver,data),ct) -> ver) (snd entry))
+      convert_version_numbers in
+  (* cluster overlapping commits *)
+  let rec merge_intersecting_versions = function
+      [] -> []
+    | [x] -> [[fst x]]
+    | (x,versions)::xs ->
+	let (others,rest) =
+	  List.filter
+	    (function (y,versions2) -> intersects versions versions2)
+	    xs in
+	(x::List.map fst others) :: merge_intersecting_versions rest in
+  merge_intersecting_versions convert_version_numbers
 
 let stddev l =
   let ave = (float_of_int(Aux.sum l)) /. (float_of_int(List.length l)) in

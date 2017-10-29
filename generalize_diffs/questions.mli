@@ -4,7 +4,8 @@ type result =
       (string (*dir*) *
 	 (string (*version*) * (Ce.ce * int (*count*)) list) list) list *
       (Ce.ce *
-	 ((string (*version*) * string (*dir*)) * int (*count*)) list) list *
+	 ((string (*version*) * string (*dir*)) * int (*count*)) list)
+      list list *
       (Ce.ce *
 	 ((string (*version*) * string (*dir*)) * int (*count*)) list) list *
       (Ce.ce *

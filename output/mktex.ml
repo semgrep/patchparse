@@ -4,7 +4,8 @@ module CE = Ce
 
 let split_git_version version =
   match Str.split (Str.regexp " ") version with
-    git_code :: rest -> let rest = String.concat " " rest in (git_code,rest)
+    git_code :: start :: rest ->
+      let rest = String.concat " " rest in (git_code,int_of_string start,rest)
   | _ -> failwith "bad version"
 
 (* -------------------------------------------------------------------- *)
@@ -81,7 +82,7 @@ let file_data tex_file out_file
 			 let version = CE.clean version in
 			 let dir = CE.clean dir in
 			 let (prev,front) =
-			   let (git_code,rest) = split_git_version version in
+			   let (git_code,_,rest) = split_git_version version in
 			   (git_code,
                             if prev = git_code
                             then
@@ -119,7 +120,7 @@ let file_data tex_file out_file
 	    let unused_tokens =
 	      try !(Hashtbl.find Eqclasses.version_unused_table version)
 	      with Not_found -> 0 in
-	    let (git_code,rest) = split_git_version version in
+	    let (git_code,_,rest) = split_git_version version in
 	    Printf.fprintf tex_file
 	      "\\subsection{\\href{%s%s}{%s}} \\emph{%s}\n\n\\noindent %d dirs %d unused tokens\n\n\\bigskip\n\n" 
 	      !Config.url git_code git_code rest (List.length data) unused_tokens

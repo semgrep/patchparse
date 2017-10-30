@@ -5,7 +5,8 @@ module CE = Ce
 
 let split_git_version version =
   match Str.split (Str.regexp " ") version with
-    git_code :: rest -> let rest = String.concat " " rest in (git_code,rest)
+    git_code :: start :: rest ->
+      let rest = String.concat " " rest in (git_code,int_of_string start,rest)
   | _ -> failwith "bad version"
 
 (* -------------------------------------------------------------------- *)
@@ -48,7 +49,7 @@ let pre_print_to_get_files o ct =
 let mkname file =
   String.concat "__" (Str.split (Str.regexp "/") file)
 
-let print_to_get_files o ct code =
+let extract_files o ct code =
   if !Config.git && not (!Config.gitdir = "")
   then
     begin
@@ -63,31 +64,33 @@ let print_to_get_files o ct code =
 	      _::file::_ -> file
 	    | _ -> failwith "bad diff")
 	  diffs in
-      List.iter
-	(function file ->
-	  Printf.fprintf o "\tcd %s ; \\\n" !Config.gitdir;
-	  let resfile s =
-	    match List.rev (Str.split (Str.regexp_string ".") s) with
-	      x::xs -> String.concat "." (List.rev (x :: "res" :: xs))
-	    | _ -> failwith "bad file" in
-	  let cocciresfile s = s ^ ".cocci_res" in
-	  Printf.fprintf o
-	    "\tgit cat-file blob %s^:%s > $(OUT)/rule%d/%s ; \\\n\tgit cat-file blob %s:%s > $(OUT)/rule%d/%s ; \\\n"
-	    code file ct (mkname file)
-	    code file ct (resfile(mkname file));
-	  Printf.fprintf o "\techo %s %s >> $(OUT)/rule%d/index\n"
-	    (mkname file) (resfile(mkname file)) ct;
-	  Printf.fprintf o
-	    "\techo test -e rule%d/%s \\&\\& \\(diff -u rule%d/%s rule%d/%s \\| diffstat\\) >> $(OUT)/rule%d/redodiff\n"
-	    ct (cocciresfile(mkname file)) ct (resfile(mkname file))
-	    ct (cocciresfile(mkname file)) ct;
-	  Printf.fprintf o
-	    "\techo git diff %s %s >> $(OUT)/rule%d/diff\n"
-	    (mkname file) (resfile(mkname file)) ct)
-	files;
-      List.length files
+      files
     end
-  else 0
+  else []
+
+let print_to_get_files o ct file vers =
+  let vers = List.map snd (List.sort compare vers) in
+  let most_recent = List.hd vers in
+  let oldest = List.hd (List.rev vers) in
+  Printf.fprintf o "\tcd %s ; \\\n" !Config.gitdir;
+  let resfile s =
+    match List.rev (Str.split (Str.regexp_string ".") s) with
+      x::xs -> String.concat "." (List.rev (x :: "res" :: xs))
+    | _ -> failwith "bad file" in
+  let cocciresfile s = s ^ ".cocci_res" in
+  Printf.fprintf o
+    "\tgit cat-file blob %s^:%s > $(OUT)/rule%d/%s ; \\\n\tgit cat-file blob %s:%s > $(OUT)/rule%d/%s ; \\\n"
+    oldest file ct (mkname file)
+    most_recent file ct (resfile(mkname file));
+  Printf.fprintf o "\techo %s %s >> $(OUT)/rule%d/index\n"
+    (mkname file) (resfile(mkname file)) ct;
+  Printf.fprintf o
+    "\techo test -e rule%d/%s \\&\\& \\(diff -u rule%d/%s rule%d/%s \\| diffstat\\) >> $(OUT)/rule%d/redodiff\n"
+    ct (cocciresfile(mkname file)) ct (resfile(mkname file))
+    ct (cocciresfile(mkname file)) ct;
+  Printf.fprintf o
+    "\techo git diff %s %s >> $(OUT)/rule%d/diff\n"
+    (mkname file) (resfile(mkname file)) ct
 
 let run_spdiff cocci o rules = (* also spinfer *)
 (*  Printf.fprintf o
@@ -308,20 +311,33 @@ let file_data sp_file get_files
 		  if List.mem version ver then ver else version :: ver)
 		ver data)
 	    [] data in
+	let file_table = Hashtbl.create 101 in
+	let hashadd file ver =
+	  let cell =
+	    try Hashtbl.find file_table file
+	    with Not_found ->
+	      let cell = ref [] in
+	      Hashtbl.add file_table file cell;
+	      cell in
+	  cell := ver :: !cell in
 	let fct_comment =
 	  List.map
 	    (function version ->
 	      let version = CE.clean version in
-              let (git_code,grest) = split_git_version version in
+              let (git_code,start,grest) = split_git_version version in
 		  (* there is an entry for each dir, but don't print them *)
-	      let fct = print_to_get_files get_files !ct git_code in
+	      let files = extract_files get_files !ct git_code in
 	      let unused_tokens =
 		try !(Hashtbl.find Eqclasses.version_unused_table version)
 		with Not_found -> 0 in
 	      let front =
 		Printf.sprintf "%s: %d unused hunks" git_code unused_tokens in
-	      (fct,(version,front)))
+	      List.iter (fun file -> hashadd file (start,version)) files;
+	      (List.length files,(version,front)))
 	    versions in
+	Hashtbl.iter
+	  (fun file vers -> print_to_get_files get_files !ct file !vers)
+	  file_table;
 	let (fcts,comment) = List.split fct_comment in
 	let fct = List.fold_left (+) 0 fcts in
 	Printf.fprintf get_files "FILES%d=%d\n" !ct fct;

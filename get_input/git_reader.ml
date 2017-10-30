@@ -22,7 +22,7 @@ let rec drop_git_start in_lines =
 	      (match Str.split (Str.regexp " ") ld with
 		"Date:"::_::_::_::month::day::_::year::_ ->
 		  let date = String.concat " " [month;day;year] in
-		  let ver = Printf.sprintf "%s %s %s" code name date in
+		  let ver = Printf.sprintf "%s %d %s %s" code nc name date in
 		  loop ver code rest
 	      | _ -> failwith (Printf.sprintf "bad git file %s" ld))
 	  | "Merge:"::_ -> loop "" "" rest

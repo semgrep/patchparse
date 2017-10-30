@@ -332,7 +332,7 @@ let file_data sp_file get_files
 		with Not_found -> 0 in
 	      let front =
 		Printf.sprintf "%s: %d unused hunks" git_code unused_tokens in
-	      List.iter (fun file -> hashadd file (start,version)) files;
+	      List.iter (fun file -> hashadd file (start,git_code)) files;
 	      (List.length files,(version,front)))
 	    versions in
 	Hashtbl.iter

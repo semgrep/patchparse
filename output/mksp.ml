@@ -96,8 +96,8 @@ let run_spdiff cocci o rules = (* also spinfer *)
 (*  Printf.fprintf o
     "\nSCMD=spdiff -specfile index -spatch -prune -filter_spatches -only_changes -threshold\n\n"; *)
   Printf.fprintf o
-    "\nSCMD=cd $(OUT)/$<; timeout 40 spdiff -specfile index -prune -filter_spatches -only_changes -threshold\n\n";
-  Printf.fprintf o "SPICMD=cd $(OUT)/$<; spinfer -f index -o $(OUT)/$</spinfer.cocci -d $(OUT)/$</spinfer.cocci.debug > $(OUT)/$</spinfer.out 2> $(OUT)/$</spinfer.tmp\n\n";
+    "\nSCMD=cd $(OUT)/$<; spdiff -specfile index -prune -filter_spatches -only_changes -threshold\n\n";
+  Printf.fprintf o "SPICMD=cd $(OUT)/$<; timeout 40 spinfer -f index -o $(OUT)/$</spinfer.cocci -d $(OUT)/$</spinfer.cocci.debug > $(OUT)/$</spinfer.out 2> $(OUT)/$</spinfer.tmp\n\n";
   let ct = ref 0 in
   List.iter
     (function (label,change_table,change_result) ->

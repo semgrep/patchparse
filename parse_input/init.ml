@@ -106,7 +106,8 @@ let rec drop_slash_input lines =
       then false
       else
 	match String.get ln 0 with
-	  '+' | '-' | ' ' | '@' | 'd' | 'i' | 'n' | 'o' -> true
+	  (* see arguments to start_string *)
+	  '+' | '-' | ' ' | '@' | 'd' | 'i' | 'n' | 'o' | 's' -> true
 	| '\\' | 'B' (*Binary files differ*) -> false
 	| c ->
 	    failwith

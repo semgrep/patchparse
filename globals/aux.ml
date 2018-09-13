@@ -107,8 +107,8 @@ let get_max l =
 (* filename manipulation, for use by the parser *)
 
 (* turn - into _ because - cannot occur in the middle of an identifier *)
-let normalize s =
-  let s = Bytes.of_string s in
+let normalize s1 =
+  let s = Bytes.of_string s1 in
   let ctr = ref 0 in
   String.iter
     (function c ->
@@ -116,7 +116,7 @@ let normalize s =
 	'-' -> Bytes.set s !ctr '_'
       |	_ -> ());
       ctr := !ctr + 1)
-    s;
+    s1;
   Bytes.to_string s
 
 (* -------------------------------------------------------------------- *)

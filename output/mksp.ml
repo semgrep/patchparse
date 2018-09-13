@@ -65,7 +65,8 @@ let extract_files o ct code =
 	    | _ -> failwith "bad diff")
 	  diffs in
       List.filter
-	(function fl -> Filename.check_suffix fl ".c" || Filename.check_suffix fl ".h")
+	(function fl ->
+	  Filename.check_suffix fl ".c" || Filename.check_suffix fl ".h")
 	files
     end
   else []

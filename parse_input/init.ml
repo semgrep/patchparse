@@ -270,6 +270,7 @@ let process_lines version dirname filename lines =
     | ((n,ln)::rest) as lines ->
 	if start_string "diff " ln || start_string "--- " ln ||
 	  start_string "index " ln ||
+	  start_string "similarity index " ln ||
 	  start_string "new file mode " ln ||
 	  start_string "old file mode " ln ||
 	  start_string "new mode " ln ||

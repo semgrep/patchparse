@@ -107,7 +107,7 @@ let rec drop_slash_input lines =
       else
 	match String.get ln 0 with
 	  (* see arguments to start_string *)
-	  '+' | '-' | ' ' | '@' | 'd' | 'i' | 'n' | 'o' | 's' -> true
+	  '+' | '-' | ' ' | '@' | 'd' | 'i' | 'n' | 'o' | 's' | 'r' -> true
 	| '\\' | 'B' (*Binary files differ*) -> false
 	| c ->
 	    failwith
@@ -272,6 +272,7 @@ let process_lines version dirname filename lines =
 	if start_string "diff " ln || start_string "--- " ln ||
 	  start_string "index " ln ||
 	  start_string "similarity index " ln ||
+	  start_string "rename from " ln ||
 	  start_string "new file mode " ln ||
 	  start_string "old file mode " ln ||
 	  start_string "new mode " ln ||

@@ -18,7 +18,7 @@ let cocci_prolog o rules =
   let ct = ref 0 in
   List.iter
     (function (label,change_table,change_result) ->
-      let (_,_,multidir_table,_,_) = change_result in
+      let (_,_,multidir_table,_,_,_) = change_result in
       List.iter
 	(function _ ->
 	  ct := !ct + 1;
@@ -104,7 +104,7 @@ let run_spdiff cocci o rules = (* also spinfer *)
   let ct = ref 0 in
   List.iter
     (function (label,change_table,change_result) ->
-      let (_,_,multidir_table,_,_) = change_result in
+      let (_,_,multidir_table,_,_,_) = change_result in
       List.iter
 	(function _ ->
 	  ct := !ct + 1;
@@ -144,7 +144,7 @@ let run_coccis cocci o rules =
   let ct = ref 0 in
   List.iter
     (function (label,change_table,change_result) ->
-      let (_,_,multidir_table,_,_) = change_result in
+      let (_,_,multidir_table,_,_,_) = change_result in
       List.iter
 	(function _ ->
 	  ct := !ct + 1;
@@ -169,7 +169,7 @@ let run_icoccis cocci o rules =
   let ct = ref 0 in
   List.iter
     (function (label,change_table,change_result) ->
-      let (_,_,multidir_table,_,_) = change_result in
+      let (_,_,multidir_table,_,_,_) = change_result in
       List.iter
 	(function _ ->
 	  ct := !ct + 1;
@@ -192,7 +192,7 @@ let rerun_coccis cocci o rules =
   let ct = ref 0 in
   List.iter
     (function (label,change_table,change_result) ->
-      let (_,_,multidir_table,_,_) = change_result in
+      let (_,_,multidir_table,_,_,_) = change_result in
       List.iter
 	(function _ ->
 	  ct := !ct + 1;
@@ -221,7 +221,7 @@ let rerun_icoccis cocci o rules =
   let ct = ref 0 in
   List.iter
     (function (label,change_table,change_result) ->
-      let (_,_,multidir_table,_,_) = change_result in
+      let (_,_,multidir_table,_,_,_) = change_result in
       List.iter
 	(function _ ->
 	  ct := !ct + 1;
@@ -248,7 +248,7 @@ let run_pcoccis cocci o rules =
   let ct = ref 0 in
   List.iter
     (function (label,change_table,change_result) ->
-      let (_,_,multidir_table,_,_) = change_result in
+      let (_,_,multidir_table,_,_,_) = change_result in
       List.iter
 	(function _ ->
 	  ct := !ct + 1;
@@ -271,7 +271,7 @@ let run_ococcis cocci o rules =
   let ct = ref 0 in
   List.iter
     (function (label,change_table,change_result) ->
-      let (_,_,multidir_table,_,_) = change_result in
+      let (_,_,multidir_table,_,_,_) = change_result in
       List.iter
 	(function _ ->
 	  ct := !ct + 1;
@@ -299,7 +299,8 @@ let cocci_tail cocci o =
 let file_data sp_file get_files
     (printer_sp : int -> 'change -> string)
     pre_print_to_get_files print_to_get_files
-    ((version_table,dir_table,multidir_table,multiver_table1,multiver_table2):
+    ((version_table,dir_table,multidir_table,_,
+      multiver_table1,multiver_table2):
        Questions.result) =  
   let pcm data = (* multi git code *)
     List.iter
@@ -348,7 +349,9 @@ let file_data sp_file get_files
 	  (function (change,data) ->
 	    Printf.fprintf sp_file "/*\n%s\n*/\n\n"
 	      (String.concat "\n"
-		 (List.map (function ((ver,_),_) -> List.assoc ver comment)
+		 (List.map
+		    (function ((ver,_),_) ->
+		      List.assoc (CE.clean ver) comment)
 		    data));
 	    Printf.fprintf sp_file "%s" (printer_sp !ct change))
 	  data)

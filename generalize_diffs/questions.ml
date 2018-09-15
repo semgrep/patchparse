@@ -44,7 +44,7 @@ let reorganize pre_fn get_header get_sub1 get_sub2
 	let vdc = pre_fn vdc in
 	List.iter
 	  (function ((version,dir),count,files, regions, not_al_changeset) ->
-	    let data = (change,version,dir,count) in
+	    let data = (change,version,dir,files,count) in
 	    let header = get_header data in
 	    let sub1 = get_sub1 data in
 	    let sub2 = get_sub2 data in
@@ -88,23 +88,23 @@ let git_version_restrict vdc =
 
 let make_version_table in_table out_table =
   reorganize git_version_restrict
-    (function (change,version,dir,count) -> version)
-    (function (change,version,dir,count) -> dir)
-    (function (change,version,dir,count) -> (change,count))
+    (function (change,version,dir,files,count) -> version)
+    (function (change,version,dir,files,count) -> dir)
+    (function (change,version,dir,files,count) -> (change,count))
     in_table out_table
 
 let make_directory_table in_table out_table =
   reorganize id
-    (function (change,version,dir,count) -> dir)
-    (function (change,version,dir,count) -> version)
-    (function (change,version,dir,count) -> (change,count))
+    (function (change,version,dir,files,count) -> dir)
+    (function (change,version,dir,files,count) -> version)
+    (function (change,version,dir,files,count) -> (change,count))
     in_table out_table
 
 let make_multidir_table in_table out_table =
   reorganize id
-    (function (change,version,dir,count) -> change)
-    (function (change,version,dir,count) -> version)
-    (function (change,version,dir,count) -> (dir,count))
+    (function (change,version,dir,files,count) -> change)
+    (function (change,version,dir,files,count) -> version)
+    (function (change,version,dir,files,count) -> (dir,count))
     in_table out_table;
   (* drop the entries that are not in enough directories *)
   let entries =
@@ -123,6 +123,75 @@ let make_multidir_table in_table out_table =
   List.iter
     (function (change,versions,info) ->
       if versions >= !Config.directory_threshold
+      then Hashtbl.add out_table change info)
+    entries
+
+(* consider only commits by the same author to cluster together *)
+let make_multidir_table2 in_table out_table =
+  let split_git_version version =
+    match Str.split (Str.regexp " ") version with
+      git_code :: start :: rest ->
+	let rest = String.concat " " rest in
+	(git_code,int_of_string start,rest)
+    | _ -> failwith "bad version" in
+  let author v =
+    let version = Hashtbl.find Config.version_table v in
+    let (_,_,rest) = split_git_version version in
+    let pieces = Str.split (Str.regexp " ") rest in
+    (* drop date *)
+    let name = List.rev (List.tl (List.tl (List.tl (List.rev pieces)))) in
+    String.concat " " name in
+  (* need a new hash table because the other tables don't include files *)
+  let tmp = Hashtbl.create 101 in
+  reorganize id
+    (function (change,version,dir,files,count) -> (change,author version))
+    (function (change,version,dir,files,count) -> version)
+    (function (change,version,dir,files,count) -> (dir,files,count))
+    in_table tmp;
+  (* drop the entries that are not in enough directories *)
+  let entries =
+    Hashtbl.fold
+      (function change ->
+	function info ->
+	  function rest ->
+	    let versions =
+	      (List.length
+		 (List.concat
+		    (List.map (function (version,dir_cts) -> !dir_cts)
+		       !info))) in
+	    (* recheck thresholds due to spliting *)
+	    let fls =
+	      List.fold_left (+) 0
+		(List.map
+		   (function (version,dir_cts) ->
+		     List.fold_left (+) 0
+		       (List.map (fun (_,fls,_) -> List.length fls) !dir_cts))
+		   !info) in
+	    let cts =
+	      List.fold_left (+) 0
+		(List.map
+		   (function (version,dir_cts) ->
+		     List.fold_left (+) 0
+		       (List.map (fun (_,_,ct) -> ct) !dir_cts))
+		   !info) in
+	    (* redo this to get rid of the files *)
+	    let info =
+	      ref
+		(List.map
+		   (function (version,dir_cts) ->
+		     (version,
+		      ref
+			(List.map (function (dir,files,counts) -> (dir,counts))
+			   !dir_cts)))
+		   !info) in
+	    (change,versions,fls,cts,info)::rest)
+      tmp [] in
+  Hashtbl.clear out_table;
+  List.iter
+    (function (change,versions,files,counts,info) ->
+      if versions >= !Config.directory_threshold &&
+	 files >= !Config.file_threshold &&
+	 counts >= !Config.same_threshold
       then Hashtbl.add out_table change info)
     entries
 
@@ -306,12 +375,14 @@ let postprocess_mv_table table compute_percentage_multiver =
   List.split(convert_version_numbers)
 
 let postprocess_tables compute_percentage_multiver
-    version_table directory_table multidir_table multiver_table =
+    version_table directory_table multidir_table multidir_table2
+    multiver_table =
   let (mv1,mv2) =
     postprocess_mv_table multiver_table compute_percentage_multiver in
   (postprocess_version_table version_table,
    postprocess_directory_table directory_table,
    postprocess_md_table multidir_table,
+   postprocess_md_table multidir_table2,
    mv1,mv2)
 
 (* -------------------------------------------------------------------- *)
@@ -320,17 +391,19 @@ let postprocess_tables compute_percentage_multiver
 (* make them all so we can easily have a summary *)
 let mk_questions (in_table: Eqclasses.change_table_type) keep_change_table
     compute_percentage_multiver
-    version_table directory_table multidir_table multiver_table =
+    version_table directory_table multidir_table multidir_table2
+    multiver_table =
   (*if List.mem Config.VERSION !Config.desired_info
      then*) make_version_table in_table version_table;
   (*if List.mem Config.DIRECTORY !Config.desired_info
      then*) make_directory_table in_table directory_table;
   (*if List.mem Config.MULTIDIR !Config.desired_info
      then*) make_multidir_table in_table multidir_table;
+  make_multidir_table2 in_table multidir_table2;
   if not keep_change_table
   then Hashtbl.clear in_table;
   postprocess_tables compute_percentage_multiver version_table directory_table
-    multidir_table multiver_table
+    multidir_table multidir_table2 multiver_table
 
 type result =
     (string (*version*) *
@@ -338,6 +411,9 @@ type result =
       (string (*dir*) *
 	 (string (*version*) * (CE.ce * int (*count*)) list) list) list *
       (CE.ce *
+	 ((string (*version*) * string (*dir*)) * int (*count*)) list)
+      list list *
+      ((CE.ce * string) *
 	 ((string (*version*) * string (*dir*)) * int (*count*)) list)
       list list *
       (CE.ce *
@@ -348,4 +424,4 @@ type result =
 let questions change_table keep_change_table compute_percentage_multiver =
   mk_questions change_table keep_change_table compute_percentage_multiver
     (Hashtbl.create 100) (Hashtbl.create 100)
-    (Hashtbl.create 100) (Hashtbl.create 100)
+    (Hashtbl.create 100) (Hashtbl.create 100) (Hashtbl.create 100)

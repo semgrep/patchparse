@@ -38,7 +38,8 @@ let ct = ref 0
 let file_data tex_file out_file
     (printer : 'change -> string)
     (printer_parsable : 'change -> string)
-    ((version_table,dir_table,multidir_table,multiver_table1,multiver_table2):
+    ((version_table,dir_table,multidir_table,multidir_table2(*by name*),
+      multiver_table1,multiver_table2):
        Questions.result) =
   let printed_changes = ref false in
   let pc (data : (string * (Ce.ce * int) list) list) =(* version or directory *)
@@ -138,7 +139,12 @@ let file_data tex_file out_file
   then
     process
       (if !Config.git then "change" else "multi-directory")
-      [("change",multidir_table)] pcm
+      [("change",multidir_table)] pcm;
+  if !Config.git && not (multidir_table2 = [])
+  then
+    process "change by name"
+      [("change", (* drop names, which appear in the lines *)
+	List.map (List.map (fun (v,d) -> (fst v,d))) multidir_table2)] pcm
 
 let print_evolutions tex_file evolutions =
   if List.exists (function (_,_,_,x,_) -> List.length x > 1) evolutions

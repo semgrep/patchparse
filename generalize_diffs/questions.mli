@@ -6,6 +6,9 @@ type result =
       (Ce.ce *
 	 ((string (*version*) * string (*dir*)) * int (*count*)) list)
       list list *
+      ((Ce.ce * string) *
+	 ((string (*version*) * string (*dir*)) * int (*count*)) list)
+      list list *
       (Ce.ce *
 	 ((string (*version*) * string (*dir*)) * int (*count*)) list) list *
       (Ce.ce *

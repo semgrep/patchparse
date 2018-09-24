@@ -6,7 +6,9 @@ filtering on the root. *)
 
 let constants_only = function
     CE.PRIMCE(Ast.IDENT(s1,_),Ast.IDENT(s2,_))
-      when s1 = String.uppercase s1 && s2 = String.uppercase s2 -> true
+      when
+	s1 = String.uppercase_ascii s1 &&
+	s2 = String.uppercase_ascii s2 -> true
   | _ -> false
 
 let anything (_ : CE.ce) = true
@@ -20,9 +22,15 @@ let select_diffs l =
     (List.map
        (function (changelist,info) ->
 	 let filtered =
-	   List.filter
-	     (function Diff.CG(change,_) | Diff.CC(change,_) -> filter change)
-	     changelist in
+	   List.fold_left
+	     (fun prev cur ->
+	       match cur with
+		 Diff.CG(change,_) | Diff.CC(change,_) ->
+		   if filter change
+		   then cur :: prev
+		   else prev)
+	     [] changelist in
+	 let filtered = List.rev filtered in
 	 if filtered = []
 	 then []
 	 else [(filtered,info)])

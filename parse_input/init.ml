@@ -141,9 +141,9 @@ let drop_initial_spaces all_start_with_star s =
 let collect_lines bounded str lines =
   let drop_control ln = (* drop +/- *)
     let len = String.length ln in
-      (String.get ln 0,
-       len > 1 && (List.mem (String.get ln 1) [' ';'\t']),
-       String.sub ln 1 (len - 1)) in
+    (String.get ln 0,
+     len > 1 && (List.mem (String.get ln 1) [' ';'\t']),
+     String.sub ln 1 (len - 1)) in
   let rec collect_conforming bounded (region,len) lines =
     if bounded && len > Config.length_threshold
     then
@@ -168,9 +168,12 @@ let collect_lines bounded str lines =
 	      | _ -> "++++context_line++++" in
 	    let middle =
 	      if space_start then "++++space++++" else "" in
+	    let mylen =
+	      String.length
+		(String.concat "" (Str.split (Str.regexp "[ \t]") ln)) in
 	    let ln = front ^ " " ^ middle ^ " " ^ ln in
 	    collect_conforming bounded
-	      ((n,ln)::region,String.length ln + len)
+	      ((n,ln)::region,mylen + len)
 	      rest
 	  else (List.rev region,len,lines) in
   let (region,len,after) = collect_conforming bounded ([],0) lines in

@@ -4,7 +4,7 @@ let rec drop_git_start in_lines =
   let rec loop ver code = function
       [] -> (ver,code,[])
     | (n,l)::rest ->
-	match Str.split (Str.regexp " ") l with
+	match Str.split_delim (Str.regexp " ") l with
 	  "commit"::_ -> drop_git_start ((n,l)::rest)
 	| "diff"::_ -> (ver,code,((n,l)::rest))
 	| "---"::_ -> (ver,code,((n,l)::rest))
@@ -12,7 +12,7 @@ let rec drop_git_start in_lines =
   match in_lines with
     [] -> failwith "should not happen"
   | (nc,lc)::(na,la)::(nd,ld)::rest ->
-      (match Str.split (Str.regexp " ") lc with
+      (match Str.split_delim (Str.regexp " ") lc with
         ["commit";code] ->
 	  (match
             Str.split (Str.regexp " ")
@@ -24,9 +24,13 @@ let rec drop_git_start in_lines =
 		  let date = String.concat " " [month;day;year] in
 		  let ver = Printf.sprintf "%s %d %s %s" code nc name date in
 		  loop ver code rest
-	      | _ -> failwith (Printf.sprintf "bad git file %s" ld))
+	      | _ ->
+		  failwith
+		    (Printf.sprintf "%s: date: bad git file %s" code ld))
 	  | "Merge:"::_ -> loop "" "" rest
-	  | _ -> failwith (Printf.sprintf "bad git file %s" la))
+	  | _ ->
+	      failwith
+		(Printf.sprintf "%s: after commit: bad git file %s" code la))
       | _ -> drop_git_start ((na,la)::(nd,ld)::rest))
   | _ -> failwith "bad git file"
 	    

@@ -131,36 +131,24 @@ let make_front_unknown = function
 (* Drop substrings that correspond to the file name.  Drop any leading or
 trailing _'s as well *)
 let mkident s =
-  let filename =
-    String.concat "" (Str.split (Str.regexp "_") !Config.filename) in
-  let len = String.length s in
-  let process s filename =
-    if String.lowercase s = filename
-    then s (* don't want to get rid of the whole thing *)
-    else
-      let flen = String.length filename in
-      let rec loop prev n =
-	if n > len-flen
-	then
-	  (String.concat "" (List.rev prev))^(String.sub s n (len-n))
-	else
-	  if String.lowercase(String.sub s n flen) = filename
-	  then
-	    if n = 0 && String.get s (n+flen) (*exists b/c s!=filename*) = '_'
-	    then loop [] (n+flen+1)
-	    else
-	      if n > 0 && n+flen = len && String.get s (n-1) = '_'
-	      then (String.concat "" (List.rev(List.tl prev)))
-	      else loop prev (n+flen)
-	  else loop ((String.sub s n 1)::prev) (n+1) in
-      loop [] 0 in
-  let firstres = process s filename in
-  try
-    let u = String.index filename '_' in
-    let pre_filename = String.sub filename 0 u in
-    process firstres pre_filename
-  with _ -> firstres
-
+  let filename = !Config.filename in
+  let prefilename = List.hd (Str.split (Str.regexp "_") filename) in
+  let process fl s =
+    match Str.bounded_split_delim (Str.regexp (fl^"_")) s 2 with
+      [bef;aft] -> (*found a match*) bef^aft
+    | _ -> (*found no match*)
+	(try
+	  let ender =
+	    String.sub s (String.length s - String.length fl)
+	      (String.length fl) in
+	  if ender = fl
+	  then String.sub s 0 (String.length s - String.length fl)
+	  else s
+	with _-> s) in
+  let e1 = process filename s in
+  if e1 = s
+  then process prefilename s
+  else e1
 
 (* some heuristics to try to distinguish a function declaration from a
 function call *)

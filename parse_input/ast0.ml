@@ -357,7 +357,20 @@ and convert_exprlist no_fn_name_allowed no_assign_lhs_allowed exprlist =
 	      loop rest
 	    else
 	      (match rest with
-		e1::_ ->
+		e1::e2::_ ->
+		  (match (e1,e2) with
+		    (PAREN _,PAREN([EXPR[DSYMBOL[DEREFOP _];SYMBOL[IDENT(x,_)]]],Ast.KNOWN)) ->
+		      (* assumed to be a function pointer type init, just keep the name *)
+		      Ast.ASSIGN(Ast.SYMBOL([Ast.IDENT(Ast.bext (x,__unknown_line))]),
+			 Ast.bext op,
+			 convert_exprlist true false exprlist,known) ::
+		      loop rest
+		  | _ ->
+		      failwith
+			(Printf.sprintf
+			   "missing assignment left hand side: e1: %s === e2: %s === e: %s"
+			   (unparse_expr e1) (unparse_expr e2) (unparse_expr e)))
+	      | e1::_ ->
 		  failwith
 		    (Printf.sprintf
 		       "missing assignment left hand side: %s %s"

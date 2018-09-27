@@ -365,6 +365,12 @@ and convert_exprlist no_fn_name_allowed no_assign_lhs_allowed exprlist =
 			 Ast.bext op,
 			 convert_exprlist true false exprlist,known) ::
 		      loop rest
+		  | (PAREN _,PAREN([EXPR[DSYMBOL[DEREFOP _];SYMBOL[IDENT(x,_);ARRAY(_,Ast.KNOWN)]]],Ast.KNOWN)) ->
+		      (* assumed to be a function pointer type init, just keep the name *)
+		      Ast.ASSIGN(Ast.SYMBOL([Ast.IDENT(Ast.bext (x,__unknown_line))]),
+			 Ast.bext op,
+			 convert_exprlist true false exprlist,known) ::
+		      loop rest
 		  | _ ->
 		      failwith
 			(Printf.sprintf

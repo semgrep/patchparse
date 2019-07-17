@@ -120,24 +120,40 @@ let rec drop_slash_input lines =
 (* -------------------------------------------------------------------- *)
 (* collecting a changed region *)
 
-let drop_initial_spaces all_start_with_star s =
-  (* returns string tail + indication of * at start*)
-  let len = String.length s in
-  let rec loop n =
-    if n = len
-    then ("",false)
-   else
-      let char = String.sub s n 1 in
-      match char with
-	" " | "\n" | "\t" -> loop (n+1)
-      |	"*" when all_start_with_star && n <= 1 && not (Aux.substring "*/" s) ->
-	  ("",true)
-      |	"*" when ((Aux.substring " for " s) || (Aux.substring " while " s) ||
-	(Aux.substring " if " s)) -> ("",true)
-      |	"*" when n < star_near_the_beginning ->
-	  (String.sub s n (String.length s - n),true)
-      |	_ -> (String.sub s n (String.length s - n),false) in
-  loop 0
+let drop_initial_spaces all_start_with_star seen_star s =
+  let s = String.concat "" (Str.split (Str.regexp "\n") s) in
+  let contains_at s = (* typical of comments *)
+    match Str.split_delim (Str.regexp "@") s with
+      _::_::_ -> true
+    | _ -> false in
+  let pieces = Str.split_delim (Str.regexp_string "++++") s in
+  if pieces = []
+  then (s,false,false)
+  else
+    let prefix =
+      String.concat "++++" (List.rev(List.tl(List.rev pieces))) ^ "++++" in
+    let s = List.hd (List.rev pieces) in
+    (* returns string tail + indication of * at start*)
+    let len = String.length s in
+    let rec loop n =
+      if n = len
+      then ("",true,seen_star)
+      else
+	let char = String.sub s n 1 in
+	match char with
+	  " " | "\n" | "\t" -> loop (n+1)
+	| "*"  when contains_at s -> ("",true,true)
+	| "*" when all_start_with_star && n <= 1 &&
+	    not (Aux.substring "*/" s) -> ("",true,true)
+	| "*" when ((Aux.substring " for " s) || (Aux.substring " while " s) ||
+	  (Aux.substring " if " s)) -> ("",true,true)
+	| "*" when n < star_near_the_beginning ->
+	    (String.sub s n (String.length s - n),true,true)
+	| _ -> (String.sub s n (String.length s - n),false,seen_star) in
+    let (sres,flag,seen_star) = loop 0 in
+    if sres = ""
+    then (sres,flag,seen_star)
+    else (prefix^" "^s,flag,seen_star)
 
 
 let collect_lines bounded str lines =
@@ -182,14 +198,14 @@ let collect_lines bounded str lines =
   if bounded && len > Config.length_threshold
   then ("",after)
   else
-    let rec collect_non_comments collected
-	seen_comment_starter all_start_with_star =
+    let rec collect_non_comments ctr collected
+	seen_comment_starter in_all_start_with_star seen_star =
       function
-	[] -> (collected,all_start_with_star)
+	[] -> (collected,in_all_start_with_star)
       |	(n,ln)::rest ->
-	  let (ln,starts_with_star) =
-	    drop_initial_spaces all_start_with_star ln in
-	  let all_start_with_star = starts_with_star && all_start_with_star in
+	  let (ln,starts_with_star,seen_star) =
+	    drop_initial_spaces in_all_start_with_star seen_star ln in
+	  let all_start_with_star = starts_with_star && in_all_start_with_star in
 	  let is_comment_end_line = (* returns the rest, after */ *)
 	    (* this is for the case where we find the end of a comment, but
 	       have not seen the beginning *)
@@ -211,10 +227,14 @@ let collect_lines bounded str lines =
 	    let ln = integrate_line_number n ln in
 	    match is_comment_end_line with
 	      Some ln -> (ln^"\n",false)
-	    | None -> (collected^ln^"\n",all_start_with_star) in
-	  collect_non_comments collected_so_far seen_comment_starter
-	    all_start_with_star rest in
-    match collect_non_comments "" false true region with
+	    | None ->
+		if all_start_with_star = in_all_start_with_star ||
+		ctr <= star_threshold || not seen_star
+		then (collected^ln^"\n",all_start_with_star)
+		else ("",all_start_with_star) in
+	  collect_non_comments (ctr+1) collected_so_far seen_comment_starter
+	    all_start_with_star seen_star rest in
+    match collect_non_comments 1 "" false true false region with
       (_,true) when List.length region > star_threshold (*just comments*) ->
 	("",after)
     | (collected,_) -> (collected,after)

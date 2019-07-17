@@ -265,13 +265,17 @@ and str =
 and chr =
 	parse	'\''			{""}
 	|		hex_escape	{let cur = scan_hex_escape (String.sub
-								      (Lexing.lexeme lexbuf) 2 2) in cur ^ (chr lexbuf)}
+								      (Lexing.lexeme lexbuf) 2 2) in cur ^ (endchr lexbuf)}
 	|		oct_escape	{let cur = scan_oct_escape (String.sub
-								      (Lexing.lexeme lexbuf) 1 3) in cur ^ (chr lexbuf)}
-	|		"\\0"		{(String.make 1 (Char.chr 0)) ^ (chr lexbuf)}
+								      (Lexing.lexeme lexbuf) 1 3) in cur ^ (endchr lexbuf)}
+	|		"\\0"		{(String.make 1 (Char.chr 0)) ^ (endchr lexbuf)}
 	|		escape		{let cur = scan_escape (String.sub
-								  (Lexing.lexeme lexbuf) 1 1) in cur ^ (chr lexbuf)}
-	|		_		{let cur = Lexing.lexeme lexbuf in cur ^ (chr lexbuf)} 
+								  (Lexing.lexeme lexbuf) 1 1) in cur ^ (endchr lexbuf)}
+	|		_		{let cur = Lexing.lexeme lexbuf in cur ^ (endchr lexbuf)} 
+
+and endchr =
+	parse	'\'' {""}
+        | _ {""} (* miss a char, but likely in a comment *)
 	
 {
 

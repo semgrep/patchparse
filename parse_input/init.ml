@@ -156,6 +156,9 @@ let drop_initial_spaces all_start_with_star seen_star s =
     else (prefix^" "^s,flag,seen_star)
 
 
+let minus_line_token = "++++minus_line++++"
+let plus_line_token = "++++plus_line++++"
+let context_line_token = "++++context_line++++"
 let collect_lines bounded str lines =
   let drop_control ln = (* drop +/- *)
     let len = String.length ln in
@@ -181,9 +184,9 @@ let collect_lines bounded str lines =
 	    let (ty,space_start,ln) = drop_control ln in
 	    let front =
 	      match ty with
-		'-' -> "++++minus_line++++"
-	      | '+' -> "++++plus_line++++"
-	      | _ -> "++++context_line++++" in
+		'-' -> minus_line_token
+	      | '+' -> plus_line_token
+	      | _ -> context_line_token in
 	    let middle =
 	      if space_start then "++++space++++" else "" in
 	    let mylen =
@@ -261,14 +264,31 @@ let current_region () =
   | Some s -> "__infunction__" ^ s (* TODO ? get also compteur,  so sure that
    dont mix together same functions  defined in different files *)
 
+(* focus on ; -- drop code between ;s that has no minus or plus code *)
+let focus s marker =
+  let pieces = Str.split (Str.regexp ";[ \t]*\n") s in
+  let marker = Str.regexp marker in
+  let marker2 = Str.regexp context_line_token in
+  let pieces =
+    List.filter
+      (function s ->
+	match Str.split_delim marker s with
+	  _::_::_ -> true
+	| _ ->
+	    match Str.split_delim marker2 s with
+	      _::_::_ -> false
+	    | _ -> true)
+      pieces in
+  String.concat ";" pieces
+
 (* processes a single file *)
 let process_lines version dirname filename lines =
   let block_end start_line before minus plus after =
     if not (all_blank minus && all_blank plus)
     then
       begin
-	let m = before^minus^after in
-	let p = before^plus^after in
+	let m = focus (before^minus^after) minus_line_token in
+	let p = focus (before^plus^after) plus_line_token in
 
 	Parse_error.start_line := start_line;
 

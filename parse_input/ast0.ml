@@ -339,7 +339,7 @@ and convert_exprlist no_fn_name_allowed no_assign_lhs_allowed exprlist =
 	  (None,rest) -> failwith "symbol: can't happen"
 	| (Some sym,rest) -> Ast.SYMBOL(sym)::loop rest)
     (* assignments: find the left-hand side *)
-    | (ASSIGN(op,exprlist,known) as e)::
+    | (ASSIGN(op,exprlist,known))::
       ((CALL _ | DECLARER _ ) as call)::rest ->
 	Ast.ASSIGN(convert_expr call,Ast.bext op,
 		   convert_exprlist true false exprlist,known) ::
@@ -416,12 +416,12 @@ and convert_exprlist no_fn_name_allowed no_assign_lhs_allowed exprlist =
 	let (fn,rest) = find_symbol rest false in
 	(match fn with
 	  None ->
-	    (match (args,known) with
-	      ([EXPR(arg)],_) -> Ast.SYMBOL([mkparen arg known])::(loop rest)
-	    | ([],Ast.ENDUNKNOWN) ->
+	    (match (args,known,rest) with
+	      ([EXPR(arg)],_,_) -> Ast.SYMBOL([mkparen arg known])::(loop rest)
+	    | ([],Ast.ENDUNKNOWN,_) ->
 		Ast.SYMBOL([mkparen [] known])::(loop rest)
-	    | _ ->
-		if rest = [] && no_fn_name_allowed
+	    | (_,_,[]) ->
+		if no_fn_name_allowed
 		then
 		  let known = make_front_unknown known in 
 		  Ast.CALL
@@ -432,7 +432,18 @@ and convert_exprlist no_fn_name_allowed no_assign_lhs_allowed exprlist =
 		    (Printf.sprintf "missing function name: %s %s"
 		       (if rest = [] then "nothing"
 		       else (unparse_expr (List.hd rest)))
-		       (unparse_expr_list l)))
+		       (unparse_expr_list l))
+	    | (_,_,rest) ->
+		match loop rest with
+		  fn::rest ->
+		    let new_args = convert_codelist false args in
+		    Ast.CALL(fn,new_args,known)::rest
+		| _ ->
+		    failwith
+		      (Printf.sprintf "missing function name: %s %s"
+			 (if rest = [] then "nothing"
+			 else (unparse_expr (List.hd rest)))
+			 (unparse_expr_list l)))
 	| Some fn ->
 	    let new_args = convert_codelist false args in
 	    if rest = [] && function_declaration fn new_args

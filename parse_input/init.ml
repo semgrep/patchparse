@@ -52,7 +52,7 @@ let rec find_driver_diff = function
 	let (path,file) as dd = driver_directory ln in
 	let last =
 	  List.hd (List.rev (Str.split (Str.regexp_string ".") file)) in
-	if List.mem last ["c";"java";"cpp";"h"]
+	if List.mem last ["c";"java";"cpp";"py";"h"]
 	then Some (dd,rest) else find_driver_diff rest
       else find_driver_diff rest
 

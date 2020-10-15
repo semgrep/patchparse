@@ -62,3 +62,10 @@ contains clickable links for seeing the patches.
 
 
 Generated files have the name all_ followed by the versions concerned.
+
+
+Calendar is a frontend for using patchparse.  It contains pathnames that
+may need to be updated.
+
+
+All of the software in this repository is covered by the GPLv2 license.

@@ -89,9 +89,18 @@ let file_data tex_file out_file
                             then
                               Printf.sprintf "{\\mbox{%s (%d)}} " dir count
                             else
+			      let unused =
+				try
+				  let ct =
+				    !(Hashtbl.find
+					Eqclasses.version_unused_table
+					version) in
+				  Printf.sprintf "%d unused tokens" ct
+				with Not_found -> "unused tokens unknown" in
                               Printf.sprintf
-				"\n\n\\lefteqn{\\mbox{\\href{%s%s}{%s}: \\emph{%s} %s (%d)}}\n\n"
-				!Config.url git_code git_code rest dir count) in
+				"\n\n\\lefteqn{\\mbox{\\href{%s%s}{%s}: \\emph{%s} %s (%d, %s)}}\n\n"
+				!Config.url git_code git_code rest dir count
+				unused) in
 			 front :: (loop prev rest) in
 		   loop "" data))
               else

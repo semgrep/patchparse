@@ -81,6 +81,8 @@ let usage = "Usage: patchparse [--git file] [--patch file], etc"
 let anonymous str = Config.file := str
 
 let main _ =
+  Gc.set {(Gc.get ()) with Gc.stack_limit = 1000 * 1024 * 1024};
+
   Arg.parse speclist anonymous usage;
   (* collect lines from the git/patch file *)
   let patch_data =

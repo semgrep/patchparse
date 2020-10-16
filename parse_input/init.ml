@@ -111,6 +111,8 @@ let rec drop_slash_input lines =
 	  (* see arguments to start_string *)
 	  '+' | '-' | ' ' | '@' | 'd' | 'i' | 'n' | 'o' | 's' | 'r' -> true
 	| '\\' | 'B' (*Binary files differ*) -> false
+    (* mode, found when analyzing the django repository *)
+    | 'm' -> false
 	| c ->
 	    failwith
 	      (Printf.sprintf "%d: unexpected patch character %c: %s"

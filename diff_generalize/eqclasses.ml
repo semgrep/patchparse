@@ -153,7 +153,7 @@ let build_change_classes (change_worklist: worklist_type)
 	List.iter
 	  (function (entry,version,pathname,filename, region) ->
 	    let (change,context) = split entry in
-	    add_tmp tmp_table (CE.al_ce change) context
+	    add_tmp tmp_table (Ce_al.al_ce change) context
 	      (version, pathname, filename, region, change))
 	  entries;
 	(* see if there are enough of them; if not recurse in the context *)
@@ -220,14 +220,14 @@ let build_change_classes (change_worklist: worklist_type)
 		      then
 			begin
 			  Printf.printf "parent %d\n%s\n" n
-			    (CE.ce2c change);
+			    (Ce_unparse.ce2c change);
 			  Printf.printf "children %s\n%s\n"
 			    (String.concat " " (List.map string_of_int sizes))
 			    (String.concat "\nand\n"
 			       (List.map
 				  (function
 				      Diff.CC(change,_) | Diff.CG(change,_) ->
-					CE.ce2c change)
+					Ce_unparse.ce2c change)
 				  context));
 			  Printf.printf
 			    "a child has the same size as its parent %d %s"
@@ -265,7 +265,7 @@ let print_change_table change_table =
       function site_counts ->
 	Printf.printf "%d: %s\n"
 	  (Aux.sum (List.map (function (_,ct,_,_,_) -> ct) site_counts))
-	  (CE.ce2c change))
+	  (Ce_unparse.ce2c change))
     change_table
     
 (* --------------------------------------------------------------------- *)

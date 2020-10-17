@@ -40,18 +40,18 @@ and context_change =
 let rec al_change = function
   | NO_CHANGE -> NO_CHANGE
   | CHANGE (ce (* the rebuilt expr *), change_type) (* the changes *) -> 
-      CHANGE (CE.al_ce ce, al_change_type change_type)
+      CHANGE (Ce_al.al_ce ce, al_change_type change_type)
     (* if CHANGE contains an IMMEDIATE_EXPR_CHANGE, then ce here should be the
        same as the ce of the IMMEDIATE_EXPR_CHANGE *)
 
 and al_change_type = function
     (* willing to merge with an expr or code context *)
   | IMMEDIATE_EXPR_CHANGE (ce (* the change *) , context_change_list) -> 
-      IMMEDIATE_EXPR_CHANGE (CE.al_ce ce (* the change *),
+      IMMEDIATE_EXPR_CHANGE (Ce_al.al_ce ce (* the change *),
 			      List.map al_context_change context_change_list)
     (* only willing to merge with a code context, ie a code list *)
   | IMMEDIATE_CODE_CHANGE (ce (* the change *) , context_change_list) -> 
-      IMMEDIATE_CODE_CHANGE (CE.al_ce ce (* the change *),
+      IMMEDIATE_CODE_CHANGE (Ce_al.al_ce ce (* the change *),
 			     List.map al_context_change context_change_list) 
     (* not willing to merge *)
   | CONTEXT_CHANGE context_change_list ->
@@ -59,24 +59,24 @@ and al_change_type = function
 
 and al_context_change = function
   | CC ( ce (* the change *) , context_change_list) -> 
-      CC (CE.al_ce ce, List.map al_context_change context_change_list)
+      CC (Ce_al.al_ce ce, List.map al_context_change context_change_list)
   | CG (ce (* a change generalized with EXP or CODE *), context_change_list) ->
-      CG (CE.al_ce ce, List.map al_context_change context_change_list)
+      CG (Ce_al.al_ce ce, List.map al_context_change context_change_list)
 
 
 (* ------------------------------------------------------------------------- *)
 let rec have_al_change = function
   | NO_CHANGE -> false
   | CHANGE (ce (* the rebuilt expr *) , change_type) (* the changes *) -> 
-      (CE.have_al_ce ce || have_al_change_type change_type)
+      (Ce_al.have_al_ce ce || have_al_change_type change_type)
 
 and have_al_change_type = function
   | IMMEDIATE_EXPR_CHANGE (ce (* the change *) , context_change_list) -> 
-      (CE.have_al_ce ce (* the change *) ||
+      (Ce_al.have_al_ce ce (* the change *) ||
       (List.exists have_al_context_change context_change_list))
     (* only willing to merge with a code context, ie a code list *)
   | IMMEDIATE_CODE_CHANGE (ce (* the change *) , context_change_list) -> 
-      (CE.have_al_ce ce (* the change *) ||
+      (Ce_al.have_al_ce ce (* the change *) ||
       (List.exists have_al_context_change context_change_list))
     (* not willing to merge *)
   | CONTEXT_CHANGE context_change_list ->
@@ -84,10 +84,10 @@ and have_al_change_type = function
 
 and have_al_context_change = function
   | CC (ce (* the change *) , context_change_list) -> 
-      (CE.have_al_ce ce ||
+      (Ce_al.have_al_ce ce ||
       (List.exists have_al_context_change context_change_list))
   | CG (ce (* a change generalized with EXP or CODE *), context_change_list) ->
-      (CE.have_al_ce ce ||
+      (Ce_al.have_al_ce ce ||
       (List.exists have_al_context_change context_change_list))
 
 
@@ -97,7 +97,7 @@ let pr = Printf.sprintf
 
 let context_printer context =
   let print_change change n =
-    let pchange = CE.ce2c change in
+    let pchange = Ce_unparse.ce2c change in
     Printf.printf "level %d: %s" n pchange in
   let rec loop n = function
       [] -> ()
@@ -108,9 +108,9 @@ let context_printer context =
 
 let ct2c = function
     IMMEDIATE_EXPR_CHANGE(change,context) ->
-      Printf.sprintf "immediate_expr(%s)" (CE.ce2c_simple change)
+      Printf.sprintf "immediate_expr(%s)" (Ce_unparse.ce2c_simple change)
   | IMMEDIATE_CODE_CHANGE(change,context) ->
-      Printf.sprintf "immediate_code(%s)" (CE.ce2c_simple change)
+      Printf.sprintf "immediate_code(%s)" (Ce_unparse.ce2c_simple change)
   | CONTEXT_CHANGE(changes)  ->
       Printf.sprintf "context_change %d" (List.length changes)
 
@@ -157,12 +157,12 @@ let is_limited change =
   | _ -> false
 
 let mkCC change context =
-  if CE.boring_ce change
+  if Ce_boring.boring_ce change
   then []
   else [CC(change,context)]
 
 let mkCG change context =
-  if CE.boring_ce change
+  if Ce_boring.boring_ce change
   then []
   else [CG(change,context)]
 
@@ -172,7 +172,7 @@ let rec run_sequence_contexts prev n final = function
     [] -> final
   | mkchange::rest ->
       let change = mkchange n prev in
-      if CE.al_ce change = CE.al_ce prev
+      if Ce_al.al_ce change = Ce_al.al_ce prev
       then run_sequence_contexts change n final rest
       else mkCG change (run_sequence_contexts change n final rest)
 
@@ -203,7 +203,7 @@ prints the same from being considered as different. *)
 
 let rec normalize_contextified_change change context =
   match context with
-    [CC(change1,context1)] when CE.al_ce change = CE.al_ce change1 -> context
+    [CC(change1,context1)] when Ce_al.al_ce change = Ce_al.al_ce change1 -> context
   | _ ->
       (match change with
 	CE.SYMCE([s1],[s2]) ->
@@ -218,7 +218,7 @@ let rec normalize_contextified_change change context =
 	  normalize_contextified_change (CE.CODECE(cl1,cl2)) context
       |	_ ->
 	  mkCC change
-	    ((sequence_contexts change [CE.expify false; CE.expify true]) @
+	    ((sequence_contexts change [Ce_abstract.expify false; Ce_abstract.expify true]) @
 	     context))
 
 (* --------------------------------------------------------------------- *)
@@ -414,7 +414,7 @@ let top_level_diff defaultce combiner = function
 	  let changes =
 	    match changes with
 	      [CC(change1,context1)]
-	      when CE.al_ce rebuilt = CE.al_ce change1 -> context1
+	      when Ce_al.al_ce rebuilt = Ce_al.al_ce change1 -> context1
 	    | _ -> changes in
 	  CHANGE(rebuilt,combiner rebuilt changes))
 
@@ -448,7 +448,7 @@ let compare_both_length_one comparer mkrce l1 l2 process_immediate =
 		 CONTEXT_CHANGE(context))
       | _ -> failwith "not possible 1")
   | _ -> failwith (Printf.sprintf "not possible 1 no change %s"
-		     (CE.ace2c(mkrce [l1] [l2])))
+		     (Ce_unparse.ace2c(mkrce [l1] [l2])))
 
 (*let eq_aligner ((x,_),(y,_)) = x = y*)
 (*let eq_aligner (x,y) = x = y*)
@@ -501,7 +501,7 @@ let compare_lists get_everything separate_dropped
 		CHANGE(entry,combiner entry
 			 (mkCC entry
 			    (sequence_contexts entry
-			       [CE.expify false;CE.mktail;CE.expify true])))
+			       [Ce_abstract.expify false;Ce_abstract.mktail;Ce_abstract.expify true])))
 	  | (rest,[]) ->
 	      let entry = mkrce rest [] in
 	      if get_everything && not separate_dropped
@@ -510,7 +510,7 @@ let compare_lists get_everything separate_dropped
 		CHANGE(entry,combiner entry
 			 (mkCC entry
 			    (sequence_contexts entry
-			       [CE.expify false;CE.mktail;CE.expify true])))
+			       [Ce_abstract.expify false;Ce_abstract.mktail;Ce_abstract.expify true])))
 	  | (e1::rest1,e2::rest2) -> 
 	      if flatten
 	      then
@@ -641,7 +641,7 @@ and compare_symbol prims1 prims2 =
 		     then
 		       let contexts =
 			 (sequence_contexts rebuilt
-			    [CE.expify false;CE.expify true])@
+			    [Ce_abstract.expify false;Ce_abstract.expify true])@
 			 context in
 		       IMMEDIATE_EXPR_CHANGE(rebuilt,
 					     (mkCC rebuilt contexts))
@@ -650,7 +650,7 @@ and compare_symbol prims1 prims2 =
 		       then
 			 let contexts =
 			   (sequence_contexts rebuilt
-			      [CE.expify false;CE.expify true])@
+			      [Ce_abstract.expify false;Ce_abstract.expify true])@
 			   context in
 			 CONTEXT_CHANGE(mkCC rebuilt contexts)
 		       else changelist (* no last id *)
@@ -687,7 +687,7 @@ and compare_expr e1 e2 =
 	    (function change -> function context ->
 	      make_immediate_code_change change
 		(mkCC change
-		   ((sequence_contexts change [CE.expify false])@context)))
+		   ((sequence_contexts change [Ce_abstract.expify false])@context)))
 	    lhs1 lhs2 rhs1 rhs2 in
 	if fst op1 = fst op2 (* PAD *)
 	then res
@@ -739,7 +739,7 @@ and compare_expr e1 e2 =
 	  (function change -> function context ->
 	    make_immediate_code_change change
 	      (mkCC change
-		 ((sequence_contexts change [CE.expify false])@context)))
+		 ((sequence_contexts change [Ce_abstract.expify false])@context)))
 	  (function e1 -> function e2 -> CE.EXPRLCE(e1,e2))
     | (expr1,Ast.ASSIGN(lhs2,op2,rhs2,known2)) ->
 	let process_immediate = function
@@ -751,7 +751,7 @@ and compare_expr e1 e2 =
 	  (function change -> function context ->
 	    make_immediate_code_change change
 	      (mkCC change
-		 ((sequence_contexts change [CE.expify false])@context)))
+		 ((sequence_contexts change [Ce_abstract.expify false])@context)))
 	  (function e1 -> function e2 -> CE.EXPRLCE(e1,e2))
     (* all variants of function calls *)
     | (Ast.CALL(fn1,args1,known1),Ast.CALL(fn2,args2,known2)) ->
@@ -913,19 +913,19 @@ and compare_calls process_immediate fn1 fn2 args1 args2 known1 known2 =
 	  make_immediate_code_change change
 	    (mkCC change
 	       ((sequence_contexts_final change left_context
-		   [CE.expify false;CE.codify_expr_change;CE.codify_all_args])@
+		   [Ce_abstract.expify false;Ce_abstract.codify_expr_change;Ce_abstract.codify_all_args])@
 		right_context))
       |	CE.EXPRCE(Ast.DECLARER(fn1,args1,known1),Ast.DECLARER(fn2,args2,known2)) ->
 	  make_immediate_code_change change
 	    (mkCC change
 	       ((sequence_contexts_final change left_context
-		   [CE.expify false;CE.codify_expr_change;CE.codify_all_args])@
+		   [Ce_abstract.expify false;Ce_abstract.codify_expr_change;Ce_abstract.codify_all_args])@
 		right_context))
       |	CE.EXPRCE(Ast.PROTOTYPE(fn1,ty1,vis1,nm1,args1,known1),
 		  Ast.PROTOTYPE(fn2,ty2,vis2,nm2,args2,known2)) ->
 	  (* left context is the function name and all modifiers, but
 	     if we don't have the right number of arguments with it, who
-	     cares.  The problem is that CE.expify is going to drop the
+	     cares.  The problem is that Ce_abstract.expify is going to drop the
 	     modifiers, which will make the last result of sequence_contexts
 	     smaller than the beginning of left_context, if the
 	     function has modifiers like static or inline.  We could drop
@@ -934,7 +934,7 @@ and compare_calls process_immediate fn1 fn2 args1 args2 known1 known2 =
 	  make_immediate_code_change change
 	    (mkCC change
 	       ((sequence_contexts_final change [] (*left_context*)
-		   [CE.expify false; CE.expify true]) @
+		   [Ce_abstract.expify false; Ce_abstract.expify true]) @
 		right_context))
       |	_ -> failwith "not possible")
     fn1 fn2 new_args1 new_args2
@@ -952,12 +952,12 @@ and compare_expr_lists l1 l2 =
 	(CE.EXPRCE(e1,e2),CE.EXPRLCE(el1,el2)) -> CE.EXPRLCE(e1::el1,e2::el2)
       |	(x,y) ->
 	  failwith
-	    (pr "not possible 18: %s %s" (CE.ce2label x) (CE.ce2label y)))
+	    (pr "not possible 18: %s %s" (Ce_unparse.ce2label x) (Ce_unparse.ce2label y)))
     (function
 	(CE.EXPRLCE(e1,e2),CE.EXPRLCE(el1,el2)) -> CE.EXPRLCE(e1@el1,e2@el2)
       |	(x,y) ->
 	  failwith
-	    (pr "not possible 19: %s %s" (CE.ce2label x) (CE.ce2label y)))
+	    (pr "not possible 19: %s %s" (Ce_unparse.ce2label x) (Ce_unparse.ce2label y)))
     (Small.top
        (function Ast.EOP(_) -> true | _ -> false)
        (function Ast.EOP(_) -> true | _ -> false)
@@ -1059,14 +1059,14 @@ and compare_toplevel_lists l1 l2 =
 	   | _ -> false);
 	 (function
 	     (Ast.EXPR([Ast.CALL(fn1,_,_)]),
-	      Ast.EXPR([Ast.CALL(fn2,_,_)])) -> CE.real_fn fn1 = CE.real_fn fn2
+	      Ast.EXPR([Ast.CALL(fn2,_,_)])) -> Config2.real_fn fn1 = Config2.real_fn fn2
 	   | (Ast.EXPR([Ast.DECLARER(fn1,_,_)]),
 	      Ast.EXPR([Ast.DECLARER(fn2,_,_)])) ->
-		CE.real_fn fn1 = CE.real_fn fn2
+		Config2.real_fn fn1 = Config2.real_fn fn2
 	   | (Ast.EXPR([Ast.ASSIGN(e1,_,_,_)]),
-	      Ast.EXPR([Ast.CALL(fn2,_,_)])) -> CE.memory_mover fn2
+	      Ast.EXPR([Ast.CALL(fn2,_,_)])) -> Config2.memory_mover fn2
 	   | (Ast.EXPR([Ast.CALL(fn1,_,_)]),
-	      Ast.EXPR([Ast.ASSIGN(e2,_,_,_)])) -> CE.memory_mover fn1
+	      Ast.EXPR([Ast.ASSIGN(e2,_,_,_)])) -> Config2.memory_mover fn1
 	   | (Ast.EXPR([Ast.PROTOTYPE(_,_,_,nm1,_,_)]),
 	      Ast.EXPR([Ast.PROTOTYPE(_,_,_,nm2,_,_)])) -> nm1=nm2
 	   | (Ast.EXPR([Ast.ASSIGN(_,_,_,_)]),
@@ -1120,7 +1120,7 @@ let diff t1 t2 =
 	      
 	      let printed = ref [] in
 	      let print_change change n =
-		let pchange = CE.ce2c change in
+		let pchange = Ce_unparse.ce2c change in
 		if not(List.mem pchange !printed)
 		then
 		  begin

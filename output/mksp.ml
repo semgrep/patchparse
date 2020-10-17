@@ -327,7 +327,7 @@ let file_data sp_file get_files
 	let fct_comment =
 	  List.map
 	    (function version ->
-	      let version = CE.clean version in
+	      let version = Ce_unparse.clean version in
               let (git_code,start,grest) = split_git_version version in
 		  (* there is an entry for each dir, but don't print them *)
 	      let files = extract_files get_files !ct git_code in
@@ -351,7 +351,7 @@ let file_data sp_file get_files
 	      (String.concat "\n"
 		 (List.map
 		    (function ((ver,_),_) ->
-		      List.assoc (CE.clean ver) comment)
+		      List.assoc (Ce_unparse.clean ver) comment)
 		    data));
 	    Printf.fprintf sp_file "%s" (printer_sp !ct change))
 	  data)
@@ -398,7 +398,7 @@ let make_files (change_result,filtered_results) evolutions =
   (* filtered results only *)
   List.iter
     (function (label,change_table,change_result) ->
-      file_data sp_file get_files CE.ce2sp
+      file_data sp_file get_files Ce_unparse.ce2sp
 	pre_print_to_get_files print_to_get_files
 	change_result)
     filtered_results;

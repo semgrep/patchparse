@@ -49,7 +49,7 @@ let file_data tex_file out_file
 	List.iter
 	  (function (tag,data) ->
 	    Printf.fprintf tex_file "\\noindent\\textbf{%s}\n\n"
-	      (CE.clean tag);
+	      (Ce_unparse.clean tag);
 	    List.iter
 	      (function (change,count) ->
 		(if !Config.print_parsable
@@ -80,8 +80,8 @@ let file_data tex_file out_file
 		   (let rec loop prev = function
                        [] -> []
                      | ((version,dir),count)::rest ->
-			 let version = CE.clean version in
-			 let dir = CE.clean dir in
+			 let version = Ce_unparse.clean version in
+			 let dir = Ce_unparse.clean dir in
 			 let (prev,front) =
 			   let (git_code,_,rest) = split_git_version version in
 			   (git_code,
@@ -109,8 +109,8 @@ let file_data tex_file out_file
 		  (let rec loop n = function
                       [] -> []
                     | ((version,dir),count)::rest ->
-			let version = CE.clean version in
-			let dir = CE.clean dir in
+			let version = Ce_unparse.clean version in
+			let dir = Ce_unparse.clean dir in
 			let front =
 			  Printf.sprintf "%s: %s (%d)" version dir count in
 			if n = per_line
@@ -123,7 +123,7 @@ let file_data tex_file out_file
     Printf.fprintf tex_file "\\section{By %s}\n" info_string;
     List.iter
       (function (version,data) ->
-	let version = CE.clean version in
+	let version = Ce_unparse.clean version in
 	if info_string = "version"
 	then
 	  begin
@@ -167,13 +167,13 @@ let print_evolutions tex_file evolutions =
 	 List.iter
 	   (function file ->
 	     Printf.fprintf tex_file "  \\noindent\\hspace{-0.25in}%s\n\n"
-	       (CE.clean file))
+	       (Ce_unparse.clean file))
 	   intersection;
 	 Printf.fprintf tex_file "\n\\noindent changes:\n\n";
 	 List.iter
            (function ce ->
 	     Printf.fprintf tex_file "  \\noindent\\hspace{-0.25in}%s\n\n"
-	       (CE.ce2tex ce))
+	       (Ce_unparse.ce2tex ce))
 	   changes)
        evolutions)
       
@@ -229,7 +229,7 @@ let print_summary tex_file desired_info
 	  let site_count =
 	    Aux.sum (List.map (function (_,ct) -> ct) sites) in
           if site_count > 1000
-	  then Printf.fprintf stderr "BIGGGGGGGGGGGG: %s" (CE.ce2tex change);
+	  then Printf.fprintf stderr "BIGGGGGGGGGGGG: %s" (Ce_unparse.ce2tex change);
 	  if site_count > ans then site_count else ans)
       0 multidir_table in
   Printf.fprintf tex_file "\\subsection{%s}\n\n" label;
@@ -303,13 +303,13 @@ let make_files (change_result,filtered_results) evolutions =
   then
     begin
       Printf.fprintf tex_file "\\chapter{All changes}\n";
-      file_data tex_file out_file CE.ce2tex CE.ce2parsable change_result;
+      file_data tex_file out_file Ce_unparse.ce2tex Ce_unparse.ce2parsable change_result;
       print_evolutions tex_file evolutions;
     end;
   List.iter
     (function (label,change_table,change_result) ->
       Printf.fprintf tex_file "\\chapter{%s}\n" label;
-      file_data tex_file out_file CE.ce2tex (function _ -> "") change_result)
+      file_data tex_file out_file Ce_unparse.ce2tex (function _ -> "") change_result)
     filtered_results;
   close_out out_file;
   tex_epilog tex_file;

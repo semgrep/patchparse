@@ -61,7 +61,7 @@ let create_version_dir_change_files table get_key
 	    cell2 :=
 	      Aux.union
 		(List.fold_left Aux.union []
-		   (List.map CE.get_characters not_al_changeset))
+		   (List.map CeH.get_characters not_al_changeset))
 		!cell2)
 	  info)
     change_table;
@@ -124,9 +124,9 @@ let compute_distances key_change_files key =
 	      (Printf.printf
 		"The distance between the following changes is %f %f %f\n"
 		file_weight commonality_weight weight;
-	      Printf.printf "%s\nin\n" (CE.ce2c change);
+	      Printf.printf "%s\nin\n" (Ce_unparse.ce2c change);
 	      List.iter (function s -> Printf.printf "  %s\n" s) files;
-	      Printf.printf "%s\nin\n" (CE.ce2c wchange);
+	      Printf.printf "%s\nin\n" (Ce_unparse.ce2c wchange);
 	      List.iter (function s -> Printf.printf "  %s\n" s) !wfiles;
 	      Printf.printf "strings %s, wstrings %s\n"
 	        (String.concat " " !chars)
@@ -144,15 +144,15 @@ let compute_distances key_change_files key =
   let worklist = !(Hashtbl.find key_change_files key) in
   let rec loop = function
       [] -> ()
-    | (change,(files,chars))::rest when CE.function_change change ->
-	Printf.printf "function change: %s\n" (CE.ce2c change);
+    | (change,(files,chars))::rest when CeH.function_change change ->
+	Printf.printf "function change: %s\n" (Ce_unparse.ce2c change);
 	loop rest;
 	let files = !files in
-	let (old_functions,new_functions) = CE.get_function_names change in
+	let (old_functions,new_functions) = CeH.get_function_names change in
 	let old_functions = List.sort compare old_functions in
 	let new_functions = List.sort compare new_functions in
 	List.iter
-	  (function (wchange,(wfiles,wchars)) when CE.function_change wchange->
+	  (function (wchange,(wfiles,wchars)) when CeH.function_change wchange->
 	    let file_weight =
 	      let wfiles = !wfiles in
 	      let (filesonly,both,wfilesonly) =
@@ -178,7 +178,7 @@ let compute_distances key_change_files key =
 	    let tuple = normalize change wchange in
 	    let weight = min file_weight commonality_weight in
 	    let (old_wfunctions,new_wfunctions) =
-	      CE.get_function_names wchange in
+	      CeH.get_function_names wchange in
 	    let old_wfunctions = List.sort compare old_wfunctions in
 	    let new_wfunctions = List.sort compare new_wfunctions in
 	    let weight =
@@ -284,7 +284,7 @@ let make_classes key_change_files key =
 	    List.iter
 	      (function (change,(elems,curmax,sz)) ->
 		elems := change::!elems;
-		Printf.printf "%f: %s\n" !min_max (CE.ce2c change);
+		Printf.printf "%f: %s\n" !min_max (Ce_unparse.ce2c change);
 		curmax := !min_max;
 		sz := !sz +. 1.0;
 		worklist := Aux.remove change !worklist)
@@ -295,7 +295,7 @@ let make_classes key_change_files key =
     (match (min_pair,min_val) with
       (Some(change1,change2),dist) ->
 	Printf.printf "making a class for %s and %s\n"
-	   (CE.ce2c change1) (CE.ce2c change2);
+	   (Ce_unparse.ce2c change1) (Ce_unparse.ce2c change2);
 	(* sz is initially 1 with 2 because it represents how
 	   many elements have grouped with the center. or maybe
 	   because 2 didn't let enough things group together *)

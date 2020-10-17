@@ -32,7 +32,7 @@ and expr_in_codelist f codelist = List.exists (expr_in_code f) codelist
 (* --------------------------------------------------------------------- *)
 
 let is_real_fn = function
-    Ast.CALL(fn,_,_) | Ast.DECLARER(fn,_,_) -> CE.real_fn fn
+    Ast.CALL(fn,_,_) | Ast.DECLARER(fn,_,_) -> Config2.real_fn fn
   | _ -> false
 
 (* Function added *)
@@ -269,7 +269,7 @@ dereference to a function call, to see what happens. *)
 
 let make_private = function
     CE.EXPRCE(Ast.SYMBOL(l),Ast.CALL(fn,_,_)) ->
-      CE.real_fn fn &&
+      Config2.real_fn fn &&
       List.exists
 	(function Ast.SYMOP("->",_) | Ast.SYMOP(".",_) -> true | _ -> false)
 	l
@@ -277,12 +277,12 @@ let make_private = function
 			 [Ast.EXPR([Ast.SYMBOL(l)])],
 			 _),
 		Ast.CALL(fn,_,_)) ->
-      CE.real_fn fn &&
+      Config2.real_fn fn &&
       List.exists
 	(function Ast.SYMOP("->",_) | Ast.SYMOP(".",_) -> true | _ -> false)
 	l
   | CE.EXPRCE(Ast.ASSIGN(Ast.SYMBOL(l),op,rhs,k),Ast.CALL(fn,_,_)) ->
-      CE.real_fn fn &&
+      Config2.real_fn fn &&
       List.exists
 	(function Ast.SYMOP("->",_) | Ast.SYMOP(".",_) -> true | _ -> false)
 	l
@@ -290,7 +290,7 @@ let make_private = function
 
 let make_public = function
     CE.EXPRCE(Ast.CALL(fn,_,_),Ast.SYMBOL(l)) ->
-      CE.real_fn fn &&
+      Config2.real_fn fn &&
       List.exists
 	(function Ast.SYMOP("->",_) | Ast.SYMOP(".",_) -> true | _ -> false)
 	l
@@ -298,12 +298,12 @@ let make_public = function
 		Ast.CALL(Ast.SYMBOL([Ast.IDENT("if",_)]),
 			 [Ast.EXPR([Ast.SYMBOL(l)])],
 			 _)) ->
-      CE.real_fn fn &&
+      Config2.real_fn fn &&
       List.exists
 	(function Ast.SYMOP("->",_) | Ast.SYMOP(".",_) -> true | _ -> false)
 	l
   | CE.EXPRCE(Ast.CALL(fn,_,_),Ast.ASSIGN(Ast.SYMBOL(l),op,rhs,k)) ->
-      CE.real_fn fn &&
+      Config2.real_fn fn &&
       List.exists
 	(function Ast.SYMOP("->",_) | Ast.SYMOP(".",_) -> true | _ -> false)
 	l
@@ -412,14 +412,14 @@ let unerrorify_value = function
 let addstorage = function
     CE.EXPRCE(Ast.CALL(fn,_,_),
 		Ast.CALL(Ast.SYMBOL([Ast.IDENT("if",_)]),a,k))
-    when CE.real_fn fn ->
+    when Config2.real_fn fn ->
       List.exists
 	(expr_in_code (function Ast.CALL(fn1,_,_) -> fn = fn1 | _ -> false))
 	a
   | CE.EXPRCE(Ast.CALL(fn,_,_),Ast.ASSIGN(lhs,op,[Ast.CALL(_,_,_)],k)) ->
-      CE.real_fn fn
+      Config2.real_fn fn
   | CE.EXPRCE(Ast.CALL(fn,_,_),Ast.ASSIGN(lhs,op,rhs,k)) ->
-      CE.real_fn fn &&
+      Config2.real_fn fn &&
       expr_in_exprlist (function Ast.CALL(fn1,_,_) -> fn = fn1 | _ -> false)
 	rhs
   | _ -> false
@@ -428,14 +428,14 @@ let addstorage = function
 
 let dropstorage = function
     CE.EXPRCE(Ast.CALL(Ast.SYMBOL([Ast.IDENT("if",_)]),a,k),
-		Ast.CALL(fn,_,_)) when CE.real_fn fn ->
+		Ast.CALL(fn,_,_)) when Config2.real_fn fn ->
       List.exists
 	(expr_in_code (function Ast.CALL(fn1,_,_) -> fn = fn1 | _ -> false))
 	a
   | CE.EXPRCE(Ast.ASSIGN(lhs,op,[Ast.CALL(_,_,_)],k),Ast.CALL(fn,_,_)) ->
-      CE.real_fn fn
+      Config2.real_fn fn
   | CE.EXPRCE(Ast.ASSIGN(lhs,op,rhs,k),Ast.CALL(fn,_,_)) ->
-      CE.real_fn fn &&
+      Config2.real_fn fn &&
       expr_in_exprlist (function Ast.CALL(fn1,_,_) -> fn = fn1 | _ -> false)
 	rhs
   | _ -> false

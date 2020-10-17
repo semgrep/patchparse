@@ -122,7 +122,7 @@ let eqworklists changelist (version, pathname, filename, region) =
       | Diff.CG(change,context) ->
 	  failwith
 	    (Printf.sprintf "generalized change at top level %s\n"
-	       (CE.ce2c change)) 
+	       (Ce_unparse.ce2c change)) 
     in
     List.iter
       (function (filter,_,max_change_size,worklist,_) ->

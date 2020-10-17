@@ -6,8 +6,6 @@
 (* Setup *)
 (*****************************************************************************)
 
-let mega _ = Config.same_threshold := 100
-
 let setup_git gitdir =
   if Sys.is_directory gitdir
   then
@@ -48,28 +46,38 @@ let setup_days n =
   let date = List.hd (Aux.cmd_to_list (Printf.sprintf "date +%%m.%%d.%%y")) in
   Config.outfile := Printf.sprintf "%s_%s_days_ago" date n
 
-let set_out_dir s = Config.out_dir := s
-
 (*****************************************************************************)
 (* Options *)
 (*****************************************************************************)
 
-let speclist = Arg.align
- ["--git",   Arg.String setup_git, "  use a git patch or directory";
-   "--gitdir", Arg.Set_string Config.gitdir, "  set git dir";
-   "--restrict", Arg.Set_string Config.git_restrict,
-   "  restrict patches obtained from git to the given directory";
-   "--giturl", Arg.Set_string Config.url, "  url of git repository";
+let speclist = Arg.align [
+   "--git",   Arg.String setup_git, 
+   "  use a git patch or directory";
    "--gitcommitlist", Arg.Set Config.gitcommitlist,
    "  list of relevant commits";
-   "--destdir", Arg.Set_string Config.dest_dir, "  destination of files";
-   "--patch", Arg.Clear Config.git, "  use a patch file";
-   "--next", Arg.String setup_next, "  use most recent tag in linux-next";
-   "--days", Arg.String setup_days, "  use patches since n days ago";
 
-   "--min",   Arg.Set_int Config.same_threshold, "set same_threshold";
-   "--minf",  Arg.Set_int Config.file_threshold, "set file_threshold";
-   "--mega",  Arg.Unit mega, "set same_threshold to 100";
+   "--gitdir", Arg.Set_string Config.gitdir, 
+   "  set git dir";
+   "--restrict", Arg.Set_string Config.git_restrict,
+   "  restrict patches obtained from git to the given directory";
+   "--giturl", Arg.Set_string Config.url, 
+   "  url of git repository";
+
+   "--destdir", Arg.Set_string Config.dest_dir, 
+   "  destination of files";
+   "--patch", Arg.Clear Config.git, 
+   "  use a patch file";
+   "--next", Arg.String setup_next, 
+   "  use most recent tag in linux-next";
+   "--days", Arg.String setup_days, 
+   "  use patches since n days ago";
+
+   "--min",   Arg.Set_int Config.same_threshold, 
+   "set same_threshold";
+   "--minf",  Arg.Set_int Config.file_threshold, 
+   "set file_threshold";
+   "--mega",  Arg.Unit (fun () -> Config.same_threshold := 100), 
+   "set same_threshold to 100";
 
    "--notex",  Arg.Set Config.notex, "   no latex output";
    "--noev",  Arg.Set Config.noev, "   no evolutions";
@@ -83,7 +91,7 @@ let speclist = Arg.align
    "--print-parsable", Arg.Set Config.print_parsable,
    "   print parsable changes on stdout";
    "--print-sp", Arg.Set Config.print_sp, "   print semantic patch";
-   "--out-dir", Arg.String set_out_dir,
+   "--out-dir", Arg.Set_string Config.out_dir,
    "     <dirname> specify output directory"
  ]
   

@@ -12,7 +12,7 @@ let _current_line = ref 0
 let set_current_line i = _current_line := i
 let current_line () = !_current_line
 
-let linetype = ref Ast.CTX
+let linetype = ref Patch.CTX
 let atfront = ref FRONT
 
 let lexeme_line lexbuf =

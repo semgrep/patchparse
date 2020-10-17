@@ -1,3 +1,4 @@
+open Common
 (* I've renamed config.ml to globals.ml to avoid conflict with
  * compiler-libs/config.ml which is used when linking with pfff commons,
  * but I restore its original name here to look as before.
@@ -118,9 +119,12 @@ let main _ =
   (* collect lines from the git/patch file *)
   let patch_data =
     if !Config.git
+    (* uses many of the globals in Config (e.g., Config.gitcommitlist) *)
     then Git_reader.git !Config.file
     else Git_reader.patch !Config.file 
   in
+  pr2_gen (List.hd patch_data);
+  let _ = failwith "DONE" in
 
   (* parse and collect differences in the lines from the git/patch file *)
   let changelists = Init.process_all_files patch_data in

@@ -4,6 +4,7 @@
  (libraries
    commons
 
+   core
    utils 
    globals
 

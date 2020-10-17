@@ -1,9 +1,4 @@
 
-type linetype = 
-  | PLUS 
-  | MINUS 
-  | CTX
-
 (* ??? *)
 type known = 
   | KNOWN 
@@ -12,7 +7,7 @@ type known =
   | BOTHUNKNOWN
 
 (* position information *)
-type info = line_number * linetype
+type info = line_number * Patch.linetype
   and line_number = int 
 
 (* I also keep the 'a outside the closure cos I want to do pattern matching *)

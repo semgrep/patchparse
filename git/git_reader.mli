@@ -1,3 +1,3 @@
 
-val git : Common.filename   -> (int * (int * string) list) list
-val patch : Common.filename -> (int * (int * string) list) list
+val git : Common.filename   -> Patch.line list
+val patch : Common.filename -> Patch.line list

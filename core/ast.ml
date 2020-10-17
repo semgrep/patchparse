@@ -1,8 +1,15 @@
 
-type linetype = PLUS | MINUS | CTX
+type linetype = 
+  | PLUS 
+  | MINUS 
+  | CTX
 
 (* ??? *)
-type known = KNOWN | ENDUNKNOWN | FRONTUNKNOWN | BOTHUNKNOWN
+type known = 
+  | KNOWN 
+  | ENDUNKNOWN 
+  | FRONTUNKNOWN 
+  | BOTHUNKNOWN
 
 (* position information *)
 type info = line_number * linetype

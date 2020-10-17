@@ -70,7 +70,7 @@ let parse version s =
     Clexer.init (true, "", "", 0, 0, stderr, s);
     (*Clexer.set_current_line line_number;*)
     let parsed = Cparser2.interpret Clexer.initial lexbuf in
-    Some (No_modifs.drop_outer (Ast0.convert parsed))
+    Some (No_modifs.drop_outer (Ast0_to_ast.convert parsed))
   with
     Failure x ->
       let ver =

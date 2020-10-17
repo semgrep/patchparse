@@ -14,8 +14,7 @@ type prim =
 
   | ARRAY of expr list * Ast.known
 
-and dprim =
-    DEREFOP of string_extended
+and dprim = DEREFOP of string_extended
 
 and symbol = prim list
 and dsymbol = dprim list
@@ -23,11 +22,15 @@ and dsymbol = dprim list
 and expr =
   | SYMBOL of symbol
   | DSYMBOL of dsymbol
+
+  (* ??? *)
   | EOP of string_extended
+
   | ASSIGN of string_extended  * expr list * Ast.known
   | PAREN of code list * Ast.known
   | STRUCT of code list * Ast.known
   | CALL of string_extended * code list * Ast.known
+
   | DECLARER of string_extended * code list * Ast.known
 
 and code =

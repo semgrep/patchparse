@@ -1,3 +1,11 @@
+(*****************************************************************************)
+(* Purpose *)
+(*****************************************************************************)
+
+(*****************************************************************************)
+(* Setup *)
+(*****************************************************************************)
+
 let mega _ = Config.same_threshold := 100
 
 let setup_git gitdir =
@@ -42,6 +50,10 @@ let setup_days n =
 
 let set_out_dir s = Config.out_dir := s
 
+(*****************************************************************************)
+(* Options *)
+(*****************************************************************************)
+
 let speclist = Arg.align
  ["--git",   Arg.String setup_git, "  use a git patch or directory";
    "--gitdir", Arg.Set_string Config.gitdir, "  set git dir";
@@ -80,20 +92,29 @@ let usage = "Usage: patchparse [--git file] [--patch file], etc"
 
 let anonymous str = Config.file := str
 
+(*****************************************************************************)
+(* entry point *)
+(*****************************************************************************)
+
 let main _ =
   Gc.set {(Gc.get ()) with Gc.stack_limit = 1000 * 1024 * 1024};
 
   Arg.parse speclist anonymous usage;
+
   (* collect lines from the git/patch file *)
   let patch_data =
     if !Config.git
     then Git_reader.git !Config.file
-    else Git_reader.patch !Config.file in
+    else Git_reader.patch !Config.file 
+  in
+
   (* parse and collect differences in the lines from the git/patch file *)
   let changelists = Init.process_all_files patch_data in
+
   (* filter the changelists *)
   let changelists = Select_diffs.select_diffs changelists in
   Printf.eprintf "changelists: %d\n" (List.length changelists);
+
   (* convert the changelist to a table for further processing *)
   List.iter
     (function (changelist,info) -> Prepare_eq.eqworklists changelist info)
@@ -119,4 +140,5 @@ let main _ =
   if !Config.print_sp
   then Mksp.make_files (change_result,filtered_category_results) evolutions
 
-let _ = main ()
+let _ = 
+  main ()

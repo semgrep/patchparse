@@ -34,7 +34,7 @@ Note that a sequence of only DEREFOP cannot be a function name, nor can a
 sequence that contains only characters/integers/strings/types. *)
 
 (* can be all types or types followed by dereferences, ie a symbol and a
-dsymbol or just a symbol.  Just one dereference, ie "(*)" is also allowed. *)
+dsymbol or just a symbol.  Just one dereference, ie "( * )" is also allowed. *)
 let is_cast exprlist =
   let rec loop = function
       [] -> true

@@ -1,5 +1,4 @@
 
-(* ---------------------------------------------------------------------- *)
 type ce = (* ce stands for "change element" *)
     PRIMCE of Ast.prim * Ast.prim
   | SYMCE of Ast.symbol * Ast.symbol

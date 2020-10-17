@@ -1,3 +1,5 @@
+open Ast
+
 (* configurable things *)
 
 (*
@@ -6,24 +8,24 @@ val memory_mover : Ast.expr -> bool
 *)
 
 let real_fn = function(*no point to codify if and while - all meaning lost*)
-    Ast.SYMBOL([Ast.IDENT("if",_)])
-  | Ast.SYMBOL([Ast.IDENT("while",_)])
-  | Ast.SYMBOL([Ast.IDENT("switch",_)])
-  | Ast.SYMBOL([Ast.IDENT("sizeof",_)])
-  | Ast.SYMBOL([Ast.IDENT("for",_)])
-  | Ast.SYMBOL([Ast.IDENT("memcpy",_)])
-  | Ast.SYMBOL([Ast.IDENT("memset",_)])
-  | Ast.SYMBOL([Ast.IDENT("kmalloc",_)])
-  | Ast.SYMBOL([Ast.IDENT("kfree",_)])
-  | Ast.SYMBOL([Ast.IDENT("EXPORT_SYMBOL",_)]) -> false
-  | Ast.SYMBOL([Ast.IDENT(s,_)])
+    SYMBOL([IDENT("if",_)])
+  | SYMBOL([IDENT("while",_)])
+  | SYMBOL([IDENT("switch",_)])
+  | SYMBOL([IDENT("sizeof",_)])
+  | SYMBOL([IDENT("for",_)])
+  | SYMBOL([IDENT("memcpy",_)])
+  | SYMBOL([IDENT("memset",_)])
+  | SYMBOL([IDENT("kmalloc",_)])
+  | SYMBOL([IDENT("kfree",_)])
+  | SYMBOL([IDENT("EXPORT_SYMBOL",_)]) -> false
+  | SYMBOL([IDENT(s,_)])
       when Aux.substring "debug" (String.lowercase_ascii s) -> false
   | _ -> true
 
 (* used to let a block memory mover match up with an assignment *)
 let memory_mover = function
-    Ast.SYMBOL([Ast.IDENT("memcpy",_)])
-  | Ast.SYMBOL([Ast.IDENT("memset",_)]) -> true
+    SYMBOL([IDENT("memcpy",_)])
+  | SYMBOL([IDENT("memset",_)]) -> true
   | _ -> false
 
 let boring_ids id =

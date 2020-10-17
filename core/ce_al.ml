@@ -1,6 +1,5 @@
 open Ce_visit
 
-(* ---------------------------------------------------------------------- *)
 (* abstract line functions *)
 
 let al_ce = rebuild_ce Ast_al.al_prim Ast_al.al_expr Ast_al.al_code

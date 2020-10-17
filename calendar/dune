@@ -1,0 +1,27 @@
+(executables
+ (names calendar)
+ (libraries
+    str unix
+
+    ; pfff deps
+
+    ; internal deps
+    globals 
+    get_input
+    parse_input
+    select_diffs
+    generalize_diffs
+    eq_classes
+    output
+ )
+ (preprocess (pps ppx_profiling))
+ ; for ocamldebug
+ (modes byte)
+)
+
+
+(install
+ (package patchparse)
+ (section bin)
+ (files (calendar.exe as calendar))
+)

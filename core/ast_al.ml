@@ -22,16 +22,9 @@ and al_symbol = function prim_list -> List.map al_prim prim_list
 and al_expr = function
   | SYMBOL  symbol -> SYMBOL  (al_symbol symbol)
   | EOP (string,  line_number) -> EOP (string,  _al_number)
-  (* In the following, the first field is currently always a symbol.  But it 
-     needs to change to allow function prototypes. *)
   | ASSIGN (expr , (string, line_number) , expr_list , known) -> 
       ASSIGN (al_expr expr, (string, _al_number),
 	      List.map al_expr expr_list, known)
-  (* In the following the first field is always a symbol.  Having symbol
-     always as an expression is convenient for diff, because then we don't
-     have to figure out how to turn a context change that might occur in
-     the function part of a call (same for assignments) into a symbol so
-     that it matches with other occurrences of the same change. *)
   | CALL (expr, code_list, known) ->
       CALL (al_expr expr, List.map al_code code_list, known)
   | DECLARER (expr, code_list, known) ->

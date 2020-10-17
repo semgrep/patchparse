@@ -4,8 +4,8 @@ hunk *)
 let contains_modif = function
     (_,Ast.Concrete fn) ->
       (match fn() with
-	(_,(_,Parse_error.CTX)) -> false
-      | (_,(_,Parse_error.PLUS)) | (_,(_,Parse_error.MINUS)) -> true)
+	(_,(_,Ast.CTX)) -> false
+      | (_,(_,Ast.PLUS)) | (_,(_,Ast.MINUS)) -> true)
   | _ -> failwith "should not occur"
 
 let rec contains_modif_prim = function

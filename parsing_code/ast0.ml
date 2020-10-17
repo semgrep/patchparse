@@ -1,7 +1,6 @@
-type line_number = int 
-type linetype = Parse_error.linetype
-type info = line_number * linetype
-let __unknown_line = (-1,Parse_error.CTX)
+
+type info = Ast.line_number * Ast.linetype
+let __unknown_line = (-1,Ast.CTX)
 
 type prim =
     IDENT of (string    *info)

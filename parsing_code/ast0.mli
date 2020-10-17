@@ -1,8 +1,8 @@
-type line_number = int 
-type info = line_number * Parse_error.linetype
+
+type info = Ast.line_number * Ast.linetype
 
 type prim =
-    IDENT of (string    *info)
+  | IDENT of (string    *info)
   | CHAR of (string     *info)
   | INT of (string      *info)
   | STR of (string      *info)
@@ -17,7 +17,7 @@ and symbol = prim list
 and dsymbol = dprim list
 
 and expr =
-    SYMBOL of symbol
+  | SYMBOL of symbol
   | DSYMBOL of dsymbol
   | EOP of (string    *info)
   | ASSIGN of (string *info)  * expr list * Ast.known
@@ -27,7 +27,7 @@ and expr =
   | DECLARER of (string *info) * code list * Ast.known
 
 and code =
-    EXPR of expr list
+  | EXPR of expr list
   | SEP of (string     *info)
 
 

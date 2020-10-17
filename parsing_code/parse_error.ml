@@ -1,6 +1,4 @@
 
-type linetype = PLUS | MINUS | CTX
-
 type atfront = FRONT | AFTER
 
 let start_line = ref 0
@@ -11,9 +9,11 @@ type handle =
 let current_handle = ref (false, "", "", 0, 0, stdout, "")
 
 let interactive (h : handle) = let (i, _, _, _, _, _, _) = h in i
+(*
 let line (h : handle) = let (_, l, _, _, _, _, _) = h in l
 let buffer (h : handle) = let (_, _, b, _, _, _, _) = h in b
 let pos (h : handle) = let (_, _, _, p, _, _, _) = h in p
+*)
 let real_pos (i : int) (h : handle) = let (_, _, _, p, _, _, _) = h in i - p
 let lineno (h : handle) = let (_, _, _, _, n, _, _) = h in n
 let out_channel (h : handle) = let (_, _, _, _, _, out, _) = h in out

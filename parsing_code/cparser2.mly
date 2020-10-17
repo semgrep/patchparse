@@ -20,22 +20,22 @@ let mkcall fn arg known =
 
 %}
 
-%token <string * (int * Parse_error.linetype * Parse_error.atfront)> IDENT
-%token <string * (int * Parse_error.linetype * Parse_error.atfront)> CST_CHAR
-%token <string * (int * Parse_error.linetype * Parse_error.atfront)> CST_INT
-%token <string * (int * Parse_error.linetype * Parse_error.atfront)> CST_STRING
-%token <string * (int * Parse_error.linetype * Parse_error.atfront)> SEP
-%token <string * (int * Parse_error.linetype * Parse_error.atfront)> ESEP
-%token <string * (int * Parse_error.linetype * Parse_error.atfront)> OPERATOR
-%token <string * (int * Parse_error.linetype * Parse_error.atfront)> EQ
-%token <string * (int * Parse_error.linetype * Parse_error.atfront)> SYMOP
-%token <string * (int * Parse_error.linetype * Parse_error.atfront)> DEREFOP
-%token <string * (int * Parse_error.linetype * Parse_error.atfront)> TYPE
-%token <string * (int * Parse_error.linetype * Parse_error.atfront)> PRIM
-%token <string * (int * Parse_error.linetype * Parse_error.atfront)> INCLUDE
+%token <string * (int * Ast.linetype * Parse_error.atfront)> IDENT
+%token <string * (int * Ast.linetype * Parse_error.atfront)> CST_CHAR
+%token <string * (int * Ast.linetype * Parse_error.atfront)> CST_INT
+%token <string * (int * Ast.linetype * Parse_error.atfront)> CST_STRING
+%token <string * (int * Ast.linetype * Parse_error.atfront)> SEP
+%token <string * (int * Ast.linetype * Parse_error.atfront)> ESEP
+%token <string * (int * Ast.linetype * Parse_error.atfront)> OPERATOR
+%token <string * (int * Ast.linetype * Parse_error.atfront)> EQ
+%token <string * (int * Ast.linetype * Parse_error.atfront)> SYMOP
+%token <string * (int * Ast.linetype * Parse_error.atfront)> DEREFOP
+%token <string * (int * Ast.linetype * Parse_error.atfront)> TYPE
+%token <string * (int * Ast.linetype * Parse_error.atfront)> PRIM
+%token <string * (int * Ast.linetype * Parse_error.atfront)> INCLUDE
 
 %token EOF 
-%token <int * Parse_error.linetype * Parse_error.atfront>
+%token <int * Ast.linetype * Parse_error.atfront>
   LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK DEFINE
 
 /* operator precedence */

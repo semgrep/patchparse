@@ -55,7 +55,7 @@ let extract_files o ct code =
     begin
       let diffs =
 	Aux.cmd_to_list
-	  (Printf.sprintf "cd %s; /usr/bin/git show %s | /bin/grep ^diff"
+	  (Printf.sprintf "cd %s; /usr/bin/git show %s | /usr/bin/grep ^diff"
 	     !Config.gitdir code) in
       let files =
 	List.map

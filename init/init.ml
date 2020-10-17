@@ -285,7 +285,7 @@ let focus s marker =
   String.concat ";" pieces
 
 (* processes a single file *)
-let process_lines version dirname filename lines =
+let process_lines (Patch.Id version) dirname filename lines =
   let block_end start_line before minus plus after =
     if not (all_blank minus && all_blank plus)
     then
@@ -384,6 +384,6 @@ let process_file (version,lines) =
 	res@(loop after)
   in loop lines
 
-let process_all_files (lines : (int * (int * string) list) list) =
+let process_all_files (lines : Patch.t list) =
   Printf.printf "in process all files\n"; flush stdout;
   List.concat (List.map process_file lines)

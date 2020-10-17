@@ -52,7 +52,7 @@ let get_diffs in_lines =
 
 let counter l =
   let rec loop acc n = function
-      [] -> List.rev acc
+    | [] -> List.rev acc
     | x::xs -> loop ((n,x) :: acc) (n+1) xs in
   loop [] 1 l
 
@@ -78,12 +78,12 @@ let git fl =
   let in_lines = counter in_lines in
   let rec loop acc in_lines ctr =
     match in_lines with
-      [] -> List.rev acc
+    | [] -> List.rev acc
     | in_lines ->
 	let (info,code,in_lines) = drop_git_start in_lines in
 	let (lines,in_lines) = get_diffs in_lines in
 	Hashtbl.add Config.version_table ctr (Printf.sprintf "%s" info);
-	loop ((ctr,lines) :: acc) in_lines (ctr + 1) in
+	loop ((Patch.Id ctr,lines) :: acc) in_lines (ctr + 1) in
   loop [] in_lines 0
 
 let patch fl =
@@ -97,5 +97,5 @@ let patch fl =
 	let (info,code,in_lines) = drop_patch_start in_lines in
 	let (lines,in_lines) = get_diffs in_lines in
 	Hashtbl.add Config.version_table ctr (Printf.sprintf "%s" info);
-	(ctr,lines) :: loop in_lines (ctr + 1) in
+	(Patch.Id ctr,lines) :: loop in_lines (ctr + 1) in
   loop in_lines 0

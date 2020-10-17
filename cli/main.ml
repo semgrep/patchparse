@@ -1,4 +1,3 @@
-open Common
 (* I've renamed config.ml to globals.ml to avoid conflict with
  * compiler-libs/config.ml which is used when linking with pfff commons,
  * but I restore its original name here to look as before.
@@ -105,8 +104,6 @@ let speclist = Arg.align [
 
 let usage = "Usage: patchparse [--git dir] [--patch file] <file> ..."
 
-let anonymous str = Config.file := str
-
 (*****************************************************************************)
 (* entry point *)
 (*****************************************************************************)
@@ -114,7 +111,8 @@ let anonymous str = Config.file := str
 let main _ =
   Gc.set {(Gc.get ()) with Gc.stack_limit = 1000 * 1024 * 1024};
 
-  Arg.parse speclist anonymous usage;
+  (* modifies many of the Config.xxx globals *)
+  Arg.parse speclist (fun str -> Config.file := str)  usage;
 
   (* collect lines from the git/patch file *)
   let patch_data =
@@ -123,8 +121,6 @@ let main _ =
     then Git_reader.git !Config.file
     else Git_reader.patch !Config.file 
   in
-  pr2_gen (List.hd patch_data);
-  let _ = failwith "DONE" in
 
   (* parse and collect differences in the lines from the git/patch file *)
   let changelists = Init.process_all_files patch_data in

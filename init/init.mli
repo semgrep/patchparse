@@ -1,3 +1,3 @@
-val process_all_files : (int * (int * string) list) list ->
+val process_all_files : Patch.t list ->
   (Diff.context_change list *
      (int * string (*path*) * string (*file*) * string (*region*))) list

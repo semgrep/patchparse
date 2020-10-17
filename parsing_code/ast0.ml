@@ -318,7 +318,7 @@ and find_symbol l in_assignment =
     then get_type rest
     else ([],rest) in
   let newsym = decl_part@deref_part@parens@symbol_part in
-  if Ast.al_symbol newsym = Ast.al_symbol deref_part (* PAD *)
+  if Ast_al.al_symbol newsym = Ast_al.al_symbol deref_part (* PAD *)
   then (None,rest)
   else
     match newsym with

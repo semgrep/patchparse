@@ -97,6 +97,8 @@ let process_ce combiner mapper primfn exprfn codefn = function
       combiner (mapper (List.map codefn code_list1),
 		mapper (List.map codefn code_list2))
 
+module U = Ast_unparse
+
 let spunparser ct e =
   let finish before metas rawmetas invalid after =
     let depends =
@@ -126,34 +128,34 @@ let spunparser ct e =
     normal ^ opportunities1 ^ opportunities2 ^ prequel ^ "\n" in
   match e with
     PRIMCE(prim1, prim2) ->
-      let before = Ast.unparse_minus Ast.unparse_sp_prim prim1 in
+      let before = U.unparse_minus U.unparse_sp_prim prim1 in
       let (rawmetas,metas,invalid,after) =
-	Ast.unparse_plus Ast.unparse_sp_prim prim2 in
+	U.unparse_plus U.unparse_sp_prim prim2 in
       finish before metas rawmetas invalid after
   | SYMCE(s1,s2) ->
-      let before = Ast.unparse_minus Ast.unparse_sp_symbol s1 in
+      let before = U.unparse_minus U.unparse_sp_symbol s1 in
       let (rawmetas,metas,invalid,after) =
-	Ast.unparse_plus Ast.unparse_sp_symbol s2 in
+	U.unparse_plus U.unparse_sp_symbol s2 in
       finish before metas rawmetas invalid after
   | EXPRCE(expr1,  expr2) ->
-      let before = Ast.unparse_minus Ast.unparse_sp_expr expr1 in
+      let before = U.unparse_minus U.unparse_sp_expr expr1 in
       let (rawmetas,metas,invalid,after) =
-	Ast.unparse_plus Ast.unparse_sp_expr expr2 in
+	U.unparse_plus U.unparse_sp_expr expr2 in
       finish before metas rawmetas invalid after
   | EXPRLCE(el1, el2) ->
-      let before = Ast.unparse_minus Ast.unparse_sp_expr_list el1 in
+      let before = U.unparse_minus U.unparse_sp_expr_list el1 in
       let (rawmetas,metas,invalid,after) =
-	Ast.unparse_plus Ast.unparse_sp_expr_list el2 in
+	U.unparse_plus U.unparse_sp_expr_list el2 in
       finish before metas rawmetas invalid after
   | CODECE(code1, code2) ->
-      let before = Ast.unparse_minus Ast.unparse_sp_code code1 in
+      let before = U.unparse_minus U.unparse_sp_code code1 in
       let (rawmetas,metas,invalid,after) =
-	Ast.unparse_plus Ast.unparse_sp_code code2 in
+	U.unparse_plus U.unparse_sp_code code2 in
       finish before metas rawmetas invalid after
   | CODELCE(cl1, cl2) ->
-      let before = Ast.unparse_minus Ast.unparse_sp_code_list cl1 in
+      let before = U.unparse_minus U.unparse_sp_code_list cl1 in
       let (rawmetas,metas,invalid,after) =
-	Ast.unparse_plus Ast.unparse_sp_code_list cl2 in
+	U.unparse_plus U.unparse_sp_code_list cl2 in
       finish before metas rawmetas invalid after
 
 (* ---------------------------------------------------------------------- *)
@@ -252,11 +254,11 @@ let process_term combiner process_prim process_expr process_code =
 (* ---------------------------------------------------------------------- *)
 (* abstract line functions *)
 
-let al_ce = rebuild_ce Ast.al_prim Ast.al_expr Ast.al_code
+let al_ce = rebuild_ce Ast_al.al_prim Ast_al.al_expr Ast_al.al_code
 
 let have_al_ce =
   process_ce (function (x,y) -> x || y) (List.exists (function x -> x))
-    Ast.have_al_prim Ast.have_al_expr Ast.have_al_code
+    Ast_al.have_al_prim Ast_al.have_al_expr Ast_al.have_al_code
 
 (* ---------------------------------------------------------------------- *)
 (* printing functions *)
@@ -326,14 +328,14 @@ let listify = String.concat ""
 
 let ace2c =
   process_ce (print_replace TEXT) listify
-    Ast.ast_unparse_prim Ast.ast_unparse_expr Ast.ast_unparse_code
+    Ast_unparse.ast_unparse_prim Ast_unparse.ast_unparse_expr Ast_unparse.ast_unparse_code
 
 let unparser print_type = function
     SYMCE(s1,s2) ->
-      print_replace print_type (Ast.unparse_symbol s1,Ast.unparse_symbol s2)
+      print_replace print_type (U.unparse_symbol s1,U.unparse_symbol s2)
   | ce ->
       process_ce (print_replace print_type) listify
-	Ast.unparse_prim Ast.unparse_expr Ast.unparse_code ce
+	U.unparse_prim U.unparse_expr U.unparse_code ce
 
 let ce2c = unparser TEXT
 let ce2tex = unparser TEX
@@ -342,10 +344,10 @@ let ce2parsable = unparser PARSABLE
 
 let ce2c_simple = function
     SYMCE(s1,s2) ->
-      Printf.sprintf "%s : %s\n"(Ast.unparse_symbol s1) (Ast.unparse_symbol s2)
+      Printf.sprintf "%s : %s\n"(U.unparse_symbol s1) (U.unparse_symbol s2)
   | ce ->
       process_ce (function (x,y) -> Printf.sprintf "%s : %s\n" x y) listify
-	Ast.unparse_prim Ast.unparse_expr Ast.unparse_code ce
+	U.unparse_prim U.unparse_expr U.unparse_code ce
 
 (* ---------------------------------------------------------------------- *)
 (* filtering functions *)
@@ -368,7 +370,7 @@ let (boring_prim,boring_expr,boring_code,boring_ce) =
   (boring_prim,boring_expr,boring_code,
   function
     EXPRCE(Ast.CALL(f1,x,y),Ast.CALL(f2,_,_))
-    when not (Ast.al_expr f1 = Ast.al_expr f2) ->
+    when not (Ast_al.al_expr f1 = Ast_al.al_expr f2) ->
       (* idea: converting from one boring function to another is actually
 	 interesting *)
       false
@@ -420,11 +422,11 @@ expressions. *)
 
 let replace n env exp =
   let rec list_assoc_al exp = 
-    let al_exp1 = Ast.al_prim exp in 
+    let al_exp1 = Ast_al.al_prim exp in 
     function
 	[] -> raise Not_found
       | (a,b)::l ->
-	  if Ast.al_prim a = al_exp1  then b else list_assoc_al exp l in
+	  if Ast_al.al_prim a = al_exp1  then b else list_assoc_al exp l in
   try list_assoc_al exp !env
   with Not_found ->
     let new_name = Ast.EXP(!n,Some exp) in
@@ -490,7 +492,7 @@ let expify do_proto expify_n ce =
 	  let modifd = e (Ast.SYMBOL(newfn)) in
 	  (* the following test is true if eg the function name is a #define
 	     constant.  probably not ideal... *)
-	  if Ast.al_expr modifd = Ast.al_expr f
+	  if Ast_al.al_expr modifd = Ast_al.al_expr f
 	  then Some(Ast.PROTOTYPE(f,ty,vis,nm,List.map c args,known))
 	  else
 	    Some(Ast.PROTOTYPE(modifd,ty,[](*drop modifiers*),
@@ -510,8 +512,8 @@ let expify do_proto expify_n ce =
 	let acc = List.rev acc in
 	let s1 = expify_symbol true (acc=[]) expify_n env os1 expify_prim in
 	let s2 = expify_symbol true (acc=[]) expify_n env os2 expify_prim in
-	match (Ast.al_symbol s1 = Ast.al_symbol os1,
-	       Ast.al_symbol s2 = Ast.al_symbol os2) with
+	match (Ast_al.al_symbol s1 = Ast_al.al_symbol os1,
+	       Ast_al.al_symbol s2 = Ast_al.al_symbol os2) with
 	  (true,false) ->
 	    let s1 =
 	      expify_symbol false (acc=[]) expify_n env os1 expify_prim in
@@ -528,7 +530,7 @@ let expify do_proto expify_n ce =
 	    (match x2 with Ast.SYMOP(".",_) -> true | _-> false) ||
 	    (match x2 with Ast.SYMOP("->",_) -> true |_ -> false) ->
 	      expify [] os1 os2
-	| (x1::rest1,x2::rest2) when Ast.al_prim x1 = Ast.al_prim x2 ->
+	| (x1::rest1,x2::rest2) when Ast_al.al_prim x1 = Ast_al.al_prim x2 ->
 	    loop (x1::acc) (rest1,rest2)
 	| (x1,x2) -> expify acc x1 x2 in
       loop [] (os1,os2)

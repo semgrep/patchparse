@@ -144,11 +144,11 @@ let is_limited change =
       (ok e1 || ok e2) &&
       (match (e1,e2) with
 	(Ast.CALL(f1,a1,k1),Ast.CALL(f2,a2,k2)) ->
-	  (not (Ast.al_expr f1 = Ast.al_expr f2)) ||
+	  (not (Ast_al.al_expr f1 = Ast_al.al_expr f2)) ||
 	  not(List.length a1 = List.length a2) ||
 	  List.exists not_just_code a1 || List.exists not_just_code a2
       |	(Ast.DECLARER(f1,a1,k1),Ast.DECLARER(f2,a2,k2)) ->
-	  (not (Ast.al_expr f1 = Ast.al_expr f2)) ||
+	  (not (Ast_al.al_expr f1 = Ast_al.al_expr f2)) ||
 	  not(List.length a1 = List.length a2) ||
 	  List.exists not_just_code a1 || List.exists not_just_code a2
       |	_ -> true)
@@ -536,7 +536,7 @@ let compare_lists get_everything separate_dropped
 (* treatment of primitives *)
 
 let rec compare_prim prim1 prim2 =
-  if Ast.al_prim prim1 = Ast.al_prim prim2
+  if Ast_al.al_prim prim1 = Ast_al.al_prim prim2
   then NO_CHANGE
   else
     match (prim1,prim2) with
@@ -569,7 +569,7 @@ let rec compare_prim prim1 prim2 =
 
 and compare_prim_lists l1 l2 =
   compare_lists true false compare_prim
-    (fun (x,y) -> Ast.al_prim x = Ast.al_prim y)
+    (fun (x,y) -> Ast_al.al_prim x = Ast_al.al_prim y)
     (function x -> function y -> CE.PRIMCE(x,y))
     (function x -> function y -> CE.SYMCE(x,y))
     l1 l2
@@ -582,7 +582,7 @@ and compare_prim_lists l1 l2 =
     (Small.top
        (function Ast.SYMOP(_) -> true | _ -> false)
        (function Ast.SYMOP(_) -> true | _ -> false)
-       [(fun (x,y) -> Ast.al_prim x = Ast.al_prim y)]
+       [(fun (x,y) -> Ast_al.al_prim x = Ast_al.al_prim y)]
        (function Ast.SYMOP("&",_) | Ast.SYMOP("*",_) -> true | _ -> false))
     (get_immediate_expr_changes 4)
     make_immediate_expr_change
@@ -600,7 +600,7 @@ difference is an immediate change, whereever the change occurs. *)
 
 and compare_symbol prims1 prims2 =
   if List.length prims1 = List.length prims2 && 
-    List.for_all (fun (prim1, prim2) -> Ast.al_prim prim1 = Ast.al_prim prim2)
+    List.for_all (fun (prim1, prim2) -> Ast_al.al_prim prim1 = Ast_al.al_prim prim2)
       (List.combine prims1 prims2)
   then NO_CHANGE
   else
@@ -612,12 +612,12 @@ and compare_symbol prims1 prims2 =
 	  Some(id1=id2,rest1,rest2)
       | (Ast.PARENSYM(expr1,known1)::rest1,
 	 Ast.PARENSYM(expr2,known2)::rest2) ->
-	   Some((List.map Ast.al_expr expr1)=(List.map Ast.al_expr expr2)&&
+	   Some((List.map Ast_al.al_expr expr1)=(List.map Ast_al.al_expr expr2)&&
 		known1=known2,rest1,rest2)
       | (Ast.ARRAY(_,_)::rest1,Ast.ARRAY(_,_)::rest2) ->
 	  find_first_id (rest1,rest2)
       | (x::rest1,y::rest2)
-	when Ast.al_prim x = Ast.al_prim y -> find_first_id (rest1,rest2)
+	when Ast_al.al_prim x = Ast_al.al_prim y -> find_first_id (rest1,rest2)
       | _ -> None in
     (match find_first_id (prims1,prims2) with
       Some(same_start_id, rest1, rest2) ->
@@ -661,7 +661,7 @@ and compare_symbol prims1 prims2 =
 (* treatment of expressions *)
 
 and compare_expr e1 e2 =
-  if Ast.al_expr e1 = Ast.al_expr e2
+  if Ast_al.al_expr e1 = Ast_al.al_expr e2
   then NO_CHANGE
   else
     match (e1,e2) with
@@ -855,7 +855,7 @@ and index  (x: Ast.code) l =
   let rec loop = function
       [] -> raise Not_found
     | (y::rest) ->
-	if Ast.al_code x = Ast.al_code y then 0 else 1 + loop rest in
+	if Ast_al.al_code x = Ast_al.al_code y then 0 else 1 + loop rest in
   try Some(loop l) with Not_found -> None
 
 and split l n =
@@ -874,7 +874,7 @@ and compare_calls process_immediate fn1 fn2 args1 args2 known1 known2 =
   let rec loop ctr = function (* align arguments *)
     ([],_) | (_,[]) as x -> x
   | (x::rest1,y::rest2) ->
-      if Ast.al_code x = Ast.al_code y
+      if Ast_al.al_code x = Ast_al.al_code y
       then
 	let (new_rest1,new_rest2) = loop (ctr+1) (rest1,rest2) in
 	((argify ctr x)::new_rest1,(argify ctr y)::new_rest2)
@@ -944,7 +944,7 @@ and compare_calls process_immediate fn1 fn2 args1 args2 known1 known2 =
 
 and compare_expr_lists l1 l2 =
   compare_lists false true compare_expr
-    (fun (x,y) -> Ast.al_expr x = Ast.al_expr y)
+    (fun (x,y) -> Ast_al.al_expr x = Ast_al.al_expr y)
     (function x -> function y -> CE.EXPRCE(x,y))
     (function x -> function y -> CE.EXPRLCE(x,y))
     l1 l2
@@ -961,7 +961,7 @@ and compare_expr_lists l1 l2 =
     (Small.top
        (function Ast.EOP(_) -> true | _ -> false)
        (function Ast.EOP(_) -> true | _ -> false)
-       [(fun (x,y) -> Ast.al_expr x = Ast.al_expr y);
+       [(fun (x,y) -> Ast_al.al_expr x = Ast_al.al_expr y);
 	 (function
 	     (Ast.CALL(_,_,_),Ast.CALL(_,_,_)) -> true
 	   | (Ast.DECLARER(_,_,_),Ast.DECLARER(_,_,_)) -> true
@@ -973,7 +973,7 @@ and compare_expr_lists l1 l2 =
     (* was (make_context_change 4) *)
 
 and compare_code c1 c2 =
-  if Ast.al_code c1 = Ast.al_code c2
+  if Ast_al.al_code c1 = Ast_al.al_code c2
   then NO_CHANGE
   else
     match (c1,c2) with
@@ -987,7 +987,7 @@ and compare_code c1 c2 =
 		 make_immediate_expr_change(CE.CODECE(c1,c2)) [])
 
 and compare_toplevel c1 c2 =
-  if Ast.al_code c1 = Ast.al_code c2
+  if Ast_al.al_code c1 = Ast_al.al_code c2
   then NO_CHANGE
   else
     match (c1,c2) with
@@ -1011,7 +1011,7 @@ that arguments that are added or dropped appear separately.  But it seems
 better to do that explicitly in compare_lists. *)
 and compare_code_lists l1 l2 =
   compare_lists true true compare_code
-    (fun (x,y) -> Ast.al_code x = Ast.al_code y)
+    (fun (x,y) -> Ast_al.al_code x = Ast_al.al_code y)
     (function x -> function y -> CE.CODECE(x,y))
     (function x -> function y -> CE.CODELCE(x,y))
     l1 l2
@@ -1024,13 +1024,13 @@ and compare_code_lists l1 l2 =
     (Small.top
        (function Ast.SEP(";",_) | Ast.SEP(",",_) -> true | _ -> false)
        (function _ -> false)
-       [function (x,y) -> Ast.al_code x = Ast.al_code y]
+       [function (x,y) -> Ast_al.al_code x = Ast_al.al_code y]
        (function _ -> false))
     (get_immediate_expr_changes 10) make_immediate_expr_change
 
 and compare_toplevel_lists l1 l2 =
   compare_lists false true compare_toplevel
-    (function (x,y) -> Ast.al_code x = Ast.al_code y)
+    (function (x,y) -> Ast_al.al_code x = Ast_al.al_code y)
     (function x -> function y -> CE.CODECE(x,y))
     (function x -> function y -> CE.CODELCE(x,y))
     l1 l2
@@ -1043,19 +1043,19 @@ and compare_toplevel_lists l1 l2 =
     (Small.top
        (function Ast.SEP(";",_) -> true | _ -> false)
        (function _ -> false)
-       [(function (x,y) -> Ast.al_code x = Ast.al_code y);
+       [(function (x,y) -> Ast_al.al_code x = Ast_al.al_code y);
 	 (function
 	     (Ast.EXPR([Ast.CALL(fn1,_,_)]),
 	      Ast.EXPR([Ast.CALL(fn2,_,_)])) ->
-		Ast.al_expr fn1 = Ast.al_expr fn2
+		Ast_al.al_expr fn1 = Ast_al.al_expr fn2
 	   | (Ast.EXPR([Ast.DECLARER(fn1,_,_)]),
 	      Ast.EXPR([Ast.DECLARER(fn2,_,_)])) ->
-		Ast.al_expr fn1 = Ast.al_expr fn2
+		Ast_al.al_expr fn1 = Ast_al.al_expr fn2
 	   | (Ast.EXPR([Ast.PROTOTYPE(_,_,_,nm1,_,_)]),
 	      Ast.EXPR([Ast.PROTOTYPE(_,_,_,nm2,_,_)])) -> nm1=nm2
 	   | (Ast.EXPR([Ast.ASSIGN(e1,_,_,_)]),
 	      Ast.EXPR([Ast.ASSIGN(e2,_,_,_)])) ->
-		Ast.al_expr e1 = Ast.al_expr e2
+		Ast_al.al_expr e1 = Ast_al.al_expr e2
 	   | _ -> false);
 	 (function
 	     (Ast.EXPR([Ast.CALL(fn1,_,_)]),
@@ -1081,7 +1081,7 @@ and compare_toplevel_lists_lists l1 l2 =
     Small.top
       (function _ -> false)
       (function _ -> false)
-      [(function (x,y) -> List.map Ast.al_code x = List.map Ast.al_code y);
+      [(function (x,y) -> List.map Ast_al.al_code x = List.map Ast_al.al_code y);
 	(function
 	    ((Ast.EXPR([Ast.PROTOTYPE(_,_,_,nm1,_,_)])::_),
 	     (Ast.EXPR([Ast.PROTOTYPE(_,_,_,nm2,_,_)])::_)) -> nm1=nm2

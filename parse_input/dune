@@ -1,0 +1,11 @@
+(library
+ (name parse_input)
+ (wrapped false)
+ (libraries
+   globals
+ )
+ (preprocess (pps ppx_deriving.show))
+)
+(ocamllex clexer)
+(menhir (modules cparser2) 
+        (flags --unused-tokens --explain --fixed-exception))

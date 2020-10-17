@@ -1,0 +1,6 @@
+(env
+(dev
+; TODO: fix those warnings
+(flags (:standard -w -52-6-27-39-32)))
+(release
+(flags (:standard -O3))))

@@ -1,0 +1,8 @@
+(library
+ (name get_input)
+ (wrapped false)
+ (libraries
+   globals
+ )
+ (preprocess (pps ppx_deriving.show))
+)

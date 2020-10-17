@@ -1,0 +1,23 @@
+(executables
+ (names main)
+ (libraries
+    str
+
+    ; pfff deps
+
+    ; internal deps
+    globals 
+    get_input
+    parse_input
+ )
+ (preprocess (pps ppx_profiling))
+ ; for ocamldebug
+ (modes byte)
+)
+
+
+(install
+ (package patchparse)
+ (section bin)
+ (files (main.exe as patchparse))
+)

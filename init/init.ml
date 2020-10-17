@@ -1,3 +1,4 @@
+module Config = Globals
 (* Get things started.  Manage the various versions, collect the data. *)
 
 (* more than 1 line all starting with * are comments *)

@@ -1,3 +1,5 @@
+module Config = Globals
+
 let lines = ref 0
 
 let rec drop_git_start in_lines =

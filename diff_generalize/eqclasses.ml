@@ -1,4 +1,5 @@
 module CE = Ce
+module Config = Globals
 
 (* We will have equivalence classes of changes and of individual - and +
 strings, for the case where diff has inferred a meaningless pairing. *)

@@ -1,3 +1,9 @@
+(* I've renamed config.ml to globals.ml to avoid conflict with
+ * compiler-libs/config.ml which is used when linking with pfff commons,
+ * but I restore its original name here to look as before.
+ *)
+module Config = Globals
+
 (*****************************************************************************)
 (* Purpose *)
 (*****************************************************************************)

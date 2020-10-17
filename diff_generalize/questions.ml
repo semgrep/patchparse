@@ -1,4 +1,5 @@
 module CE = Ce
+module Config = Globals
 
 (* We consider the following questions:
 

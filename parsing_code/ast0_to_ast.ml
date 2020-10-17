@@ -1,5 +1,6 @@
 open Ast0
 open Ast0_unparse
+module Config = Globals
 
 let __unknown_line = (-1,Ast.CTX)
 

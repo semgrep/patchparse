@@ -1,5 +1,6 @@
 open Ce
 open Ce_visit
+module Config = Globals
 
 module U = Ast_unparse
 

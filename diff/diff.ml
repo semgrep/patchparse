@@ -1,4 +1,5 @@
 module CE = Ce
+module Config = Globals
 
 (* When we have a - and a +, then we want to compare the two to omit the
 parts that are in common.  However, we want to maintain some context, so

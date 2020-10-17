@@ -1,4 +1,6 @@
+module Config = Globals
 module CE = Ce
+
 (* -------------------------------------------------------------------- *)
 (* Print the data in the VERSION or DIRECTORY cases *)
 

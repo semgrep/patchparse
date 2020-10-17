@@ -1,4 +1,5 @@
 (* set up data structures *)
+module Config = Globals
 
 open Eqclasses
 module CE = Ce

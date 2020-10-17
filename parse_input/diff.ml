@@ -130,7 +130,7 @@ let is_limited change =
     | _ -> true in
   let ok = function
       Ast.CALL(Ast.SYMBOL([Ast.IDENT(f,_)]),x,y) when
-	let lid = String.lowercase f in
+	let lid = String.lowercase_ascii f in
 	Aux.substring "lock" lid ||
 	Aux.substring "print" lid -> false
     | Ast.CALL(f1,x,y) -> true

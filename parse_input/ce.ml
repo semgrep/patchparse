@@ -6,7 +6,7 @@ let boring_ids id =
        ["return"; "dbg"; "err"; "dev_dbg"; "dev_err"; "dev_warn";
 	 "printk"; "sprintf"; "sizeof";
 	 "strcpy"; "strncpy"; "strcmp"; "strncmp"; "EXPORT_SYMBOL"]) ||
-    Aux.substring "debug" (String.lowercase id) in
+    Aux.substring "debug" (String.lowercase_ascii id) in
   boring_fns id ||
   (List.mem id
      ["break"; "continue"; "for"; "if"; "while"; "switch"; "int"; "void";
@@ -35,7 +35,7 @@ let real_fn = function(*no point to codify if and while - all meaning lost*)
   | Ast.SYMBOL([Ast.IDENT("kfree",_)])
   | Ast.SYMBOL([Ast.IDENT("EXPORT_SYMBOL",_)]) -> false
   | Ast.SYMBOL([Ast.IDENT(s,_)])
-      when Aux.substring "debug" (String.lowercase s) -> false
+      when Aux.substring "debug" (String.lowercase_ascii s) -> false
   | _ -> true
 
 (* used to let a block memory mover match up with an assignment *)
@@ -432,7 +432,7 @@ let replace n env exp =
     env := (exp,new_name)::!env;
     new_name
 
-let is_constant s = String.uppercase s = s
+let is_constant s = String.uppercase_ascii s = s
 
 let expify_symbol top start n env symbol expify_prim =
  (* Find the first symbol before a . or ->, or a symbol at the end, and

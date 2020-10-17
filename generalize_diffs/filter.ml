@@ -313,7 +313,7 @@ let make_public = function
 (* refinement of 0 and 1 to -Exxx and 0 *)
 
 let econst s =
-  s = String.uppercase s &&
+  s = String.uppercase_ascii s &&
   (try String.get s 0 = 'E' with _ -> false)
 
 (* no declarers here *)

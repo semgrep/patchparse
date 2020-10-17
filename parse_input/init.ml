@@ -377,7 +377,7 @@ let process_file (version,lines) =
 	let fl = Filename.basename file in
 	Config.filename :=
 	  Aux.normalize
-	    (String.lowercase (Filename.chop_extension fl))(*drop .c*);
+	    (String.lowercase_ascii (Filename.chop_extension fl))(*drop .c*);
 	let (res,after) =
 	  process_lines version path !Config.complete_filename rest in
 	res@(loop after)

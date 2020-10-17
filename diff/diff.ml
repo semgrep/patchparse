@@ -1,5 +1,6 @@
 module CE = Ce
 module Config = Globals
+open Context_change
 
 (* When we have a - and a +, then we want to compare the two to omit the
 parts that are in common.  However, we want to maintain some context, so
@@ -24,16 +25,11 @@ type change =
 
 and change_type =
     (* willing to merge with an expr or code context *)
-    IMMEDIATE_EXPR_CHANGE of CE.ce (* the change *) * context_change list
+    IMMEDIATE_EXPR_CHANGE of CE.ce (* the change *) * Context_change.t list
     (* only willing to merge with a code context, ie a code list *)
-  | IMMEDIATE_CODE_CHANGE of CE.ce (* the change *) * context_change list
+  | IMMEDIATE_CODE_CHANGE of CE.ce (* the change *) * Context_change.t list
     (* not willing to merge *)
-  | CONTEXT_CHANGE of context_change list
-
-and context_change =
-    CC of CE.ce (* the change *) * context_change list
-  | CG of CE.ce (* a change generalized with EXP or CODE *) *
-	context_change list
+  | CONTEXT_CHANGE of Context_change.t list
 
 
 (* ----------------- abstract line diff ----------------------------- *)

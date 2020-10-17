@@ -1,4 +1,5 @@
 module CE = Ce
+module Diff = Context_change
 
 (* Filters for the changes in the interface *)
 

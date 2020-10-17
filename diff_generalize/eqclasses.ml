@@ -1,5 +1,6 @@
 module CE = Ce
 module Config = Globals
+module Diff = Context_change
 
 (* We will have equivalence classes of changes and of individual - and +
 strings, for the case where diff has inferred a meaningless pairing. *)
@@ -77,7 +78,7 @@ type change_table_type =
 
 (* the key is the size of the diff.ce of the context_change *)
 type worklist_type = 
-    (int, (Diff.context_change * int (*version*) * string (*dir*) *
+    (int, (Context_change.t * int (*version*) * string (*dir*) *
 	     string (*file*) * string (*region*)) list ref)
       Hashtbl.t
 (* --------------------------------------------------------------------- *)
@@ -120,7 +121,7 @@ let vf_tmp_table =
 let tmp_table =
   (Hashtbl.create(1000) :
      (CE.ce,
-      (Diff.context_change list * int * string * string * string *
+      (Context_change.t list * int * string * string * string *
 	 CE.ce) list ref)
      Hashtbl.t)
 

@@ -1,6 +1,6 @@
 (* set up data structures *)
 module Config = Globals
-
+module CC = Context_change
 open Eqclasses
 module CE = Ce
 
@@ -112,15 +112,15 @@ let eqworklists changelist (version, pathname, filename, region) =
   let rec loop cc =
     let (cc,context) =
       match cc with
-	Diff.CC(change,context) ->
+	CC.CC(change,context) ->
 	  let (code,noncode) =
 	    (* IMPT: if there is exp or code at the top level, there is only
 	       exp or code underneath *)
 	    List.partition
-	      (function Diff.CC(_,_) -> false | Diff.CG(_,_) -> true)
+	      (function CC.CC(_,_) -> false | CC.CG(_,_) -> true)
 	      context in
-	  (Diff.CC(change,code),noncode)
-      | Diff.CG(change,context) ->
+	  (CC.CC(change,code),noncode)
+      | CC.CG(change,context) ->
 	  failwith
 	    (Printf.sprintf "generalized change at top level %s\n"
 	       (Ce_unparse.ce2c change)) 

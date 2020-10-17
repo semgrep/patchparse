@@ -1,5 +1,6 @@
 module CE = Ce
 module Config = Globals
+module Diff = Context_change
 
 (* Presumably, each CC or CG represents a single change, with children
 various abstractions of those changes or subchanges.  This permits only

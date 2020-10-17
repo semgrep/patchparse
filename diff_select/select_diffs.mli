@@ -1,5 +1,5 @@
 val select_diffs :
-    (Diff.context_change list *
+    (Context_change.t list *
        (int * string (*path*) * string (*file*) * string (*region*))) list  ->
-	 (Diff.context_change list *
+	 (Context_change.t list *
 	    (int * string (*path*) * string (*file*) * string (*region*))) list

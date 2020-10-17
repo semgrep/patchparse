@@ -1,0 +1,8 @@
+(library
+ (name output)
+ (wrapped false)
+ (libraries
+   generalize_diffs
+ )
+ (preprocess (pps ppx_deriving.show))
+)

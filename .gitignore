@@ -1,3 +1,11 @@
 _build
 .merlin
 /patchparse
+/PFFF_DB.json
+/PFFF_DB.marshall
+/TAGS
+/graph_code.marshall
+/graph_code.marshall.opti
+/layer_bottomup.json
+/layer_graphcode_stats.json
+/layer_topdown.json

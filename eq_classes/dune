@@ -1,0 +1,9 @@
+(library
+ (name eq_classes)
+ (wrapped false)
+ (libraries
+;   parse_input
+   generalize_diffs
+ )
+ (preprocess (pps ppx_deriving.show))
+)

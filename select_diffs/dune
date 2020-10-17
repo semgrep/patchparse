@@ -1,0 +1,8 @@
+(library
+ (name select_diffs)
+ (wrapped false)
+ (libraries
+   parse_input
+ )
+ (preprocess (pps ppx_deriving.show))
+)

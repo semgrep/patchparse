@@ -1,110 +1,28 @@
-TARGET=patchparse
+all:
+	dune build
+#	dune build ./_build/default/tests/test.bc
+clean:
+	dune clean
+test:
+	dune runtest -f
+install:
+	dune install
 
-SRC=main.ml
+.PHONY: all clean install test
 
-SYSLIBS=str.cma unix.cma $(SEXPSYSCMA)
-OPTSYSLIBS=$(SYSLIBS:.cma=.cmxa)
-LIBS=globals/globals.cma \
- get_input/get_input.cma \
- parse_input/parse_input.cma \
- generalize_diffs/generalize_diffs.cma \
- select_diffs/select_diffs.cma \
- eq_classes/eq_classes.cma \
- output/output.cma
-OPTLIBS=$(LIBS:.cma=.cmxa)
+# Developer rules
 
-#used for clean: and depend: and a little for rec & rec.opt
-MAKESUBDIRS=globals \
- get_input parse_input generalize_diffs select_diffs eq_classes output
-INCLUDEDIRS=globals \
- get_input parse_input generalize_diffs select_diffs eq_classes output
+#coupling: .circleci/config.yml
+#semgrep must be in your PATH (run 'pipenv shell' from semgrep/semgrep/)
+check:
+	@semgrep --version
+	@semgrep-core -version
+	semgrep --config ../semgrep.yml --config https://semgrep.dev/p/ocaml --error --strict --exclude tests ..
 
+index:
+	codegraph_build -lang cmt -derived_data .
 
-##############################################################################
-# Generic variables
-##############################################################################
+visual:
+	codemap -screen_size 3 -filter pfff -efuns_client efuns_client -emacs_client /dev/null .
 
-INCLUDES=$(INCLUDEDIRS:%=-I %)
-
-OBJS=    $(SRC:.ml=.cmo)
-OPTOBJS= $(SRC:.ml=.cmx)
-
-EXEC=$(TARGET)
-OPTEXEC=$(TARGET).opt
-
-##############################################################################
-# Generic ocaml variables
-##############################################################################
-
-OCAMLCFLAGS= -g
-
-# for profiling add  -p -inline 0
-# but 'make forprofiling' below does that for you.
-# This flag is also used in subdirectories so don't change its name here.
-# To enable backtrace support for native code, you need to put -g in OPTFLAGS
-# to also link with -g, but even in 3.11 the backtrace support seems buggy so
-# not worth it.
-OPTFLAGS=
-# the following is essential for Coccinelle to compile under gentoo
-# but is now defined above in this file
-
-OCAMLC=ocamlc$(OPTBIN) $(OCAMLCFLAGS)  $(INCLUDES)
-OCAMLOPT=ocamlopt$(OPTBIN) $(OPTFLAGS) $(INCLUDES)
-OCAMLLEX=ocamllex #-ml # -ml for debugging lexer, but slightly slower
-OCAMLYACC=ocamlyacc -v
-OCAMLDEP=ocamldep $(INCLUDES)
-
-
-all: rec $(EXEC)
-opt: rec.opt $(OPTEXEC)
-
-native: rec.opt $(OPTEXEC)
-
-rec:
-	set -e; for i in $(MAKESUBDIRS); do $(MAKE) -C $$i all; done 
-
-rec.opt:
-	set -e; for i in $(MAKESUBDIRS); do $(MAKE) -C $$i all.opt; done 
-
-$(EXEC): $(OBJS) $(LIBS)
-	$(OCAMLC) -o $(EXEC) $(SYSLIBS) $(LIBS) $(OBJS)
-
-
-$(OPTEXEC): $(OPTOBJS) $(OPTLIBS)
-	$(OCAMLOPT) -o $(OPTEXEC) $(OPTSYSLIBS) $(OPTLIBS) $(OPTOBJS)
-
-
-.SUFFIXES:
-.SUFFIXES: .ml .mli .cmo .cmi .cmx
-
-.ml.cmo:
-	$(OCAMLC) $(INCLUDE_PATH) -c $<
-
-.mli.cmi:
-	$(OCAMLC) $(INCLUDE_PATH) -c $<
-
-.ml.cmx:
-	$(OCAMLOPT) $(INCLUDE_PATH) -c $<
-
-# clean rule for others files
-clean::
-	set -e; for i in $(MAKESUBDIRS); do $(MAKE) -C $$i clean; done 
-	rm -f *.cm[iox] *.o 
-	rm -f *~ .*~ #*# 
-	rm -f .depend
-
-depend: 
-	set -e; for i in $(MAKESUBDIRS); do $(MAKE) -C $$i depend; done
-	$(OCAMLDEP) $(INCLUDE_PATH) *.mli *.ml > .depend
-
-.depend:
-	$(OCAMLDEP) $(INCLUDE_PATH) *.mli *.ml > .depend
-
-include .depend
-
-release:
-	$(MAKE) -C tools licensify
-	tools/licensify
-	set -e; for i in $(MAKESUBDIRS); do cd $$i ; ../tools/licensify; cd .. ; done 
-	$(MAKE) -C . clean
-	/bin/rm -r -f .svn */.svn
+.PHONY: check index visual

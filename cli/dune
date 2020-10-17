@@ -1,7 +1,7 @@
 (executables
  (names main)
  (libraries
-    str
+    str unix
 
     ; pfff deps
 
@@ -9,6 +9,10 @@
     globals 
     get_input
     parse_input
+    select_diffs
+    generalize_diffs
+    eq_classes
+    output
  )
  (preprocess (pps ppx_profiling))
  ; for ocamldebug

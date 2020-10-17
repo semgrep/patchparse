@@ -8,17 +8,14 @@
 
 let setup_git gitdir =
   if Sys.is_directory gitdir
-  then
-    begin
+  then begin
       Config.git := true;
       Config.gitdir := gitdir
-    end
-  else
-    begin
+  end else begin
       Config.gitpatch := true;
       Config.file := gitdir;
       Config.outfile := gitdir
-    end
+  end
 
 let setup_next gitdir =
   Config.gitdir := gitdir;
@@ -53,24 +50,26 @@ let setup_days n =
 let speclist = Arg.align [
    "--git",   Arg.String setup_git, 
    "  use a git patch or directory";
+   "--patch", Arg.Clear Config.git, 
+   "  use a patch file";
+
    "--gitcommitlist", Arg.Set Config.gitcommitlist,
-   "  list of relevant commits";
+   "  interpret file as list of relevant commits";
+   "--days", Arg.String setup_days, 
+   "  use patches since n days ago";
 
    "--gitdir", Arg.Set_string Config.gitdir, 
    "  set git dir";
-   "--restrict", Arg.Set_string Config.git_restrict,
-   "  restrict patches obtained from git to the given directory";
    "--giturl", Arg.Set_string Config.url, 
    "  url of git repository";
 
+   "--restrict", Arg.Set_string Config.git_restrict,
+   "  restrict patches obtained from git to the given directory";
+
    "--destdir", Arg.Set_string Config.dest_dir, 
    "  destination of files";
-   "--patch", Arg.Clear Config.git, 
-   "  use a patch file";
    "--next", Arg.String setup_next, 
    "  use most recent tag in linux-next";
-   "--days", Arg.String setup_days, 
-   "  use patches since n days ago";
 
    "--min",   Arg.Set_int Config.same_threshold, 
    "set same_threshold";
@@ -90,13 +89,14 @@ let speclist = Arg.align [
 
    "--print-parsable", Arg.Set Config.print_parsable,
    "   print parsable changes on stdout";
-   "--print-sp", Arg.Set Config.print_sp, "   print semantic patch";
+   "--print-sp", Arg.Set Config.print_sp, 
+   "   print semantic patch";
    "--out-dir", Arg.Set_string Config.out_dir,
-   "     <dirname> specify output directory"
+   "   <dirname> specify output directory"
  ]
   
 
-let usage = "Usage: patchparse [--git file] [--patch file], etc"
+let usage = "Usage: patchparse [--git dir] [--patch file] <file> ..."
 
 let anonymous str = Config.file := str
 

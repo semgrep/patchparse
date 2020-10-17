@@ -2,7 +2,7 @@
  (name core)
  (wrapped false)
  (libraries
-   commons
+   utils
    globals
  )
  (preprocess (pps ppx_deriving.show))

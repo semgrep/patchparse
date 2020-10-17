@@ -2,7 +2,7 @@
  (name eq_classes)
  (wrapped false)
  (libraries
-;   parse_input
+   commons
    generalize_diffs
  )
  (preprocess (pps ppx_deriving.show))

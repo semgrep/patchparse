@@ -1,3 +1,5 @@
 
-val git : Common.filename   -> Patch.line list
-val patch : Common.filename -> Patch.line list
+(* file can be a gitcommitlist for example *)
+val git : Common.filename   -> Patch.t list
+
+val patch : Common.filename -> Patch.t list

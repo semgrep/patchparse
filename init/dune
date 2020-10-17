@@ -1,8 +1,10 @@
 (library
- (name generalize_diffs)
+ (name init)
  (wrapped false)
  (libraries
-   parse_input
+   globals core
+   parsing_code
+   diff
  )
  (preprocess (pps ppx_deriving.show))
 )

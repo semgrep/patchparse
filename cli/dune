@@ -6,9 +6,11 @@
     ; pfff deps
 
     ; internal deps
-    globals 
+    globals
+    core
+    diff
+    init
     get_input
-    parse_input
     select_diffs
     generalize_diffs
     eq_classes

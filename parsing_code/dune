@@ -1,8 +1,8 @@
 (library
- (name parse_input)
+ (name parsing_code)
  (wrapped false)
  (libraries
-   globals
+   globals core
  )
  (preprocess (pps ppx_deriving.show))
 )

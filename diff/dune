@@ -1,8 +1,10 @@
 (library
- (name select_diffs)
+ (name diff)
  (wrapped false)
  (libraries
-   parse_input
+   globals 
+   core
+   parsing_code
  )
  (preprocess (pps ppx_deriving.show))
 )

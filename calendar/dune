@@ -8,7 +8,7 @@
     ; internal deps
     globals 
     get_input
-    parse_input
+    init
     select_diffs
     generalize_diffs
     eq_classes

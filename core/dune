@@ -1,0 +1,8 @@
+(library
+ (name core)
+ (wrapped false)
+ (libraries
+   globals
+ )
+ (preprocess (pps ppx_deriving.show))
+)

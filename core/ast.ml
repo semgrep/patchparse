@@ -8,7 +8,7 @@ type known =
 
 (* position information *)
 type info = line_number * Patch.linetype
-and line_number = int 
+  and line_number = int 
 
 (* I also keep the 'a outside the closure cos I want to do pattern matching *)
 type 'a extended = ('a * 'a kind)
@@ -33,11 +33,13 @@ type prim =
   | SYMOP of string extended
 
   | ARRAY of expr list * known
+  (* ??? not in Ast0.prim *)
   | PARENSYM of expr list * known
 
   (* ??? *)
   | EXP of int * prim option
 
+(* list? *)
 and symbol = prim list
 
 and expr =
@@ -58,6 +60,7 @@ and expr =
   | CALL of expr * code list * known
 
   | DECLARER of expr * code list * known
+  (* ?? not in Ast0.expr *)
   | PROTOTYPE of expr (*name*) * symbol (*type*) *
                  string list (*static,init,inline,etc*) *
                  string (*name*) * code list * known
@@ -67,6 +70,7 @@ and expr =
 and code =
   | EXPR of expr list
   | SEP of string extended
+
   (* ??? *)
   | ARG of int 
   (* ??? *)

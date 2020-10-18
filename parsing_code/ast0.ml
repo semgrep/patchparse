@@ -1,8 +1,5 @@
 
-type info = line_number * Patch.linetype
-and line_number = int
-
-type string_extended = string * info
+type string_extended = string * Ast.info
 
 type prim =
   | IDENT of string_extended
@@ -11,13 +8,18 @@ type prim =
   | INT of string_extended
   | STR of string_extended
   | SYMOP of string_extended
+
+  (* ??? not in Ast.prim *)
   | TYPE of string_extended
 
   | ARRAY of expr list * Ast.known
 
+(* ?? not in Ast *)
 and dprim = DEREFOP of string_extended
 
+(* list? *)
 and symbol = prim list
+(* d?? *)
 and dsymbol = dprim list
 
 and expr =
@@ -28,11 +30,13 @@ and expr =
   | EOP of string_extended
 
   | ASSIGN of string_extended  * expr list * Ast.known
-  | PAREN of code list * Ast.known
-  | STRUCT of code list * Ast.known
   | CALL of string_extended * code list * Ast.known
 
   | DECLARER of string_extended * code list * Ast.known
+
+  | PAREN of code list * Ast.known
+  | STRUCT of code list * Ast.known
+
 
 and code =
   | EXPR of expr list

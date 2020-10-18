@@ -1,5 +1,5 @@
 
-type change_table_type =
+type change_table =
     (Ce.ce,
      ((Patch.id (*version*) * string (*dir*)) * int (*sites*) *
 	string list (*files*) * string list (*regions*) *
@@ -7,7 +7,7 @@ type change_table_type =
     ) Hashtbl.t
 
 (* the key is the size of the diff.ce of the context_change *)
-type worklist_type = 
+type worklist = 
     (int, (Cc.t * Patch.id (*version*) * string (*dir*) *
 	     string (*file*) * string (*region*)) list ref)
       Hashtbl.t

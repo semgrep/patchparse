@@ -6,7 +6,7 @@ val eqworklists :
 
 val eqclasses :
     bool (* whether the change table is needed after this step *) ->
-      (Eq_classes.change_table_type (* global change table *) *
+      (Eq_classes.change_table (* global change table *) *
          Questions.result) *
-      (string * Eq_classes.change_table_type (* category change table *) *
+      (string * Eq_classes.change_table (* category change table *) *
 	 Questions.result) list

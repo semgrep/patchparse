@@ -128,8 +128,8 @@ let inc_version version =
   cell := !cell + 1
 
 let build_change_classes 
-    (change_worklist: worklist_type)
-    (real_table: change_table_type) 
+    (change_worklist: worklist)
+    (real_table: change_table) 
     split size_fn size_fn1 max =
   let rec loop = function
       0 -> ()
@@ -269,9 +269,9 @@ let eqworklists worklist max_change_size change
   build_change_worklist worklist max_change_size
     change (version, pathname, filename, region)
     
-let eqclasses worklist (change_table: change_table_type) max_change_size =
+let eqclasses worklist (change_table: change_table) max_change_size =
   build_context_change_classes worklist change_table max_change_size (*;
   if !Config.notex then print_change_table change_table *)
     
     
-let for_debug  (big_worklist: worklist_type) = ()
+let for_debug  (big_worklist: worklist) = ()

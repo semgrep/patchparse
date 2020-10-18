@@ -80,8 +80,8 @@ let make_filter_tables filters =
   List.map
     (function (filter,filter_string) ->
       (filter,filter_string,ref 0,
-       (Hashtbl.create(100) : worklist_type),    (* worklist table *)
-       (Hashtbl.create(100) : change_table_type) (* change table - result *) 
+       (Hashtbl.create(100) : worklist),    (* worklist table *)
+       (Hashtbl.create(100) : change_table) (* change table - result *) 
       )
     )
     filters
@@ -95,7 +95,7 @@ let sp__interface_filter_tables = make_filter_tables interface_sp_filters
 (* global tables, for considering all changes *)
 let max_change_size = ref 0
 
-let gsemi__change_worklist = (Hashtbl.create(200) : worklist_type)
+let gsemi__change_worklist = (Hashtbl.create(200) : worklist)
 
 (* --------------------------------------------------------------------- *)
 (* build worklists *)
@@ -143,7 +143,7 @@ let eqworklists changelist (version, pathname, filename, region) =
   List.iter loop changelist
 
 let eqclasses keep_change_table =
-  let big_change_table    = (Hashtbl.create(200) : change_table_type) in
+  let big_change_table    = (Hashtbl.create(200) : change_table) in
 
   Eqclasses.eqclasses gsemi__change_worklist big_change_table max_change_size;
   let global_res =

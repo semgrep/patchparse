@@ -4,6 +4,7 @@
     str unix
 
     ; pfff deps
+    commons
 
     ; internal deps
     globals

@@ -4,6 +4,10 @@
  *)
 module Config = Globals
 
+let logger = Logging.get_logger [__MODULE__]
+
+let log_config_file = ref "log_config.json"
+
 (*****************************************************************************)
 (* Purpose *)
 (*****************************************************************************)
@@ -98,7 +102,10 @@ let speclist = Arg.align [
    "--print-sp", Arg.Set Config.print_sp, 
    "   print semantic patch";
    "--out-dir", Arg.Set_string Config.out_dir,
-   "   <dirname> specify output directory"
+   "   <dirname> specify output directory";
+
+   "--log_config_file", Arg.Set_string log_config_file,
+   "  <file> logging configuration";
  ]
   
 
@@ -114,6 +121,12 @@ let main _ =
   (* modifies many of the Config.xxx globals *)
   Arg.parse speclist (fun str -> Config.file := str)  usage;
 
+  if Sys.file_exists !log_config_file
+  then begin
+      Logging.load_config_file !log_config_file;
+      logger#info "loaded %s" !log_config_file;
+  end;
+
   (* collect lines from the git/patch file *)
   let patch_data =
     if !Config.git
@@ -127,7 +140,7 @@ let main _ =
 
   (* filter the changelists *)
   let changelists = Select_diffs.select_diffs changelists in
-  Printf.eprintf "changelists: %d\n" (List.length changelists);
+  logger#info "changelists: %d\n" (List.length changelists);
 
   (* convert the changelist to a table for further processing *)
   changelists |> List.iter Prepare_eq.eqworklists;
@@ -136,7 +149,7 @@ let main _ =
 
   let ((big_change_table,change_result),filtered_category_results) =
     Prepare_eq.eqclasses do_evolutions in
-  Printf.printf "done with questions\n"; flush stdout;
+  logger#info "done with questions\n"; flush stdout;
 
   let (evolutions : Evolution.t list) =
     if do_evolutions
@@ -147,7 +160,7 @@ let main _ =
       res
     else [] 
   in
-  Printf.printf "done with evolutions\n"; flush stdout;
+  logger#info "done with evolutions\n"; flush stdout;
 
   Mktex.make_files (change_result,filtered_category_results) evolutions;
   if !Config.print_sp

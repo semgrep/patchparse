@@ -6,7 +6,9 @@ let start_line = ref 0
 (*** input handle ***)
 type handle =
     bool * string * string * int * int * out_channel * string
-let current_handle = ref (false, "", "", 0, 0, stdout, "")
+
+let current_handle = 
+  ref (false, "", "", 0, 0, stdout, "")
 
 let interactive (h : handle) = let (i, _, _, _, _, _, _) = h in i
 (*
@@ -42,7 +44,8 @@ let display_error msg token_start token_end =
     then ""
     else 
        (file_name !current_handle) ^ "["
-       ^ (string_of_int (lineno !current_handle)) ^ "] " in
+       ^ (string_of_int (lineno !current_handle)) ^ "] " 
+  in
   let oc = out_channel !current_handle in
   Printf.fprintf oc "%s%s : lines from %d start %d stop %d\n%s\n" string msg
     !start_line

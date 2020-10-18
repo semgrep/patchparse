@@ -1,4 +1,8 @@
 module Config = Globals
+
+let logger = Logging.get_logger [__MODULE__]
+
+
 (* Get things started.  Manage the various versions, collect the data. *)
 
 (* more than 1 line all starting with * are comments *)
@@ -64,7 +68,6 @@ let parse (version : Patch.id) s =
   let s =
     Str.global_replace
       (Str.regexp "\\([^\n]*\\)___line=\\([0-9]+\\)")  "___line=\\2 \\1" s in
-  (* Common.pr2 s; *)
 
   try
     let lexbuf = Lexing.from_string s in
@@ -73,17 +76,19 @@ let parse (version : Patch.id) s =
     let parsed = Cparser2.interpret Clexer.initial lexbuf in
     Some (No_modifs.drop_outer (Ast0_to_ast.convert parsed))
   with
-    Failure x ->
+  | Failure x ->
       let (Patch.Id version) = version in
       let ver =
-    try Hashtbl.find Config.version_table version
-    with Not_found -> string_of_int version
+        try Hashtbl.find Config.version_table version
+        with Not_found -> string_of_int version
       in
       let ver = if String.length ver < 12 then ver else String.sub ver 0 12 in
-      Printf.printf "%s: %s\n   %s\n" ver x s;
-      Printexc.print_backtrace stdout;
+      logger#error "%s: %s\n   %s\n" ver x s;
+      (*Printexc.print_backtrace stdout;*)
       None
-  | Parsing.Parse_error -> None
+  | Parsing.Parse_error -> 
+      logger#error "Parse error";
+      None
 (*  | x -> None*)
 
 
@@ -299,18 +304,16 @@ let process_lines version dirname filename lines =
 
       (* ---------------- THIS IS THE IMPORTANT PLACE --------------- *)
     match (parse version m, parse version p) with
-      (Some mres,Some pres) ->
+    | (Some mres,Some pres) ->
         (try
           let changelists = Diff.diff mres pres in
-          List.map
-        (function changelist ->
-          (changelist,(version, dirname, filename, current_region())))
-        changelists
+          changelists |> List.map (function changelist ->
+            (changelist,(version, dirname, filename, current_region())))
         with Failure s ->
-          (Printf.fprintf stderr
-        "%d: failed on %s:\n---\n%s\n+++\n%s\n\n"
-        start_line s m p;
-           []))
+          logger#error "%d: failed on %s:\n---\n%s\n+++\n%s\n\n"
+                    start_line s m p;
+           []
+         )
     | _ -> []
       end
     else [] in
@@ -343,8 +346,7 @@ let process_lines version dirname filename lines =
           incr _compteur;
                let (Paths.File sfilename) = filename in
           if !Config.notex
-          then (Printf.printf "%s region %d:\n\n" sfilename start_count;
-            flush stdout);
+          then logger#info "%s region %d:\n\n" sfilename start_count;
           let start_line = n in
           let (collected,rest) = collect_lines false " " rest in
           loop (start_count + 1) start_line collected rest
@@ -390,5 +392,5 @@ let process_file (version,lines) =
   in loop lines
 
 let process_all_files (lines : Patch.t list) =
-  Printf.printf "in process all files\n"; flush stdout;
+  logger#info "in process all files";
   List.concat (List.map process_file lines)

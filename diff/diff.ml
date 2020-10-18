@@ -3,6 +3,8 @@ module Config = Globals
 open Context_change
 module CC = Context_change
 
+let logger = Logging.get_logger [__MODULE__]
+
 (* When we have a - and a +, then we want to compare the two to omit the
 parts that are in common.  However, we want to maintain some context, so
 that we can identify similar things.  For example, if a function has a new
@@ -96,7 +98,8 @@ let pr = Printf.sprintf
 let context_printer context =
   let print_change change n =
     let pchange = Ce_unparse.ce2c change in
-    Printf.printf "level %d: %s" n pchange in
+    logger#info "level %d: %s" n pchange 
+  in
   let rec loop n = function
       [] -> ()
     | CC(change,context)::rest
@@ -1112,7 +1115,7 @@ let diff t1 t2 =
       (function rest ->
 	function
 	    NO_CHANGE ->
-	      if !Config.notex then Printf.printf "no change\n\n"; rest
+	      if !Config.notex then logger#info "no change\n\n"; rest
 	  | CHANGE(_,changelist) ->
 (*      let _ = assert (not (have_al_change_type changelist)) in *)
 	      
@@ -1122,7 +1125,7 @@ let diff t1 t2 =
 		if not(List.mem pchange !printed)
 		then
 		  begin
-		    Printf.printf "level %d: %s" n pchange;
+		    logger#info "level %d: %s" n pchange;
 		    printed := pchange :: !printed
 		  end in	
 	      let rec loop n = function

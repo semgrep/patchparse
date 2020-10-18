@@ -2,6 +2,9 @@
  (name init)
  (wrapped false)
  (libraries
+   ; pfff deps
+   commons
+
    globals core
    parsing_code
    diff

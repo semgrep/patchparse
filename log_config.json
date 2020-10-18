@@ -6,14 +6,8 @@
             },
             { "name": "Main.Dune__exe__Main"    , "level": "debug" },
 
-            { "name": "Main.Generic_vs_generic" , "level": "info" },
-            { "name": "Main.Parse_js" , "level": "info" },
-
-            { "name": "Main.Eval_generic"       , "level": "debug" },
-            { "name": "Main.Rules_filter"       , "level": "debug" },
-            { "name": "Main.Test_parsing"       , "level": "debug" },
-            { "name": "Main.Matching_generic"   , "level": "debug" },
-            { "name": "Main.Parse_code"         , "level": "debug" },
+            { "name": "Main.Init"    , "level": "flash" },
+            { "name": "Main.Diff"    , "level": "flash" },
 
             { "name": "XXX"                     , "level": "error" }
         ],

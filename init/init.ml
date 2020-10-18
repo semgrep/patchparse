@@ -381,8 +381,9 @@ let process_file (version,lines) =
 	Config.filename :=
 	  Aux.normalize
 	    (String.lowercase_ascii (Filename.chop_extension fl))(*drop .c*);
+         let dir = Paths.Dir path in
 	let (res,after) =
-	  process_lines version path !Config.complete_filename rest in
+	  process_lines version dir !Config.complete_filename rest in
 	res@(loop after)
   in loop lines
 

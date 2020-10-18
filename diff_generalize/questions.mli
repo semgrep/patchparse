@@ -1,16 +1,16 @@
 type result =
     (string (*version*) *
-       (string (*dir*) * (Ce.ce * int (*count*)) list) list) list *
-      (string (*dir*) *
+       (Paths.dir (*dir*) * (Ce.ce * int (*count*)) list) list) list *
+      (Paths.dir (*dir*) *
 	 (string (*version*) * (Ce.ce * int (*count*)) list) list) list *
       (Ce.ce *
-	 ((string (*version*) * string (*dir*)) * int (*count*)) list)
+	 ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list)
       list list *
       ((Ce.ce * string) *
-	 ((string (*version*) * string (*dir*)) * int (*count*)) list)
+	 ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list)
       list list *
       (Ce.ce *
-	 ((string (*version*) * string (*dir*)) * int (*count*)) list) list *
+	 ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list) list *
       (Ce.ce *
 	 ((string (*version*) * int (*count*)) * int (*ver#*)) list) list
 

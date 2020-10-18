@@ -255,7 +255,7 @@ let postprocess_md_table table =
        (function change ->
 	 function info ->
 	   function (rest : (('change *
-				((Patch.id(*v*) * string(*d*)) * int(*ct*)) list)
+				((Patch.id(*v*) * Paths.dir(*d*)) * int(*ct*)) list)
 			       list)) ->
 	     (change,
 	      List.sort compare
@@ -327,7 +327,7 @@ let postprocess_mv_table table compute_percentage_multiver =
 	 function info ->
 	   function (rest :
 		       (('change *
-			   ((Patch.id(*v*) * string(*d*)) * int(*ct*)) list *
+			   ((Patch.id(*v*) * Paths.dir(*d*)) * int(*ct*)) list *
 			   ((Patch.id(*v*) * int(*ct*)) * int(*v#*)) list)
 			  list)) ->
 	     (change,
@@ -421,17 +421,17 @@ let mk_questions (in_table: Eq_classes.change_table) keep_change_table
 
 type result =
     (string (*version*) *
-       (string (*dir*) * (CE.ce * int (*count*)) list) list) list *
-      (string (*dir*) *
+       (Paths.dir (*dir*) * (CE.ce * int (*count*)) list) list) list *
+      (Paths.dir (*dir*) *
 	 (string (*version*) * (CE.ce * int (*count*)) list) list) list *
       (CE.ce *
-	 ((string (*version*) * string (*dir*)) * int (*count*)) list)
+	 ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list)
       list list *
       ((CE.ce * string) *
-	 ((string (*version*) * string (*dir*)) * int (*count*)) list)
+	 ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list)
       list list *
       (CE.ce *
-	 ((string (*version*) * string (*dir*)) * int (*count*)) list) list *
+	 ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list) list *
       (CE.ce *
 	 ((string (*version*) * int (*count*)) * int (*ver#*)) list) list
 

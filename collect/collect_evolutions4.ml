@@ -30,25 +30,25 @@ classes. *)
 
 let version_dir_change_files =
   (Hashtbl.create(200) :
-     ((Patch.id (* version *) * string (* dir *)),
-      (CE.ce * (string list ref (* sorted files *) *
+     ((Patch.id (* version *) * Paths.dir (* dir *)),
+      (CE.ce * (Paths.file list ref (* sorted files *) *
 		  string list ref (* referenced symbols *))) list ref)
      Hashtbl.t)
 
 let version_change_files =
   (Hashtbl.create(200) :
      (Patch.id (* version *),
-      (CE.ce * (string list ref (* sorted files *) *
+      (CE.ce * (Paths.file list ref (* sorted files *) *
 		  string list ref (* referenced symbols *))) list ref)
      Hashtbl.t)
 
 let version_dir_key (version,dir) = (version,dir)
-let (version_key: Patch.id * string -> Patch.id) = 
+let (version_key: Patch.id * Paths.dir -> Patch.id) = 
   fun (version,dir) -> version
 
 let create_version_dir_change_files 
     table 
-    (get_key: Patch.id * string -> Patch.id)
+    (get_key: Patch.id * Paths.dir -> Patch.id)
     (change_table: Eq_classes.change_table) 
   =
   Hashtbl.iter
@@ -316,7 +316,7 @@ let make_classes key_change_files key =
 separated for simplicity) *)
 
 let augment_classes key_table key (classes : (CE.ce list * float) list) =
-  let get_files curclass : string list =
+  let get_files curclass : Paths.file list =
     List.sort compare
       (List.fold_left
 	 (function rest ->
@@ -332,7 +332,7 @@ let augment_classes key_table key (classes : (CE.ce list * float) list) =
 (* Process all versions *)
 
 let process_versions (version_dir_change_files :
-     ('key,(CE.ce * (string list ref (* sorted files *) *
+     ('key,(CE.ce * (Paths.file list ref (* sorted files *) *
 		       string list ref (* referenced symbols *))) list ref)
 			Hashtbl.t) =
   Hashtbl.fold
@@ -357,5 +357,5 @@ let collect change_table =
     version_key change_table;
   List.map
     (function (version,files,changes,weight) ->
-      (version,"",files,changes,weight))
+      (version,Paths.Dir "",files,changes,weight))
     (List.sort compare (process_versions version_change_files))

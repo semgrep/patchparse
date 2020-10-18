@@ -2,6 +2,8 @@
  (name core)
  (wrapped false)
  (libraries
+   commons
+
    utils
    globals
  )

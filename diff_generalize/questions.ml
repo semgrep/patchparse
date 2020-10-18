@@ -135,13 +135,16 @@ let make_multidir_table2 in_table out_table =
 	let rest = String.concat " " rest in
 	(git_code,int_of_string start,rest)
     | _ -> failwith "bad version" in
-  let author v =
-    let version = Hashtbl.find Config.version_table v in
+
+  let author (v : Patch.id) =
+    let (Patch.Id iversion) = v in
+    let version = Hashtbl.find Config.version_table iversion in
     let (_,_,rest) = split_git_version version in
     let pieces = Str.split (Str.regexp " ") rest in
     (* drop date *)
     let name = List.rev (List.tl (List.tl (List.tl (List.rev pieces)))) in
     String.concat " " name in
+
   (* need a new hash table because the other tables don't include files *)
   let tmp = Hashtbl.create 101 in
   reorganize id
@@ -149,6 +152,7 @@ let make_multidir_table2 in_table out_table =
     (function (change,version,dir,files,count) -> version)
     (function (change,version,dir,files,count) -> (dir,files,count))
     in_table tmp;
+
   (* drop the entries that are not in enough directories *)
   let entries =
     Hashtbl.fold
@@ -228,14 +232,18 @@ let postprocess_table process_key process_sub1 table =
 
 let postprocess_version_table table =
   postprocess_table
-    (function version -> Config.get_version version)
+    (function version -> 
+        let (Patch.Id iversion) = version in
+        Config.get_version iversion)
     (function dir -> dir)
     table
 
 let postprocess_directory_table table =
   postprocess_table
     (function dir -> dir)
-    (function version -> Config.get_version version)
+    (function version -> 
+        let (Patch.Id iversion) = version in
+        Config.get_version iversion)
     table
 
 (* try to collect similar versions together, so we don't end up with too
@@ -247,7 +255,7 @@ let postprocess_md_table table =
        (function change ->
 	 function info ->
 	   function (rest : (('change *
-				((int(*v*) * string(*d*)) * int(*ct*)) list)
+				((Patch.id(*v*) * string(*d*)) * int(*ct*)) list)
 			       list)) ->
 	     (change,
 	      List.sort compare
@@ -275,7 +283,8 @@ let postprocess_md_table table =
 	(change,
 	 List.map
 	   (function ((version,data),ct) ->
-	     ((Config.get_version version,data),ct))
+              let (Patch.Id iversion) = version in
+	     ((Config.get_version iversion,data),ct))
 	   data))
       sort_by_version in
   let intersects l1 l2 = List.exists (fun x -> List.mem x l2) l1 in
@@ -318,8 +327,8 @@ let postprocess_mv_table table compute_percentage_multiver =
 	 function info ->
 	   function (rest :
 		       (('change *
-			   ((int(*v*) * string(*d*)) * int(*ct*)) list *
-			   ((int(*v*) * int(*ct*)) * int(*v#*)) list)
+			   ((Patch.id(*v*) * string(*d*)) * int(*ct*)) list *
+			   ((Patch.id(*v*) * int(*ct*)) * int(*v#*)) list)
 			  list)) ->
 	     (change,
 	      List.sort compare
@@ -333,9 +342,11 @@ let postprocess_mv_table table compute_percentage_multiver =
 	      List.sort compare
 		(List.map
 		   (function (version,dircts) ->
+                       (* TODO: to fix! *)
+                       let (Patch.Id iversion) = version in
 		     ((version,
 		       Aux.sum (List.map (function (dir,ct) -> ct) !dircts)),
-		      version))
+		      iversion))
 		   !info))
 	     :: rest)
        table [] in
@@ -361,12 +372,14 @@ let postprocess_mv_table table compute_percentage_multiver =
 	    Some ((change,
 		   List.map
 		     (function ((version,data),ct) ->
-		       ((Config.get_version version,data),ct))
+                        let (Patch.Id iversion) = version in
+		       ((Config.get_version iversion,data),ct))
 		     data1),
 		  (change,
 		   List.map
 		     (function ((version,ct),version_copy) ->
-		       ((Config.get_version version,ct),version_copy))
+                        let (Patch.Id iversion) = version in
+		       ((Config.get_version iversion,ct),version_copy))
 		     data2))
 	  end
 	else None)

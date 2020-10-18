@@ -30,23 +30,27 @@ classes. *)
 
 let version_dir_change_files =
   (Hashtbl.create(200) :
-     ((int (* version *) * string (* dir *)),
+     ((Patch.id (* version *) * string (* dir *)),
       (CE.ce * (string list ref (* sorted files *) *
 		  string list ref (* referenced symbols *))) list ref)
      Hashtbl.t)
 
 let version_change_files =
   (Hashtbl.create(200) :
-     (int (* version *),
+     (Patch.id (* version *),
       (CE.ce * (string list ref (* sorted files *) *
 		  string list ref (* referenced symbols *))) list ref)
      Hashtbl.t)
 
 let version_dir_key (version,dir) = (version,dir)
-let version_key (version,dir) = version
+let (version_key: Patch.id * string -> Patch.id) = 
+  fun (version,dir) -> version
 
-let create_version_dir_change_files table get_key
-    (change_table: Eqclasses.change_table_type) =
+let create_version_dir_change_files 
+    table 
+    (get_key: Patch.id * string -> Patch.id)
+    (change_table: Eqclasses.change_table_type) 
+  =
   Hashtbl.iter
     (function change ->
       function info ->

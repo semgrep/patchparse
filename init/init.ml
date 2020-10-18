@@ -59,7 +59,7 @@ let rec find_driver_diff = function
 
 (* -------------------------------------------------------------------- *)
 
-let parse version s =
+let parse (version : Patch.id) s =
   (* put the __line at the beginning of the line *)
   let s =
     Str.global_replace
@@ -74,9 +74,11 @@ let parse version s =
     Some (No_modifs.drop_outer (Ast0_to_ast.convert parsed))
   with
     Failure x ->
+      let (Patch.Id version) = version in
       let ver =
 	try Hashtbl.find Config.version_table version
-	with Not_found -> string_of_int version in
+	with Not_found -> string_of_int version
+      in
       let ver = if String.length ver < 12 then ver else String.sub ver 0 12 in
       Printf.printf "%s: %s\n   %s\n" ver x s;
       Printexc.print_backtrace stdout;
@@ -285,7 +287,7 @@ let focus s marker =
   String.concat ";" pieces
 
 (* processes a single file *)
-let process_lines (Patch.Id version) dirname filename lines =
+let process_lines version dirname filename lines =
   let block_end start_line before minus plus after =
     if not (all_blank minus && all_blank plus)
     then

@@ -163,7 +163,8 @@ let print_evolutions tex_file evolutions =
     (Printf.fprintf tex_file "\\section{Evolutions}\n";
      List.iter
        (function (version,dir,intersection,changes,weight) ->
-	 let v = Config.get_version version in
+          let (Patch.Id iversion) = version in
+	 let v = Config.get_version iversion in
 	 Printf.fprintf tex_file "\\subsection{%s. %s %f}files:\n\n"
 	   v dir weight;
 	 List.iter

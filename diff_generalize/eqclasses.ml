@@ -71,14 +71,14 @@ let size_ce = function
 (* --------------------------------------------------------------------- *)
 type change_table_type =
     (CE.ce,
-     ((int (*version*) * string (*dir*)) * int (*sites*) *
+     ((Patch.id (*version*) * string (*dir*)) * int (*sites*) *
 	string list (*files*) * string list (*regions*) *
 	CE.ce list (* same as key but without abstraction lines*)  ) list
     ) Hashtbl.t
 
 (* the key is the size of the diff.ce of the context_change *)
 type worklist_type = 
-    (int, (Context_change.t * int (*version*) * string (*dir*) *
+    (int, (Context_change.t * Patch.id (*version*) * string (*dir*) *
 	     string (*file*) * string (*region*)) list ref)
       Hashtbl.t
 (* --------------------------------------------------------------------- *)
@@ -112,7 +112,7 @@ let add_tmp table change context
 
 let vf_tmp_table =
   (Hashtbl.create(10) :
-     ((int (*version*) * string (*pathname (dir) *)),
+     ((Patch.id (*version*) * string (*pathname (dir) *)),
       int (*count*) ref * string (*filename*) list ref *
 	string (*regions*) list ref *
 	CE.ce (*not_al_change*) list ref)
@@ -121,7 +121,7 @@ let vf_tmp_table =
 let tmp_table =
   (Hashtbl.create(1000) :
      (CE.ce,
-      (Context_change.t list * int * string * string * string *
+      (Context_change.t list * Patch.id * string * string * string *
 	 CE.ce) list ref)
      Hashtbl.t)
 
@@ -130,7 +130,8 @@ let version_unused_table (* only filled in for git *) =
      (string (* version *), int ref (* unused tokens *)) Hashtbl.t)
 
 let inc_version version =
-  let version = Config.get_version version in
+  let (Patch.Id iversion) = version in
+  let version = Config.get_version iversion in
   let cell =
     try Hashtbl.find version_unused_table version
     with Not_found ->
@@ -138,9 +139,10 @@ let inc_version version =
       Hashtbl.add version_unused_table version cell; cell in
   cell := !cell + 1
 
-let build_change_classes (change_worklist: worklist_type)
-    (real_table: change_table_type) split
-    size_fn size_fn1 max =
+let build_change_classes 
+    (change_worklist: worklist_type)
+    (real_table: change_table_type) 
+    split size_fn size_fn1 max =
   let rec loop = function
       0 -> ()
     | n ->
@@ -231,9 +233,10 @@ let build_change_classes (change_worklist: worklist_type)
 				      Diff.CC(change,_) | Diff.CG(change,_) ->
 					Ce_unparse.ce2c change)
 				  context));
+                             let (Patch.Id iversion) = version in
 			  Printf.printf
 			    "a child has the same size as its parent %d %s"
-			    version filename
+			    iversion filename
 			    (* do nothing *)
 			end
 		      else
@@ -284,4 +287,3 @@ let eqclasses worklist (change_table: change_table_type) max_change_size =
     
     
 let for_debug  (big_worklist: worklist_type) = ()
-    

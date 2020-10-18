@@ -4,9 +4,7 @@ open Eqclasses
 category analysis *)
 
 val eqworklists :
-    Context_change.t list ->
-      (int * string (*path*) * string (*file*) * string (*region*)) 
-      -> unit
+    Context_change.t list -> Context_change.origin -> unit
 
 val eqclasses :
     bool (* whether the change table is needed after this step *) ->

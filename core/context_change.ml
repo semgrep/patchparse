@@ -9,3 +9,6 @@ type t =
 
 type origin = 
   Patch.id * Paths.dir (*path*) * Paths.file (*file*) * Patch.region
+
+type changelist = t list * origin
+

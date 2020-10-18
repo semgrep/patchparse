@@ -7,14 +7,14 @@ type change_table_type =
 
 (* the key is the size of the diff.ce of the context_change *)
 type worklist_type = 
-    (int, (Context_change.t * Patch.id (*version*) * string (*dir*) *
+    (int, (Cc.t * Patch.id (*version*) * string (*dir*) *
 	     string (*file*) * string (*region*)) list ref)
       Hashtbl.t
 
 val eqworklists :
     worklist_type (* worklist, inout, !modified! *) ->
       int ref (* max size storage *) ->
-	Context_change.t ->
+	Cc.t ->
 	  (Patch.id * string (*path*) * string (*file*) * string (*region*) ) 
 	  -> unit
 

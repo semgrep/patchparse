@@ -1,7 +1,7 @@
 
 val diff : Ast.code list list -> Ast.code list list -> 
-  Context_change.t list list
+  Cc.t list list
 
-val al_context_change : Context_change.t -> Context_change.t
+val al_context_change : Cc.t -> Cc.t
 
-val have_al_context_change : Context_change.t -> bool
+val have_al_context_change : Cc.t -> bool

@@ -1,5 +1,5 @@
 module CE = Ce
-module Diff = Context_change
+module Diff = Cc
 
 (* Filters for the changes in the interface *)
 

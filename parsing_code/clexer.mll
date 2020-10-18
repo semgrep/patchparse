@@ -1,11 +1,16 @@
 {
 open Cparser2
 open Parse_error
+
 exception Eof
 exception InternalError of string
+
 let version =
   "Clexer V1.0f 10.8.99 Hugues Cassé"^"\nmany changes by Julia Lawall"
 
+(*****************************************************************************)
+(* Rule token *)
+(*****************************************************************************)
 
 
 let _current_line = ref 0
@@ -78,6 +83,10 @@ let scan_oct_escape str =
            ))
 }
 
+(*****************************************************************************)
+(* Regexps aliases *)
+(*****************************************************************************)
+
 let decdigit = ['0'-'9']
 let octdigit = ['0'-'7']
 let hexdigit = ['0'-'9' 'a'-'f' 'A'-'F']
@@ -107,6 +116,10 @@ let escape = '\\' _
 let hex_escape = '\\' ['x' 'X'] hexdigit hexdigit
 let oct_escape = '\\' octdigit  octdigit octdigit
 
+(*****************************************************************************)
+(* Rule initial *)
+(*****************************************************************************)
+
 rule initial =
     parse   "/*"        {let _ = comment lexbuf in initial lexbuf}
 (*        |  '\n'                 { incr _current_line; initial lexbuf } *)
@@ -128,16 +141,18 @@ rule initial =
     |   "!quit!"    {EOF}
 
     |   "..."       {OPERATOR(lexeme_line lexbuf)}
-    |       "+="        {EQ(lexeme_line lexbuf)}
-    |       "-="        {EQ(lexeme_line lexbuf)}
-    |       "*="        {EQ(lexeme_line lexbuf)}
-    |       "/="        {EQ(lexeme_line lexbuf)}
-    |       "%="        {EQ(lexeme_line lexbuf)}
-    |       "|="        {EQ(lexeme_line lexbuf)}
-    |       "&="        {EQ(lexeme_line lexbuf)}
-    |       "^="        {EQ(lexeme_line lexbuf)}
-    |       "<<="       {EQ(lexeme_line lexbuf)}
-    |       ">>="       {EQ(lexeme_line lexbuf)}
+
+    |   "+="        {EQ(lexeme_line lexbuf)}
+    |   "-="        {EQ(lexeme_line lexbuf)}
+    |   "*="        {EQ(lexeme_line lexbuf)}
+    |   "/="        {EQ(lexeme_line lexbuf)}
+    |   "%="        {EQ(lexeme_line lexbuf)}
+    |   "|="        {EQ(lexeme_line lexbuf)}
+    |   "&="        {EQ(lexeme_line lexbuf)}
+    |   "^="        {EQ(lexeme_line lexbuf)}
+    |   "<<="       {EQ(lexeme_line lexbuf)}
+    |   ">>="       {EQ(lexeme_line lexbuf)}
+
     |   "<<"        {OPERATOR(lexeme_line lexbuf)}
     |   ">>"        {OPERATOR(lexeme_line lexbuf)}
     |   "=="        {OPERATOR(lexeme_line lexbuf)}

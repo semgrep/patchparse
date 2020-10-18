@@ -10,4 +10,4 @@ type t =
 type region = string
 
 type origin = 
-  Patch.id * Common.dirname (*path*) * Common.filename (*file*) * region
+  Patch.id * string (*path*) * string (*file*) * region

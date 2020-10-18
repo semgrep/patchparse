@@ -7,7 +7,7 @@ let start_line = ref 0
 
 (*** input handle ***)
 type handle =
-    bool * string * string * int * int * out_channel * string
+  bool * string * string * int * int * out_channel * string
 
 let current_handle = 
   ref (false, "", "", 0, 0, stdout, "")
@@ -30,23 +30,23 @@ let underline_error (buffer : string) (start : int) (stop : int) =
   let start' = max 0 start in
   let stop' = max 1 stop in
   (
-  (if start' > 0 then (String.sub buffer 0 start') else "")
-  ^ "\027[4m"
-  ^ (if (stop' - start') <> 0
-  then (String.sub buffer start' (stop' - start' ) )
-  else ""
+    (if start' > 0 then (String.sub buffer 0 start') else "")
+    ^ "\027[4m"
+    ^ (if (stop' - start') <> 0
+       then (String.sub buffer start' (stop' - start' ) )
+       else ""
       )
-  ^ "\027[0m"
-  ^ (if stop' < len then (String.sub buffer stop' (len - stop') ) else "")
-      )
+    ^ "\027[0m"
+    ^ (if stop' < len then (String.sub buffer stop' (len - stop') ) else "")
+  )
 
 let display_error msg token_start token_end =
   let string =
     if (interactive !current_handle)
     then ""
     else 
-       (file_name !current_handle) ^ "["
-       ^ (string_of_int (lineno !current_handle)) ^ "] " 
+      (file_name !current_handle) ^ "["
+      ^ (string_of_int (lineno !current_handle)) ^ "] " 
   in
   let _oc = out_channel !current_handle in
   logger#error "%s%s : lines from %d start %d stop %d\n%s\n" string msg
@@ -56,8 +56,8 @@ let display_error msg token_start token_end =
     (underline_error (file_name !current_handle)
        (real_pos token_start !current_handle)
        (real_pos token_end !current_handle)
-       )
-    ;
+    )
+  ;
 (*
   output_string oc (
   string

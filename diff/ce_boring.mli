@@ -4,8 +4,8 @@ open Ce
 (* filtering functions *)
 
 (* In some cases these are just boring, such as calls to dbg and err.  In
-other cases, they do not contain enough information to determine whether
-similar things are related or not, such as return, break, and continue. *)
+   other cases, they do not contain enough information to determine whether
+   similar things are related or not, such as return, break, and continue. *)
 
 val boring_ce : ce -> bool
 val boring_prim : Ast.prim -> bool

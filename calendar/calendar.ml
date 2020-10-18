@@ -19,26 +19,26 @@ let check = function
 
 let months =
   [("Jan",(1,31));
-    ("Feb",(2,28));
-    ("Mar",(3,31));
-    ("Apr",(4,30));
-    ("May",(5,31));
-    ("Jun",(6,30));
-    ("Jul",(7,31));
-    ("Aug",(8,31));
-    ("Sep",(9,30));
-    ("Oct",(10,31));
-    ("Nov",(11,30));
-    ("Dec",(12,31))]
+   ("Feb",(2,28));
+   ("Mar",(3,31));
+   ("Apr",(4,30));
+   ("May",(5,31));
+   ("Jun",(6,30));
+   ("Jul",(7,31));
+   ("Aug",(8,31));
+   ("Sep",(9,30));
+   ("Oct",(10,31));
+   ("Nov",(11,30));
+   ("Dec",(12,31))]
 
 let get_commit dir =
   let cmd =
     Printf.sprintf "cd %s; git log | grep ^commit | head -1" dir in
   match cmd_to_list cmd with
     [commit] ->
-      (match Str.split (Str.regexp " ") commit with
-	[_;commit] -> commit
-      |	_ -> failwith "bad commit")
+    (match Str.split (Str.regexp " ") commit with
+       [_;commit] -> commit
+     |	_ -> failwith "bad commit")
   | _ -> failwith "bad commit"
 
 let commit_from_file file =
@@ -46,9 +46,9 @@ let commit_from_file file =
     Printf.sprintf "grep ^commit %s | head -1" file in
   match cmd_to_list cmd with
     [commit] ->
-      (match Str.split (Str.regexp " ") commit with
-	[_;commit] -> Some commit
-      |	_ -> failwith "bad commit")
+    (match Str.split (Str.regexp " ") commit with
+       [_;commit] -> Some commit
+     |	_ -> failwith "bad commit")
   | [] -> None
   | _ -> failwith "bad commit"
 
@@ -59,16 +59,16 @@ let get_date dir =
       dir in
   match cmd_to_list cmd with
     [date] ->
-      (match Str.split (Str.regexp "[ \t]+") date with
-	_::_::month::day::time::year::_ ->
-	  let day =
-	    try int_of_string day
-	    with Failure _ -> failwith ("bad day: "^day) in
-	  let year =
-	    try int_of_string year
-	    with Failure _ -> failwith ("bad day: "^year) in
-	  (month,day,year)
-      |	_ -> failwith "bad date")
+    (match Str.split (Str.regexp "[ \t]+") date with
+       _::_::month::day::time::year::_ ->
+       let day =
+         try int_of_string day
+         with Failure _ -> failwith ("bad day: "^day) in
+       let year =
+         try int_of_string year
+         with Failure _ -> failwith ("bad day: "^year) in
+       (month,day,year)
+     |	_ -> failwith "bad date")
   | _ -> failwith "bad date"
 
 let next_day (month,day,year) inc =
@@ -76,17 +76,17 @@ let next_day (month,day,year) inc =
   let rec matchfrom = function
       [] -> failwith ("bad month: "^month)
     | ((x,_) as h)::xs ->
-	if x = month
-	then (h,xs)
-	else matchfrom xs in
+      if x = month
+      then (h,xs)
+      else matchfrom xs in
   let ((mo,(_,lastday)),rest) = matchfrom months in
   if day + inc > lastday
   then
     match rest with
       [] ->
       (match months with
-	(mo,_)::_ -> (mo,day + inc - lastday,year+1)
-      |	_ -> failwith "impossible")
+         (mo,_)::_ -> (mo,day + inc - lastday,year+1)
+       |	_ -> failwith "impossible")
     | (mo,_)::_ -> (mo,day + inc - lastday,year)
   else (month,day+inc,year)
 
@@ -106,43 +106,43 @@ let get_files date start finish repo out increment restrict =
   let rec loop acc start_date start =
     let continue (mo,day,yr) ((nmo,nday,nyr) as next) =
       let pre_dest =
-	Printf.sprintf "%s/%s_%d_%d_%s_%d_%d" out mo day yr nmo nday nyr in
+        Printf.sprintf "%s/%s_%d_%d_%s_%d_%d" out mo day yr nmo nday nyr in
       let dest = Printf.sprintf "%s/%s" (Sys.getcwd()) pre_dest in
       let cmd = Printf.sprintf "/bin/rm -rf %s; mkdir -p %s\n" dest dest in
       check (Sys.command cmd);
       let until =
-	(*if next = finish
-        then ""
-	else*) Printf.sprintf "--until=\"%s %d %d\" " nmo nday nyr in
+        (*if next = finish
+               then ""
+          	else*) Printf.sprintf "--until=\"%s %d %d\" " nmo nday nyr in
       let dest = dest^"/gitlog" in
       let cmd =
-	Printf.sprintf
-	  "cd %s; git log --no-merges -p --since=\"%s %d %d\" %s %s > %s"
-	  repo mo day yr until restrict dest in
+        Printf.sprintf
+          "cd %s; git log --no-merges -p --since=\"%s %d %d\" %s %s > %s"
+          repo mo day yr until restrict dest in
       Printf.printf "%s\n" cmd; flush stdout;
       check (Sys.command cmd);
       if geq next finish
       then List.rev (pre_dest::acc)
       else
-	(match commit_from_file dest with
-	  None ->
-	    loop (pre_dest::acc) next
-	      (Commit "no idea what the commit is used for")
-	| Some last_commit ->
-	    loop (pre_dest::acc) next (Commit last_commit)) in
+        (match commit_from_file dest with
+           None ->
+           loop (pre_dest::acc) next
+             (Commit "no idea what the commit is used for")
+         | Some last_commit ->
+           loop (pre_dest::acc) next (Commit last_commit)) in
     match start with
       Date date ->
-	let next =
-	  if increment = -1
-	  then finish
-	  else next_day date increment in
-	continue date next
+      let next =
+        if increment = -1
+        then finish
+        else next_day date increment in
+      continue date next
     | Commit commit ->
-	let next =
-	  if increment = -1
-	  then finish
-	  else next_day start_date increment in
-	continue start_date next in
+      let next =
+        if increment = -1
+        then finish
+        else next_day start_date increment in
+      continue start_date next in
   loop [] date start
 
 let get_files_by_version date start finish repo out restrict =
@@ -163,9 +163,9 @@ let run_patchparse patchparse repo linuxnext extraopts url spinfer file =
     if not (url = "")
     then url
     else
-      if linuxnext
-      then "https://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git/commit/?id="
-      else "https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=" in
+    if linuxnext
+    then "https://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git/commit/?id="
+    else "https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=" in
   let options = "--min 10 --noev --noall --print-sp "^extraopts in
   let spinfer = if spinfer = "" then "" else ("--spinfer "^spinfer) in
   let cmd =
@@ -182,10 +182,10 @@ let create_make out files =
   let names =
     List.mapi
       (fun i x ->
-	let name = Printf.sprintf "spi%d" i in
-	Printf.fprintf o "%s:\n" name;
-	Printf.fprintf o "\tcd %s; make -f allgitlog.make -k spinferall\n" x;
-	name)
+         let name = Printf.sprintf "spi%d" i in
+         Printf.fprintf o "%s:\n" name;
+         Printf.fprintf o "\tcd %s; make -f allgitlog.make -k spinferall\n" x;
+         name)
       (List.rev files) in
   Printf.fprintf o "spinferall: %s\n" (String.concat " " names);
   close_out o
@@ -213,21 +213,21 @@ let mode = ref Patchparse
 let reset = ref true
 
 let speclist = Arg.align
- ["--start", Arg.Set_string start_date, "  starting date";
-  "--end", Arg.Set_string end_date, "  ending date";
-  "--out", Arg.Set_string out_dir, "  output directory";
-  "--inc", Arg.Set_int increment, "  date increment";
-  "--update", Arg.Set_string update_command, "  update command";
-  "--restrict", Arg.Set_string restrict, "  subdir to consider";
-  "--args", Arg.Set_string args, "  other args for patchparse, must be quoted";
-  "--url", Arg.Set_string url, "  url for links";
-  "--gitsearch", Arg.String (fun s -> gitsearch_args := s; mode := Gitsrch),
-   "  args for git search, must be quoted";
-  "--prequel", Arg.String (fun s -> prequel_file := s; mode := Prequel),
-   "  file with prequel output";
-  "--spinfer", Arg.Set_string spinfer_path, "  location of spinfer";
-  "--noreset", Arg.Clear reset, "  don't reset git, allows concurrency"]
-  
+    ["--start", Arg.Set_string start_date, "  starting date";
+     "--end", Arg.Set_string end_date, "  ending date";
+     "--out", Arg.Set_string out_dir, "  output directory";
+     "--inc", Arg.Set_int increment, "  date increment";
+     "--update", Arg.Set_string update_command, "  update command";
+     "--restrict", Arg.Set_string restrict, "  subdir to consider";
+     "--args", Arg.Set_string args, "  other args for patchparse, must be quoted";
+     "--url", Arg.Set_string url, "  url for links";
+     "--gitsearch", Arg.String (fun s -> gitsearch_args := s; mode := Gitsrch),
+     "  args for git search, must be quoted";
+     "--prequel", Arg.String (fun s -> prequel_file := s; mode := Prequel),
+     "  file with prequel output";
+     "--spinfer", Arg.Set_string spinfer_path, "  location of spinfer";
+     "--noreset", Arg.Clear reset, "  don't reset git, allows concurrency"]
+
 let usage = "Usage: cocci_infer repository [--start date] [--end date], etc"
 
 let anonymous str = repository := str
@@ -237,9 +237,9 @@ let parse_date s =
     if not (String.length s = 6) || String.get s 0 = 'v'
     then
       let cmd =
-	Printf.sprintf
-	  "cd %s; git log -n1 --pretty=format:%%cd --date=format:%%m%%d%%y %s"
-	  !repository s in
+        Printf.sprintf
+          "cd %s; git log -n1 --pretty=format:%%cd --date=format:%%m%%d%%y %s"
+          !repository s in
       (List.hd (cmd_to_list cmd),Some s)
     else (s,None) in
   let month = int_of_string (String.sub s 0 2) in
@@ -253,10 +253,10 @@ let parse_date s =
 let _ =
   Arg.parse speclist anonymous usage;
   (if !reset
-  then
-    check
-      (Sys.command
-	 (Printf.sprintf "cd %s; git reset --hard\n" !repository)));
+   then
+     check
+       (Sys.command
+          (Printf.sprintf "cd %s; git reset --hard\n" !repository)));
   let commit = get_commit !repository in
   let date = get_date !repository in
   let cmd = Printf.sprintf "cd %s/..; %s" !repository !update_command in
@@ -265,38 +265,38 @@ let _ =
   let new_date = get_date !repository in
   match !mode with
     Patchparse ->
-      let start =
-	if !start_date = ""
-	then (Commit commit,None)
-	else
-	  let dt = parse_date !start_date in
-	  (Date(fst dt),snd dt) in
-      let finish =
-	if !end_date = ""
-	then (new_date,None)
-	else parse_date !end_date in
-      let files =
-	match (start,finish) with
-	  ((start,None),(finish,None)) ->
-	    get_files date start finish !repository !out_dir !increment
-	      !restrict
-	| ((_,Some v1),(_,Some v2)) ->
-	    get_files_by_version date v1 v2 !repository !out_dir !restrict
-	| ((_,Some v1),(_,None)) ->
-	    get_files_by_version date v1 "" !repository !out_dir !restrict
-	| ((_,None),(_,Some v2)) ->
-	    get_files_by_version date "" v2 !repository !out_dir !restrict in
-      let linuxnext =
-	try
-	  let _ = Str.search_forward (Str.regexp "linux-next") !repository 0 in
-	  true
-	with Not_found -> false in
-      create_make !out_dir files;
-      List.iter
-	(run_patchparse !patchparse !repository linuxnext !args !spinfer_path
-	   !url)
-	files
+    let start =
+      if !start_date = ""
+      then (Commit commit,None)
+      else
+        let dt = parse_date !start_date in
+        (Date(fst dt),snd dt) in
+    let finish =
+      if !end_date = ""
+      then (new_date,None)
+      else parse_date !end_date in
+    let files =
+      match (start,finish) with
+        ((start,None),(finish,None)) ->
+        get_files date start finish !repository !out_dir !increment
+          !restrict
+      | ((_,Some v1),(_,Some v2)) ->
+        get_files_by_version date v1 v2 !repository !out_dir !restrict
+      | ((_,Some v1),(_,None)) ->
+        get_files_by_version date v1 "" !repository !out_dir !restrict
+      | ((_,None),(_,Some v2)) ->
+        get_files_by_version date "" v2 !repository !out_dir !restrict in
+    let linuxnext =
+      try
+        let _ = Str.search_forward (Str.regexp "linux-next") !repository 0 in
+        true
+      with Not_found -> false in
+    create_make !out_dir files;
+    List.iter
+      (run_patchparse !patchparse !repository linuxnext !args !spinfer_path
+         !url)
+      files
   | Gitsrch ->
-      Gitsearch.gitsearch !repository !start_date !end_date !gitsearch_args
-	!out_dir !spinfer_path
+    Gitsearch.gitsearch !repository !start_date !end_date !gitsearch_args
+      !out_dir !spinfer_path
   | Prequel -> Gitsearch.prequel !repository !prequel_file !spinfer_path

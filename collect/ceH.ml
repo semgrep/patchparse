@@ -15,7 +15,7 @@ let get_characters ce =
   let (prim,expr,code) =
     process_term (List.fold_left Aux.union [])
       process_prim process_expr process_code in
-    (* inefficient because we collect both components, but only use one *)
+  (* inefficient because we collect both components, but only use one *)
   process_ce (function (x,y) -> x)
     (List.fold_left Aux.union []) prim expr code ce
 
@@ -25,12 +25,12 @@ let get_characters ce =
 let get_function_names ce =
   let process_prim _ _ = None in
   let process_expr (do_prim,do_code) = function
-      (* no declarer here - not a protocol *)
+    (* no declarer here - not a protocol *)
       Ast.CALL(fn,args,Ast.FRONTUNKNOWN) -> None
     | Ast.CALL(fn,args,known) ->
-	Some
-	  (List.fold_left Aux.union []
-	     (get_characters (EXPRCE(fn,fn)) :: List.map do_code args))
+      Some
+        (List.fold_left Aux.union []
+           (get_characters (EXPRCE(fn,fn)) :: List.map do_code args))
     | _ -> None in
   let process_code _ _ = None in
   let (prim,expr,code) =

@@ -7,7 +7,7 @@ module CE = Ce
 let split_git_version version =
   match Str.split (Str.regexp " ") version with
     git_code :: start :: rest ->
-      let rest = String.concat " " rest in (git_code,int_of_string start,rest)
+    let rest = String.concat " " rest in (git_code,int_of_string start,rest)
   | _ -> failwith "bad version"
 
 (* -------------------------------------------------------------------- *)
@@ -49,107 +49,107 @@ let file_data tex_file out_file
     if not(!printed_changes)
     then
       begin
-	List.iter
-	  (function (tag,data) ->
+        List.iter
+          (function (tag,data) ->
              (* TODO: should use an either above *)
              let (Paths.Dir stag) = tag in
-	    Printf.fprintf tex_file "\\noindent\\textbf{%s}\n\n"
-	      (Ce_unparse.clean stag);
-	    List.iter
-	      (function (change,count) ->
-		(if !Config.print_parsable
-		then
-		  Printf.fprintf out_file "%s\n" (printer_parsable change));
-		Printf.fprintf tex_file
-		  "\\noindent\\,\\,\\,\\, %d changes: %s\n\n"
-		  count (printer change))
-	      (List.rev data))
-	  data
+             Printf.fprintf tex_file "\\noindent\\textbf{%s}\n\n"
+               (Ce_unparse.clean stag);
+             List.iter
+               (function (change,count) ->
+                  (if !Config.print_parsable
+                   then
+                     Printf.fprintf out_file "%s\n" (printer_parsable change));
+                  Printf.fprintf tex_file
+                    "\\noindent\\,\\,\\,\\, %d changes: %s\n\n"
+                    count (printer change))
+               (List.rev data))
+          data
       end 
   in
   let pcm data = (* multidirectory *)
     Printf.fprintf tex_file "%d changes in all\n\n" (List.length data);
     List.iter
       (function data ->
-	ct := !ct + 1;
-	List.iter
-	  (function (change,data) ->
-            Printf.fprintf tex_file
-              "\\vspace*{1.5em}\\noindent %d. %d(%d). %s\n\n%s\n\n"
-              !ct
-              (let (directories,counts) = List.split data in
-              Aux.sum counts)
-              (List.length data) (printer change)
-              (if !Config.git
-              then
-		(String.concat ""
-		   (let rec loop prev = function
-                       [] -> []
-                     | ((version,dir),count)::rest ->
-			 let version = Ce_unparse.clean version in
+         ct := !ct + 1;
+         List.iter
+           (function (change,data) ->
+              Printf.fprintf tex_file
+                "\\vspace*{1.5em}\\noindent %d. %d(%d). %s\n\n%s\n\n"
+                !ct
+                (let (directories,counts) = List.split data in
+                 Aux.sum counts)
+                (List.length data) (printer change)
+                (if !Config.git
+                 then
+                   (String.concat ""
+                      (let rec loop prev = function
+                            [] -> []
+                          | ((version,dir),count)::rest ->
+                            let version = Ce_unparse.clean version in
                             let (Paths.Dir sdir) = dir in
-			 let dir = Paths.Dir (Ce_unparse.clean sdir) in
+                            let dir = Paths.Dir (Ce_unparse.clean sdir) in
                             let (Paths.Dir sdir) = dir in
-			 let (prev,front) =
-			   let (git_code,_,rest) = split_git_version version in
-			   (git_code,
-                            if prev = git_code
-                            then
-                              Printf.sprintf "{\\mbox{%s (%d)}} " sdir count
-                            else
-			      let unused =
-				try
-				  let ct =
-				    !(Hashtbl.find
-					Eqclasses.version_unused_table
-					version) in
-				  Printf.sprintf "%d unused tokens" ct
-				with Not_found -> "unused tokens unknown" in
-                              Printf.sprintf
-				"\n\n\\lefteqn{\\mbox{\\href{%s%s}{%s}: \\emph{%s} %s (%d, %s)}}\n\n"
-				!Config.url git_code git_code rest sdir count
-				unused) in
-			 front :: (loop prev rest) in
-		   loop "" data))
-              else
-		(let per_line = 2 in
-		String.concat ", "
-		  (let rec loop n = function
-                      [] -> []
-                    | ((version,dir),count)::rest ->
-                           let (Paths.Dir sdir) = dir in
-			let version = Ce_unparse.clean version in
-			let dir = Paths.Dir (Ce_unparse.clean sdir) in
-                           let (Paths.Dir sdir) = dir in
-			let front =
-			  Printf.sprintf "%s: %s (%d)" version sdir count in
-			if n = per_line
-			then (front ^ "\n\n") :: (loop 0 rest)
-			else front :: (loop (n+1) rest) in
-		  loop 0 data))))
-	  data)
+                            let (prev,front) =
+                              let (git_code,_,rest) = split_git_version version in
+                              (git_code,
+                               if prev = git_code
+                               then
+                                 Printf.sprintf "{\\mbox{%s (%d)}} " sdir count
+                               else
+                                 let unused =
+                                   try
+                                     let ct =
+                                       !(Hashtbl.find
+                                           Eqclasses.version_unused_table
+                                           version) in
+                                     Printf.sprintf "%d unused tokens" ct
+                                   with Not_found -> "unused tokens unknown" in
+                                 Printf.sprintf
+                                   "\n\n\\lefteqn{\\mbox{\\href{%s%s}{%s}: \\emph{%s} %s (%d, %s)}}\n\n"
+                                   !Config.url git_code git_code rest sdir count
+                                   unused) in
+                            front :: (loop prev rest) in
+                       loop "" data))
+                 else
+                   (let per_line = 2 in
+                    String.concat ", "
+                      (let rec loop n = function
+                            [] -> []
+                          | ((version,dir),count)::rest ->
+                            let (Paths.Dir sdir) = dir in
+                            let version = Ce_unparse.clean version in
+                            let dir = Paths.Dir (Ce_unparse.clean sdir) in
+                            let (Paths.Dir sdir) = dir in
+                            let front =
+                              Printf.sprintf "%s: %s (%d)" version sdir count in
+                            if n = per_line
+                            then (front ^ "\n\n") :: (loop 0 rest)
+                            else front :: (loop (n+1) rest) in
+                       loop 0 data))))
+           data)
       data in
   let process info_string table pc =
     Printf.fprintf tex_file "\\section{By %s}\n" info_string;
     List.iter
       (function (version,data) ->
-	let version = Ce_unparse.clean version in
-	if info_string = "version"
-	then
-	  begin
-	    let unused_tokens =
-	      try !(Hashtbl.find Eqclasses.version_unused_table version)
-	      with Not_found -> 0 in
-	    let (git_code,_,rest) = split_git_version version in
-	    Printf.fprintf tex_file
-	      "\\subsection{\\href{%s%s}{%s}} \\emph{%s}\n\n\\noindent %d dirs %d unused tokens\n\n\\bigskip\n\n" 
-	      !Config.url git_code git_code rest (List.length data) unused_tokens
-	  end
-	else
-	  Printf.fprintf tex_file "\\subsection{%s: %d}\n" version
-	    (List.length data);
-	pc data)
-   table in
+         let version = Ce_unparse.clean version in
+         if info_string = "version"
+         then
+           begin
+             let unused_tokens =
+               try !(Hashtbl.find Eqclasses.version_unused_table version)
+               with Not_found -> 0 in
+             let (git_code,_,rest) = split_git_version version in
+             Printf.fprintf tex_file
+               "\\subsection{\\href{%s%s}{%s}} \\emph{%s}\n\n\\noindent %d dirs %d unused tokens\n\n\\bigskip\n\n" 
+               !Config.url git_code git_code rest (List.length data) unused_tokens
+           end
+         else
+           Printf.fprintf tex_file "\\subsection{%s: %d}\n" version
+             (List.length data);
+         pc data)
+      table in
   if not (version_table = [])
   then
     (process "version" version_table pc;
@@ -163,7 +163,7 @@ let file_data tex_file out_file
   then
     process "change by name"
       [("change", (* drop names, which appear in the lines *)
-	List.map (List.map (fun (v,d) -> (fst v,d))) multidir_table2)] pcm
+        List.map (List.map (fun (v,d) -> (fst v,d))) multidir_table2)] pcm
 
 let print_evolutions tex_file (evolutions : Evolution.t list) =
   if List.exists (function (_,_,_,x,_) -> List.length x > 1) evolutions
@@ -172,26 +172,26 @@ let print_evolutions tex_file (evolutions : Evolution.t list) =
      List.iter
        (function (version,dir,intersection,changes,weight) ->
           let (Patch.Id iversion) = version in
-	 let v = Config.get_version iversion in
+          let v = Config.get_version iversion in
           let (Paths.Dir sdir) = dir in
-	 Printf.fprintf tex_file "\\subsection{%s. %s %f}files:\n\n"
-	   v sdir weight;
-	 List.iter
-	   (function file ->
-              let (Paths.File sfile) = file in
-	     Printf.fprintf tex_file "  \\noindent\\hspace{-0.25in}%s\n\n"
-	       (Ce_unparse.clean sfile))
-	   intersection;
-	 Printf.fprintf tex_file "\n\\noindent changes:\n\n";
-	 List.iter
-           (function ce ->
-	     Printf.fprintf tex_file "  \\noindent\\hspace{-0.25in}%s\n\n"
-	       (Ce_unparse.ce2tex ce))
-	   changes)
+          Printf.fprintf tex_file "\\subsection{%s. %s %f}files:\n\n"
+            v sdir weight;
+          List.iter
+            (function file ->
+               let (Paths.File sfile) = file in
+               Printf.fprintf tex_file "  \\noindent\\hspace{-0.25in}%s\n\n"
+                 (Ce_unparse.clean sfile))
+            intersection;
+          Printf.fprintf tex_file "\n\\noindent changes:\n\n";
+          List.iter
+            (function ce ->
+               Printf.fprintf tex_file "  \\noindent\\hspace{-0.25in}%s\n\n"
+                 (Ce_unparse.ce2tex ce))
+            changes)
        evolutions)
-      
+
 (* -------------------------------------------------------------------- *)
-      
+
 let safe_div str num = function
     0 -> (*Printf.printf "zero denominator for %s" str;*) 0
   | den -> num / den
@@ -204,46 +204,46 @@ let print_summary tex_file desired_info
   let change_table_sites =
     Hashtbl.fold
       (function change ->
-	function data ->
-	  function sum ->
-	    sum + Aux.sum (List.map (function (_,sites,_,_,_) -> sites) data))
+       function data ->
+       function sum ->
+         sum + Aux.sum (List.map (function (_,sites,_,_,_) -> sites) data))
       change_table 0 in
   let change_table_files =
     Hashtbl.fold
       (function change ->
-	function data ->
-	  function sum ->
-	    sum +
-	      Aux.sum
-	      (List.map (function (_,_,files,_,_) -> List.length files) data))
+       function data ->
+       function sum ->
+         sum +
+         Aux.sum
+           (List.map (function (_,_,files,_,_) -> List.length files) data))
       change_table 0 in
   let max_change_table_files =
     Hashtbl.fold
       (function change ->
-	function data ->
-	  function ans ->
-	    let tmp =
-	      Aux.sum
-		(List.map (function (_,_,files,_,_) -> List.length files)
-		   data) in
-	    if tmp > ans then tmp else ans)
+       function data ->
+       function ans ->
+         let tmp =
+           Aux.sum
+             (List.map (function (_,_,files,_,_) -> List.length files)
+                  data) in
+         if tmp > ans then tmp else ans)
       change_table 0 in
   let multi_total_changes = List.length multidir_table in
   let multi_change_sites =
     Aux.sum
       (List.map
-	 (function (change,sites) ->
-	   Aux.sum (List.map (function (_,ct) -> ct) sites))
-	 multidir_table) in
+         (function (change,sites) ->
+            Aux.sum (List.map (function (_,ct) -> ct) sites))
+         multidir_table) in
   let max_change_sites =
     List.fold_left
       (function ans ->
-	function (change,sites) ->
-	  let site_count =
-	    Aux.sum (List.map (function (_,ct) -> ct) sites) in
-          if site_count > 1000
-	  then Printf.fprintf stderr "BIGGGGGGGGGGGG: %s" (Ce_unparse.ce2tex change);
-	  if site_count > ans then site_count else ans)
+       function (change,sites) ->
+         let site_count =
+           Aux.sum (List.map (function (_,ct) -> ct) sites) in
+         if site_count > 1000
+         then Printf.fprintf stderr "BIGGGGGGGGGGGG: %s" (Ce_unparse.ce2tex change);
+         if site_count > ans then site_count else ans)
       0 multidir_table in
   Printf.fprintf tex_file "\\subsection{%s}\n\n" label;
   Printf.fprintf tex_file "Total changes %d %d\n\n"
@@ -268,28 +268,28 @@ let print_summary tex_file desired_info
   Printf.fprintf tex_file "&changes&sites&site/change\\\\\n";
   List.iter
     (function (dir,data) ->
-      let changes =
-	let change_table =
-	  (Hashtbl.create(200) : (CE.ce,unit) Hashtbl.t) in
-	List.iter
-	  (function (version,changes) ->
-	    List.iter
-	      (function (change,ct) ->
-		try
-		  let _ = Hashtbl.find change_table change in ()
-		with
-		  Not_found -> Hashtbl.add change_table change ())
-	      changes)
-	  data;
-	Hashtbl.length change_table in
-      let sites =
-	Aux.sum
-	  (List.map
-	     (function (version,changes) ->
-	       Aux.sum (List.map (function (change,ct) -> ct) changes))
-	     data) in
-      Printf.fprintf tex_file "%s & %d & %d & %d\\\\\n"
-	dir changes sites (safe_div "sites per change" sites changes))
+       let changes =
+         let change_table =
+           (Hashtbl.create(200) : (CE.ce,unit) Hashtbl.t) in
+         List.iter
+           (function (version,changes) ->
+              List.iter
+                (function (change,ct) ->
+                 try
+                   let _ = Hashtbl.find change_table change in ()
+                 with
+                   Not_found -> Hashtbl.add change_table change ())
+                changes)
+           data;
+         Hashtbl.length change_table in
+       let sites =
+         Aux.sum
+           (List.map
+              (function (version,changes) ->
+                 Aux.sum (List.map (function (change,ct) -> ct) changes))
+              data) in
+       Printf.fprintf tex_file "%s & %d & %d & %d\\\\\n"
+         dir changes sites (safe_div "sites per change" sites changes))
     dir_table;
   Printf.fprintf tex_file "\\end{tabular}";
   (change_table_changes,change_table_sites,max_change_sites,
@@ -297,19 +297,19 @@ let print_summary tex_file desired_info
 
 (* -------------------------------------------------------------------- *)
 (* Entry point *)
-	
+
 let make_files (change_result,filtered_results) evolutions =
   let all_name = "_"^(!Config.outfile) in
   let tex_file =
     open_out
       (Printf.sprintf "%s/all%s.tex" !Config.out_dir
-	 (Filename.basename all_name)) in
+         (Filename.basename all_name)) in
   let out_file =
     if !Config.print_parsable
     then
       open_out
-	(Printf.sprintf "%s/all%s.pout" !Config.out_dir
-	   (Filename.basename all_name))
+        (Printf.sprintf "%s/all%s.pout" !Config.out_dir
+           (Filename.basename all_name))
     else open_out "/dev/null" in
   tex_prolog tex_file;
   if not !Config.noall
@@ -321,8 +321,8 @@ let make_files (change_result,filtered_results) evolutions =
     end;
   List.iter
     (function (label,change_table,change_result) ->
-      Printf.fprintf tex_file "\\chapter{%s}\n" label;
-      file_data tex_file out_file Ce_unparse.ce2tex (function _ -> "") change_result)
+       Printf.fprintf tex_file "\\chapter{%s}\n" label;
+       file_data tex_file out_file Ce_unparse.ce2tex (function _ -> "") change_result)
     filtered_results;
   close_out out_file;
   tex_epilog tex_file;
@@ -332,11 +332,11 @@ let make_files (change_result,filtered_results) evolutions =
     let cmdfunc = "/usr/bin/pdflatex" in
     let _ =
       Sys.command
-	(Printf.sprintf "cd %s ; %s all%s.tex > /dev/null 2&>1" !Config.out_dir
-	   cmdfunc (Filename.basename all_name)) in
+        (Printf.sprintf "cd %s ; %s all%s.tex > /dev/null 2&>1" !Config.out_dir
+           cmdfunc (Filename.basename all_name)) in
     let _ =
       Sys.command
-	(Printf.sprintf "cd %s ; %s all%s.tex > /dev/null 2&>1" !Config.out_dir
-	   cmdfunc (Filename.basename all_name)) in
+        (Printf.sprintf "cd %s ; %s all%s.tex > /dev/null 2&>1" !Config.out_dir
+           cmdfunc (Filename.basename all_name)) in
     () end
 

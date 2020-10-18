@@ -59,30 +59,30 @@ module CE = Ce
 
 let interface_filters =
   [(Interface_filter.data_layout_change,
-     "Change in structure data layout");
-    (Interface_filter.public_private,
-     "Change between public and private field");
-    (Interface_filter.calls_change,"Any change in a function call");
-    (Interface_filter.calls_added_or_removed,
-     "Change in protocol: calls added or removed")]
+    "Change in structure data layout");
+   (Interface_filter.public_private,
+    "Change between public and private field");
+   (Interface_filter.calls_change,"Any change in a function call");
+   (Interface_filter.calls_added_or_removed,
+    "Change in protocol: calls added or removed")]
 
 let interface_sp_filters =
   [(Interface_filter.data_layout_change,
-     "Change in structure data layout");
-    (Interface_filter.public_private,
-     "Change between public and private field");
-    (Interface_filter.calls_change,"Any change in a function call")
-      (* not supported for sp generation ;
-    (Interface_filter.calls_added_or_removed,
-     "Change in protocol: calls added or removed") *)]
+    "Change in structure data layout");
+   (Interface_filter.public_private,
+    "Change between public and private field");
+   (Interface_filter.calls_change,"Any change in a function call")
+   (* not supported for sp generation ;
+      (Interface_filter.calls_added_or_removed,
+      "Change in protocol: calls added or removed") *)]
 
 let make_filter_tables filters =
   List.map
     (function (filter,filter_string) ->
-      (filter,filter_string,ref 0,
-       (Hashtbl.create(100) : worklist),    (* worklist table *)
-       (Hashtbl.create(100) : change_table) (* change table - result *) 
-      )
+       (filter,filter_string,ref 0,
+        (Hashtbl.create(100) : worklist),    (* worklist table *)
+        (Hashtbl.create(100) : change_table) (* change table - result *) 
+       )
     )
     filters
 
@@ -106,41 +106,41 @@ let eqworklists (changelist, (version, pathname, filename, region)) =
   then
     List.iter
       (function change ->
-	Eqclasses.eqworklists gsemi__change_worklist max_change_size
-	 change (version, pathname, filename, region))
+         Eqclasses.eqworklists gsemi__change_worklist max_change_size
+           change (version, pathname, filename, region))
       changelist;
   let rec loop cc =
     let (cc,context) =
       match cc with
-	CC.CC(change,context) ->
-	  let (code,noncode) =
-	    (* IMPT: if there is exp or code at the top level, there is only
-	       exp or code underneath *)
-	    List.partition
-	      (function CC.CC(_,_) -> false | CC.CG(_,_) -> true)
-	      context in
-	  (CC.CC(change,code),noncode)
+        CC.CC(change,context) ->
+        let (code,noncode) =
+          (* IMPT: if there is exp or code at the top level, there is only
+             	       exp or code underneath *)
+          List.partition
+            (function CC.CC(_,_) -> false | CC.CG(_,_) -> true)
+            context in
+        (CC.CC(change,code),noncode)
       | CC.CG(change,context) ->
-	  failwith
-	    (Printf.sprintf "generalized change at top level %s\n"
-	       (Ce_unparse.ce2c change)) 
+        failwith
+          (Printf.sprintf "generalized change at top level %s\n"
+             (Ce_unparse.ce2c change)) 
     in
     List.iter
       (function (filter,_,max_change_size,worklist,_) ->
-	match filter (Diff.al_context_change cc) with
-	  None -> ()
-	| Some change ->
-	    Eqclasses.eqworklists worklist max_change_size
-	      (Diff.al_context_change change)
-	      (version, pathname, filename, region))
+       match filter (Diff.al_context_change cc) with
+         None -> ()
+       | Some change ->
+         Eqclasses.eqworklists worklist max_change_size
+           (Diff.al_context_change change)
+           (version, pathname, filename, region))
       (if !Config.print_sp
-      then sp__interface_filter_tables
-      else gsemi__interface_filter_tables);
+       then sp__interface_filter_tables
+       else gsemi__interface_filter_tables);
     List.iter loop context 
   in
   if not (!Config.nofilters)
   then
-  List.iter loop changelist
+    List.iter loop changelist
 
 let eqclasses keep_change_table =
   let big_change_table    = (Hashtbl.create(200) : change_table) in
@@ -151,13 +151,13 @@ let eqclasses keep_change_table =
   let filter_res =
     List.map
       (function
-	  (_,filter_string,max_change_size,worklist,change_table) ->
-	    Eqclasses.eqclasses worklist change_table max_change_size;
-	    (* change table here is always kept because it is used in
-	       mktex.ml *)
-	    (filter_string,change_table,
-	     Questions.questions change_table true false))
+          (_,filter_string,max_change_size,worklist,change_table) ->
+          Eqclasses.eqclasses worklist change_table max_change_size;
+          (* change table here is always kept because it is used in
+             	       mktex.ml *)
+          (filter_string,change_table,
+           Questions.questions change_table true false))
       (if !Config.print_sp
-      then sp__interface_filter_tables
-      else gsemi__interface_filter_tables) in
+       then sp__interface_filter_tables
+       else gsemi__interface_filter_tables) in
   ((big_change_table,global_res),filter_res)

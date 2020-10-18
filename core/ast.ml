@@ -8,11 +8,11 @@ type known =
 
 (* position information *)
 type info = line_number * Patch.linetype
-  and line_number = int 
+and line_number = int 
 
 (* I also keep the 'a outside the closure cos I want to do pattern matching *)
 type 'a extended = ('a * 'a kind)
-  and 'a kind = Abstract | Concrete of (unit -> ('a * info))
+and 'a kind = Abstract | Concrete of (unit -> ('a * info))
 
 (* build extended *)
 let bext (x,line) = x, Concrete (fun () -> (x,line))
@@ -59,8 +59,8 @@ and expr =
 
   | DECLARER of expr * code list * known
   | PROTOTYPE of expr (*name*) * symbol (*type*) *
-	string list (*static,init,inline,etc*) *
-	string (*name*) * code list * known
+                 string list (*static,init,inline,etc*) *
+                 string (*name*) * code list * known
 
   | STRUCT of code list * known
 

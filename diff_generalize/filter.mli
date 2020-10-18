@@ -12,16 +12,16 @@ val new_fn_drop_args : Ce.ce -> bool
 
 (* Function change, add arguments, ignore argument order *)
 val new_fn_add_args : Ce.ce -> bool
-    
+
 (* Function change, add and drop arguments, ignore argument order *)
 val new_fn_add_and_drop_args : Ce.ce -> bool
-    
+
 (* Function same, drop arguments, ignore argument order *)
 val same_fn_drop_args : Ce.ce -> bool
-    
+
 (* Function same, add arguments, ignore argument order *)
 val same_fn_add_args : Ce.ce -> bool
-    
+
 (* Function same, add and drop arguments, ignore argument order *)
 val same_fn_add_and_drop_args : Ce.ce -> bool
 
@@ -54,16 +54,16 @@ val prototype_name_changed : Ce.ce -> bool
 
 (* Fields, same path, different field *)
 val same_path_diff_field : Ce.ce -> bool
-  
+
 (* Fields, different path, same field *)
 val diff_path_same_field : Ce.ce -> bool
-    
+
 (* Fields, different path and field *)
 val diff_path_and_field : Ce.ce -> bool
-  
+
 (* Add the storage or testing of the result of a function call *)
 val addstorage : Ce.ce -> bool
-    
+
 (* Drop the storage or testing of the result of a function call *)
 val dropstorage : Ce.ce -> bool
 
@@ -75,7 +75,7 @@ val drop_return_value : Ce.ce -> bool
 
 (* convert a dereference to a function call *)
 val make_private : Ce.ce -> bool
-    
+
 (* convert a function call to a dereference *)
 val make_public : Ce.ce -> bool
 

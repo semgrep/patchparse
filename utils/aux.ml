@@ -1,5 +1,5 @@
 let rec union xs ys =
-    match xs with
+  match xs with
     [] -> ys
   | x::xs -> if List.mem x ys then union xs ys else x :: (union xs ys)
 
@@ -8,7 +8,7 @@ let rec union_list = function
   | x::xs -> if List.mem x xs then union_list xs else x :: (union_list xs)
 
 let rec intersect xs ys =
-    match xs with
+  match xs with
     [] -> []
   | x::xs -> if List.mem x ys then x :: (intersect xs ys) else intersect xs ys
 
@@ -16,43 +16,43 @@ let rec sorted_intersection xs ys =
   match (xs,ys) with
     ([],_) | (_,[]) -> []
   | (x::xs,y::ys) ->
-      (match compare x y with
-	0 -> x :: sorted_intersection xs ys
-      |	n when n < 0 -> sorted_intersection xs (y::ys)
-      |	n when n > 0 -> sorted_intersection (x::xs) ys
-      |	_ -> failwith "not possible" )
+    (match compare x y with
+       0 -> x :: sorted_intersection xs ys
+     |	n when n < 0 -> sorted_intersection xs (y::ys)
+     |	n when n > 0 -> sorted_intersection (x::xs) ys
+     |	_ -> failwith "not possible" )
 
 let rec sorted_superset superset subset =
   match (superset,subset) with
     (_,[]) -> true
   | ([],_) -> false
   | (sup::superset,sub::subset) ->
-      (match compare sup sub with
-	0 -> sorted_superset superset subset
-      |	n when n < 0 ->
-	  sorted_superset superset (sub::subset) (*might still find sub later*)
-      |	n when n > 0 -> false (* sup>sub, so we will never see sub *)
-      |	_ -> failwith "not possible" )
+    (match compare sup sub with
+       0 -> sorted_superset superset subset
+     |	n when n < 0 ->
+       sorted_superset superset (sub::subset) (*might still find sub later*)
+     |	n when n > 0 -> false (* sup>sub, so we will never see sub *)
+     |	_ -> failwith "not possible" )
 
 let rec sorted_difference (xs : 'a list) (ys : 'a list) :
-    'a list (* in xs, not ys *) *
-    'a list (* in both *) *
-    'a list (* in ys, not xs *) =
+  'a list (* in xs, not ys *) *
+  'a list (* in both *) *
+  'a list (* in ys, not xs *) =
   match (xs,ys) with
     ([],_) -> ([],[],ys)
   | (_,[]) -> (xs,[],[])
   | (x::xs,y::ys) ->
-      (match compare x y with
-	0 ->
-	  let (xsonly,both,ysonly) = sorted_difference xs ys in
-	  (xsonly,x::both,ysonly)
-      |	n when n < 0 ->
-	  let (xsonly,both,ysonly) = sorted_difference xs (y::ys) in
-	  (x::xsonly,both,ysonly)
-      |	n when n > 0 ->
-	  let (xsonly,both,ysonly) = sorted_difference (x::xs) ys in
-	  (xsonly,both,y::ysonly)
-      |	_ -> failwith "not possible")
+    (match compare x y with
+       0 ->
+       let (xsonly,both,ysonly) = sorted_difference xs ys in
+       (xsonly,x::both,ysonly)
+     |	n when n < 0 ->
+       let (xsonly,both,ysonly) = sorted_difference xs (y::ys) in
+       (x::xsonly,both,ysonly)
+     |	n when n > 0 ->
+       let (xsonly,both,ysonly) = sorted_difference (x::xs) ys in
+       (xsonly,both,y::ysonly)
+     |	_ -> failwith "not possible")
 
 let rec remove v = function
     [] -> []
@@ -61,17 +61,17 @@ let rec remove v = function
 let rec option_filter f = function
     [] -> []
   | x :: xs ->
-      (match f x with
-	Some y -> y :: (option_filter f xs)
-      |	None -> option_filter f xs)
+    (match f x with
+       Some y -> y :: (option_filter f xs)
+     |	None -> option_filter f xs)
 
 let rec option_partition f = function
     [] -> ([],[])
   | x :: xs ->
-      let (some,none) = option_partition f xs in
-      (match f x with
-	Some y -> (y :: some, none)
-      |	None -> (some, x :: none))
+    let (some,none) = option_partition f xs in
+    (match f x with
+       Some y -> (y :: some, none)
+     |	None -> (some, x :: none))
 
 let rec split3 = function
     [] -> ([],[],[])
@@ -90,7 +90,7 @@ let safe_alist_find parent key default =
   try List.assoc key !parent
   with
     Not_found ->
-      let cell = default() in parent := (key,cell) :: !parent; cell
+    let cell = default() in parent := (key,cell) :: !parent; cell
 
 (* assume list is nonempty *)
 let get_min l =
@@ -112,10 +112,10 @@ let normalize s1 =
   let ctr = ref 0 in
   String.iter
     (function c ->
-      (match c with
-	'-' -> Bytes.set s !ctr '_'
-      |	_ -> ());
-      ctr := !ctr + 1)
+       (match c with
+          '-' -> Bytes.set s !ctr '_'
+        |	_ -> ());
+       ctr := !ctr + 1)
     s1;
   Bytes.to_string s
 
@@ -133,13 +133,13 @@ let substring s1 s2 =
     match s2start with
       None -> false
     | Some s2start ->
-	if s1len > s2len - s2start
-	then false
-	else
-	  let part = String.sub s2 s2start s1len in
-	  if part = s1
-	  then true
-	  else loop (s2start+1) in
+      if s1len > s2len - s2start
+      then false
+      else
+        let part = String.sub s2 s2start s1len in
+        if part = s1
+        then true
+        else loop (s2start+1) in
   loop 0
 
 let substring_index s1 s2 =

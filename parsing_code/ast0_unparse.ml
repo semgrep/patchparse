@@ -8,8 +8,8 @@ let rec unparse_prim = function
   | SYMOP(s,_) -> s
   | TYPE(s,_) -> s
   | ARRAY(exprlist,known) ->
-      Printf.sprintf "[%s%s" (unparse_expr_list exprlist)
-	(if known = Ast.KNOWN then "]" else "")
+    Printf.sprintf "[%s%s" (unparse_expr_list exprlist)
+      (if known = Ast.KNOWN then "]" else "")
 
 and unparse_dprim = function
     DEREFOP(s,_) -> s
@@ -19,16 +19,16 @@ and unparse_expr = function
   | DSYMBOL(s) -> unparse_dsymbol s
   | EOP(s,_) -> s
   | ASSIGN((op,_),exprlist,known) ->
-      Printf.sprintf "%s %s" op (unparse_expr_list exprlist)
+    Printf.sprintf "%s %s" op (unparse_expr_list exprlist)
   | PAREN(codelist,known) ->
-      Printf.sprintf "(%s%s" (unparse_code_list codelist)
-	(if known = Ast.KNOWN then ")" else "")
+    Printf.sprintf "(%s%s" (unparse_code_list codelist)
+      (if known = Ast.KNOWN then ")" else "")
   | STRUCT(codelist,known) ->
-      Printf.sprintf "{%s%s" (unparse_code_list codelist)
-	(if known = Ast.KNOWN then "}" else "")
+    Printf.sprintf "{%s%s" (unparse_code_list codelist)
+      (if known = Ast.KNOWN then "}" else "")
   | CALL((nm,_),args,known) | DECLARER((nm,_),args,known) ->
-      Printf.sprintf "c:%s(%s%s" nm (unparse_code_list args)
-	(if known = Ast.KNOWN then ")" else "")
+    Printf.sprintf "c:%s(%s%s" nm (unparse_code_list args)
+      (if known = Ast.KNOWN then ")" else "")
 
 and unparse_symbol l = String.concat "" (List.map unparse_prim l)
 and unparse_dsymbol l = String.concat "" (List.map unparse_dprim l)

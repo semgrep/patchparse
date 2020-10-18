@@ -3,7 +3,7 @@ module Config = Globals
 
 (* We consider the following questions:
 
-1. For each version, what are the changes that occur in the various
+   1. For each version, what are the changes that occur in the various
    directories?
 
    From the existing data, we first extract the information associated with
@@ -15,20 +15,20 @@ module Config = Globals
 
    This is for everything that satisfies same_threshold and file_threshold.
 
-2. For each directory, what are the changes that occur across the various
+   2. For each directory, what are the changes that occur across the various
    versions?
 
    (directory * (version * (change * count) list) list) list
 
    This is for everything that satisfies same_threshold and file_threshold.
 
-3. For a given change in how many directories and versions does it occur?
+   3. For a given change in how many directories and versions does it occur?
 
    (change * (directory * (version * count) list) list) list
 
    This is only for things that satisfy directory_threshold.
 
-4. For a given change in how many directories and versions does it occur?
+   4. For a given change in how many directories and versions does it occur?
 
    (change * (directory * (version * count) list) list) list
 
@@ -41,28 +41,28 @@ let reorganize pre_fn get_header get_sub1 get_sub2
     (intable: Eq_classes.change_table) outtable =
   Hashtbl.iter
     (function change ->
-      function vdc ->
-	let vdc = pre_fn vdc in
-	List.iter
-	  (function ((version,dir),count,files, regions, not_al_changeset) ->
-	    let data = (change,version,dir,files,count) in
-	    let header = get_header data in
-	    let sub1 = get_sub1 data in
-	    let sub2 = get_sub2 data in
-	    let cell =
-	      try Hashtbl.find outtable header
-	      with Not_found ->
-		let cell = ref [] in
-		Hashtbl.add outtable header cell;
-		cell in
-	    let inner_cell =
-	      try List.assoc sub1 !cell
-	      with Not_found ->
-		let inner_cell = ref [] in
-		cell := (sub1,inner_cell) :: !cell;
-		inner_cell in
-	    inner_cell := sub2 :: !inner_cell)
-	  vdc)
+     function vdc ->
+       let vdc = pre_fn vdc in
+       List.iter
+         (function ((version,dir),count,files, regions, not_al_changeset) ->
+            let data = (change,version,dir,files,count) in
+            let header = get_header data in
+            let sub1 = get_sub1 data in
+            let sub2 = get_sub2 data in
+            let cell =
+              try Hashtbl.find outtable header
+              with Not_found ->
+                let cell = ref [] in
+                Hashtbl.add outtable header cell;
+                cell in
+            let inner_cell =
+              try List.assoc sub1 !cell
+              with Not_found ->
+                let inner_cell = ref [] in
+                cell := (sub1,inner_cell) :: !cell;
+                inner_cell in
+            inner_cell := sub2 :: !inner_cell)
+         vdc)
     intable
 
 let id x = x
@@ -71,20 +71,20 @@ let git_version_restrict vdc =
   let h = Hashtbl.create(List.length vdc) in
   List.iter
     (function ((version,dir),count,files, regions, not_al_changeset) ->
-      let cell =
-	try Hashtbl.find h version
-	with Not_found ->
-	  let cell = ref 0 in
-	  Hashtbl.add h version cell;
-	  cell in
-      cell := !cell + count)
+       let cell =
+         try Hashtbl.find h version
+         with Not_found ->
+           let cell = ref 0 in
+           Hashtbl.add h version cell;
+           cell in
+       cell := !cell + count)
     vdc;
   List.filter
     (function ((version,dir),count,files, regions, not_al_changeset) ->
-      let total_count = Hashtbl.find h version in
-      if !total_count >= !Config.same_threshold
-      then true
-      else false)
+       let total_count = Hashtbl.find h version in
+       if !total_count >= !Config.same_threshold
+       then true
+       else false)
     vdc
 
 let make_version_table in_table out_table =
@@ -111,20 +111,20 @@ let make_multidir_table in_table out_table =
   let entries =
     Hashtbl.fold
       (function change ->
-	function info ->
-	  function rest ->
-	    let versions =
-	      (List.length
-		 (List.concat
-		    (List.map (function (version,dir_cts) -> !dir_cts)
-		       !info))) in
-	    (change,versions,info)::rest)
+       function info ->
+       function rest ->
+         let versions =
+           (List.length
+              (List.concat
+                 (List.map (function (version,dir_cts) -> !dir_cts)
+                      !info))) in
+         (change,versions,info)::rest)
       out_table [] in
   Hashtbl.clear out_table;
   List.iter
     (function (change,versions,info) ->
-      if versions >= !Config.directory_threshold
-      then Hashtbl.add out_table change info)
+       if versions >= !Config.directory_threshold
+       then Hashtbl.add out_table change info)
     entries
 
 (* consider only commits by the same author to cluster together *)
@@ -132,8 +132,8 @@ let make_multidir_table2 in_table out_table =
   let split_git_version version =
     match Str.split (Str.regexp " ") version with
       git_code :: start :: rest ->
-	let rest = String.concat " " rest in
-	(git_code,int_of_string start,rest)
+      let rest = String.concat " " rest in
+      (git_code,int_of_string start,rest)
     | _ -> failwith "bad version" in
 
   let author (v : Patch.id) =
@@ -157,47 +157,47 @@ let make_multidir_table2 in_table out_table =
   let entries =
     Hashtbl.fold
       (function change ->
-	function info ->
-	  function rest ->
-	    let versions =
-	      (List.length
-		 (List.concat
-		    (List.map (function (version,dir_cts) -> !dir_cts)
-		       !info))) in
-	    (* recheck thresholds due to spliting *)
-	    let fls =
-	      List.fold_left (+) 0
-		(List.map
-		   (function (version,dir_cts) ->
-		     List.fold_left (+) 0
-		       (List.map (fun (_,fls,_) -> List.length fls) !dir_cts))
-		   !info) in
-	    let cts =
-	      List.fold_left (+) 0
-		(List.map
-		   (function (version,dir_cts) ->
-		     List.fold_left (+) 0
-		       (List.map (fun (_,_,ct) -> ct) !dir_cts))
-		   !info) in
-	    (* redo this to get rid of the files *)
-	    let info =
-	      ref
-		(List.map
-		   (function (version,dir_cts) ->
-		     (version,
-		      ref
-			(List.map (function (dir,files,counts) -> (dir,counts))
-			   !dir_cts)))
-		   !info) in
-	    (change,versions,fls,cts,info)::rest)
+       function info ->
+       function rest ->
+         let versions =
+           (List.length
+              (List.concat
+                 (List.map (function (version,dir_cts) -> !dir_cts)
+                      !info))) in
+         (* recheck thresholds due to spliting *)
+         let fls =
+           List.fold_left (+) 0
+             (List.map
+                (function (version,dir_cts) ->
+                   List.fold_left (+) 0
+                     (List.map (fun (_,fls,_) -> List.length fls) !dir_cts))
+                !info) in
+         let cts =
+           List.fold_left (+) 0
+             (List.map
+                (function (version,dir_cts) ->
+                   List.fold_left (+) 0
+                     (List.map (fun (_,_,ct) -> ct) !dir_cts))
+                !info) in
+         (* redo this to get rid of the files *)
+         let info =
+           ref
+             (List.map
+                (function (version,dir_cts) ->
+                   (version,
+                    ref
+                      (List.map (function (dir,files,counts) -> (dir,counts))
+                           !dir_cts)))
+                !info) in
+         (change,versions,fls,cts,info)::rest)
       tmp [] in
   Hashtbl.clear out_table;
   List.iter
     (function (change,versions,files,counts,info) ->
-      if versions >= !Config.directory_threshold &&
-	 files >= !Config.file_threshold &&
-	 counts >= !Config.same_threshold
-      then Hashtbl.add out_table change info)
+       if versions >= !Config.directory_threshold &&
+          files >= !Config.file_threshold &&
+          counts >= !Config.same_threshold
+       then Hashtbl.add out_table change info)
     entries
 
 let percentage_multiver = ref 0
@@ -205,36 +205,36 @@ let total_changes = ref 0
 
 (* -------------------------------------------------------------------- *)
 (* Postprocessing to put the collected data into a form suitable for
-printing.  Want to sort the innermost list, and then apply create_overwrite
-to create value appropriate for making bars. *)
+   printing.  Want to sort the innermost list, and then apply create_overwrite
+   to create value appropriate for making bars. *)
 
 let postprocess_table process_key process_sub1 table =
   Hashtbl.fold
     (function key ->
-      function info ->
-	function rest ->
-	  (process_key key,
-	   List.map
-	     (function (sub1,sub2) ->
-	       (process_sub1 sub1,sub2))
-	     (List.sort compare
-		(List.map
-		   (function (sub1,sub2) ->
-		     (sub1,
-		      (List.sort
-			 (function (key1,ct1) ->
-			   function (key2,ct2) ->
-			     compare (ct1,key1) (ct2,key2))
-			 !sub2)))
-		   !info)))
-	  :: rest)
+     function info ->
+     function rest ->
+       (process_key key,
+        List.map
+          (function (sub1,sub2) ->
+             (process_sub1 sub1,sub2))
+          (List.sort compare
+             (List.map
+                (function (sub1,sub2) ->
+                   (sub1,
+                    (List.sort
+                       (function (key1,ct1) ->
+                        function (key2,ct2) ->
+                          compare (ct1,key1) (ct2,key2))
+                       !sub2)))
+                !info)))
+       :: rest)
     table []
 
 let postprocess_version_table table =
   postprocess_table
     (function version -> 
-        let (Patch.Id iversion) = version in
-        Config.get_version iversion)
+       let (Patch.Id iversion) = version in
+       Config.get_version iversion)
     (function dir -> dir)
     table
 
@@ -242,67 +242,67 @@ let postprocess_directory_table table =
   postprocess_table
     (function dir -> dir)
     (function version -> 
-        let (Patch.Id iversion) = version in
-        Config.get_version iversion)
+       let (Patch.Id iversion) = version in
+       Config.get_version iversion)
     table
 
 (* try to collect similar versions together, so we don't end up with too
-many colors in the final graph. Then cluster when overlapping commits. *)
+   many colors in the final graph. Then cluster when overlapping commits. *)
 
 let postprocess_md_table table =
   let table_data =
     Hashtbl.fold
-       (function change ->
-	 function info ->
-	   function (rest : (('change *
-				((Patch.id(*v*) * Paths.dir(*d*)) * int(*ct*)) list)
-			       list)) ->
-	     (change,
-	      List.sort compare
-		(List.concat
-		   (List.map
-		      (function (version,dircts) ->
-			List.map
-			  (function (dir,ct) -> ((version,dir),ct))
-			  !dircts)
-		      !info)))
-	     :: rest)
-       table [] in
+      (function change ->
+       function info ->
+       function (rest : (('change *
+                          ((Patch.id(*v*) * Paths.dir(*d*)) * int(*ct*)) list)
+                           list)) ->
+         (change,
+          List.sort compare
+            (List.concat
+               (List.map
+                  (function (version,dircts) ->
+                     List.map
+                       (function (dir,ct) -> ((version,dir),ct))
+                       !dircts)
+                  !info)))
+         :: rest)
+      table [] in
   let sort_by_version =
     List.sort
       (function (change1,data1) ->
-	function (change2,data2) ->
-	  match (data1,data2) with
-	    (((verdir1,_)::_),((verdir2,_)::_)) ->
-	      compare (verdir1,change1) (verdir2,change2)
-	  | _ -> failwith "not possible")
+       function (change2,data2) ->
+       match (data1,data2) with
+         (((verdir1,_)::_),((verdir2,_)::_)) ->
+         compare (verdir1,change1) (verdir2,change2)
+       | _ -> failwith "not possible")
       table_data in
   let convert_version_numbers =
     List.map
       (function (change,data) ->
-	(change,
-	 List.map
-	   (function ((version,data),ct) ->
-              let (Patch.Id iversion) = version in
-	     ((Config.get_version iversion,data),ct))
-	   data))
+         (change,
+          List.map
+            (function ((version,data),ct) ->
+               let (Patch.Id iversion) = version in
+               ((Config.get_version iversion,data),ct))
+            data))
       sort_by_version in
   let intersects l1 l2 = List.exists (fun x -> List.mem x l2) l1 in
   let versions_of_all =
     List.map
       (function entry ->
-	(entry, List.map (function ((ver,data),ct) -> ver) (snd entry)))
+         (entry, List.map (function ((ver,data),ct) -> ver) (snd entry)))
       convert_version_numbers in
   (* cluster overlapping commits *)
   let rec merge_intersecting_versions = function
       [] -> []
     | [x] -> [[fst x]]
     | (x,versions)::xs ->
-	let (others,rest) =
-	  List.partition
-	    (function (y,versions2) -> intersects versions versions2)
-	    xs in
-	(x::List.map fst others) :: merge_intersecting_versions rest in
+      let (others,rest) =
+        List.partition
+          (function (y,versions2) -> intersects versions versions2)
+          xs in
+      (x::List.map fst others) :: merge_intersecting_versions rest in
   merge_intersecting_versions versions_of_all
 
 let stddev l =
@@ -310,79 +310,79 @@ let stddev l =
   let diffs =
     List.map
       (function x ->
-	let x = float_of_int x in
-	(x -. ave) *. (x -. ave))
+         let x = float_of_int x in
+         (x -. ave) *. (x -. ave))
       l in
   let sumdiffs = Aux.sumfloat diffs in
   let arg = sumdiffs /. ((float_of_int(List.length l)) -. 1.0) in
   int_of_float (sqrt arg)
 
 (* first list is like multidir result but not sorted because that doesn't
-matter here.  second list maps versions to the number of changes for the
-version and is used to make the graph *)
+   matter here.  second list maps versions to the number of changes for the
+   version and is used to make the graph *)
 let postprocess_mv_table table compute_percentage_multiver =
   let table_data =
     Hashtbl.fold
-       (function change ->
-	 function info ->
-	   function (rest :
-		       (('change *
-			   ((Patch.id(*v*) * Paths.dir(*d*)) * int(*ct*)) list *
-			   ((Patch.id(*v*) * int(*ct*)) * int(*v#*)) list)
-			  list)) ->
-	     (change,
-	      List.sort compare
-		(List.concat
-		   (List.map
-		      (function (version,dircts) ->
-			List.map
-			  (function (dir,ct) -> ((version,dir),ct))
-			  !dircts)
-		      !info)),
-	      List.sort compare
-		(List.map
-		   (function (version,dircts) ->
-                       (* TODO: to fix! *)
-                       let (Patch.Id iversion) = version in
-		     ((version,
-		       Aux.sum (List.map (function (dir,ct) -> ct) !dircts)),
-		      iversion))
-		   !info))
-	     :: rest)
-       table [] in
+      (function change ->
+       function info ->
+       function (rest :
+                   (('change *
+                     ((Patch.id(*v*) * Paths.dir(*d*)) * int(*ct*)) list *
+                     ((Patch.id(*v*) * int(*ct*)) * int(*v#*)) list)
+                      list)) ->
+         (change,
+          List.sort compare
+            (List.concat
+               (List.map
+                  (function (version,dircts) ->
+                     List.map
+                       (function (dir,ct) -> ((version,dir),ct))
+                       !dircts)
+                  !info)),
+          List.sort compare
+            (List.map
+               (function (version,dircts) ->
+                  (* TODO: to fix! *)
+                  let (Patch.Id iversion) = version in
+                  ((version,
+                    Aux.sum (List.map (function (dir,ct) -> ct) !dircts)),
+                   iversion))
+               !info))
+         :: rest)
+      table [] in
   let sort_by_version =
     List.sort
       (function (change1,vdc_data1,vcv_data1) ->
-	function (change2,vdc_data2,vcv_data2) ->
-	  match (vcv_data1,vcv_data2) with
-	    ((((ver1,ct1),_)::_),(((ver2,ct2),_)::_)) ->
-	      compare ((ver1,0-ct1),change1) ((ver2,0-ct2),change2)
-	  | _ -> failwith "not possible")
+       function (change2,vdc_data2,vcv_data2) ->
+       match (vcv_data1,vcv_data2) with
+         ((((ver1,ct1),_)::_),(((ver2,ct2),_)::_)) ->
+         compare ((ver1,0-ct1),change1) ((ver2,0-ct2),change2)
+       | _ -> failwith "not possible")
       table_data in
   let multiver = ref 0 in
   let convert_version_numbers =
     Aux.option_filter
       (function (change,data1,data2) ->
-	let cts =
-	  List.map (function ((version,ct),version_copy) -> ct) data2 in
-	if stddev cts > 1
-	then
-	  begin
-	    multiver := !multiver + 1;
-	    Some ((change,
-		   List.map
-		     (function ((version,data),ct) ->
-                        let (Patch.Id iversion) = version in
-		       ((Config.get_version iversion,data),ct))
-		     data1),
-		  (change,
-		   List.map
-		     (function ((version,ct),version_copy) ->
-                        let (Patch.Id iversion) = version in
-		       ((Config.get_version iversion,ct),version_copy))
-		     data2))
-	  end
-	else None)
+         let cts =
+           List.map (function ((version,ct),version_copy) -> ct) data2 in
+         if stddev cts > 1
+         then
+           begin
+             multiver := !multiver + 1;
+             Some ((change,
+                    List.map
+                      (function ((version,data),ct) ->
+                         let (Patch.Id iversion) = version in
+                         ((Config.get_version iversion,data),ct))
+                      data1),
+                   (change,
+                    List.map
+                      (function ((version,ct),version_copy) ->
+                         let (Patch.Id iversion) = version in
+                         ((Config.get_version iversion,ct),version_copy))
+                      data2))
+           end
+         else None)
       sort_by_version in
   if compute_percentage_multiver
   then percentage_multiver := (!multiver * 100) / !total_changes;
@@ -420,20 +420,20 @@ let mk_questions (in_table: Eq_classes.change_table) keep_change_table
     multidir_table multidir_table2 multiver_table
 
 type result =
-    (string (*version*) *
-       (Paths.dir (*dir*) * (CE.ce * int (*count*)) list) list) list *
-      (Paths.dir (*dir*) *
-	 (string (*version*) * (CE.ce * int (*count*)) list) list) list *
-      (CE.ce *
-	 ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list)
-      list list *
-      ((CE.ce * string) *
-	 ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list)
-      list list *
-      (CE.ce *
-	 ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list) list *
-      (CE.ce *
-	 ((string (*version*) * int (*count*)) * int (*ver#*)) list) list
+  (string (*version*) *
+   (Paths.dir (*dir*) * (CE.ce * int (*count*)) list) list) list *
+  (Paths.dir (*dir*) *
+   (string (*version*) * (CE.ce * int (*count*)) list) list) list *
+  (CE.ce *
+   ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list)
+    list list *
+  ((CE.ce * string) *
+   ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list)
+    list list *
+  (CE.ce *
+   ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list) list *
+  (CE.ce *
+   ((string (*version*) * int (*count*)) * int (*ver#*)) list) list
 
 let questions change_table keep_change_table compute_percentage_multiver =
   mk_questions change_table keep_change_table compute_percentage_multiver

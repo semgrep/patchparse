@@ -14,36 +14,36 @@ let not_field = function
 (* always takes the most general thing *)
 let analyze_bottom f = function
     CC.CC(change,context) ->
-      let (change,cc) =
-	(* the loop either ends at [], or ends at CCs, which can occur when
-	   traversing the generalizations of a function call *)
-	let rec loop change = function
-	    [CC.CG(change,context)] -> loop change context
-	  | _ -> (change,CC.CC(change,[])) in
-	loop change context in
-      if f change then Some cc else None
+    let (change,cc) =
+      (* the loop either ends at [], or ends at CCs, which can occur when
+         	   traversing the generalizations of a function call *)
+      let rec loop change = function
+          [CC.CG(change,context)] -> loop change context
+        | _ -> (change,CC.CC(change,[])) in
+      loop change context in
+    if f change then Some cc else None
   | CC.CG(change,context) -> failwith "cannot occur"
 
 (* takes the most specific thing that matches the filter *)
 let rec analyze_top f = function
     CC.CG(change,context)
   | CC.CC(change,context) as x ->
-      if f change
-      then Some x
-      else 
-	(match context with
-	  [] -> None
-	| [context] -> analyze_top f context
-	| _ -> None)
+    if f change
+    then Some x
+    else 
+      (match context with
+         [] -> None
+       | [context] -> analyze_top f context
+       | _ -> None)
 
 (* --------------------------------------------------------------------- *)
 
 (* changes in generic functions exported by the drivers *)
 let exp_decl = function
     Ast.EXPR([Ast.SYMBOL(l)]) ->
-      (match List.rev l with
-	Ast.EXP(_,_)::_ -> true
-      | _ -> false)
+    (match List.rev l with
+       Ast.EXP(_,_)::_ -> true
+     | _ -> false)
   | _ -> false
 
 let is_exp = function
@@ -53,7 +53,7 @@ let is_exp = function
 (* --------------------------------------------------------------------- *)
 
 (* change in data structure layout: requires . or ->, field name stays the
-same *)
+   same *)
 
 let structure_access l =
   List.exists
@@ -63,11 +63,11 @@ let structure_access l =
 let data_layout_change change =
   analyze_bottom
     (function mg ->
-      match mg with
-	CE.SYMCE(prims1,prims2) ->
-	  Filter.diff_path_same_field mg &&
-	  (structure_access prims1 || structure_access prims2)
-      | _ -> false)
+     match mg with
+       CE.SYMCE(prims1,prims2) ->
+       Filter.diff_path_same_field mg &&
+       (structure_access prims1 || structure_access prims2)
+     | _ -> false)
     change
 
 (* public to private or vice versa *)
@@ -82,7 +82,7 @@ let public_private change =
 (* changes in the protocol *)
 
 (* functions added or removed only.  ordering changed will require more
-work. *)
+   work. *)
 
 let calls_added_or_removed change =
   analyze_bottom (function mg -> Filter.addfn mg || Filter.dropfn mg) change
@@ -92,7 +92,7 @@ let calls_added_or_removed change =
 (* changes in the protocol *)
 
 (* functions added or removed only.  ordering changed will require more
-work. *)
+   work. *)
 
 let calls_change change =
   analyze_top (function mg -> Filter.any_change_in_call mg) change

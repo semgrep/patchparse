@@ -1,6 +1,6 @@
 
 type info = line_number * Patch.linetype
-  and line_number = int
+and line_number = int
 
 type string_extended = string * info
 

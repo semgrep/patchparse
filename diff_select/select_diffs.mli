@@ -1,3 +1,3 @@
 val select_diffs :
-  (Cc.t list * Cc.origin) list  ->
-  (Cc.t list * Cc.origin) list
+  (Context_change.t list * Context_change.origin) list  ->
+  (Context_change.t list * Context_change.origin) list

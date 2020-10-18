@@ -8,6 +8,6 @@ type change_table =
 
 (* the key is the size of the diff.ce of the context_change *)
 type worklist = 
-    (int, (Cc.t * Patch.id (*version*) * Paths.dir (*dir*) *
+    (int, (Context_change.t * Patch.id (*version*) * Paths.dir (*dir*) *
 	     Paths.file (*file*) * Patch.region (*region*)) list ref)
       Hashtbl.t

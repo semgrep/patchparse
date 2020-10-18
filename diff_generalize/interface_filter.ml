@@ -1,5 +1,5 @@
 module CE = Ce
-module Diff = Cc
+module CC = Context_change
 
 (* Filters for the changes in the interface *)
 
@@ -13,21 +13,21 @@ let not_field = function
 
 (* always takes the most general thing *)
 let analyze_bottom f = function
-    Diff.CC(change,context) ->
+    CC.CC(change,context) ->
       let (change,cc) =
 	(* the loop either ends at [], or ends at CCs, which can occur when
 	   traversing the generalizations of a function call *)
 	let rec loop change = function
-	    [Diff.CG(change,context)] -> loop change context
-	  | _ -> (change,Diff.CC(change,[])) in
+	    [CC.CG(change,context)] -> loop change context
+	  | _ -> (change,CC.CC(change,[])) in
 	loop change context in
       if f change then Some cc else None
-  | Diff.CG(change,context) -> failwith "cannot occur"
+  | CC.CG(change,context) -> failwith "cannot occur"
 
 (* takes the most specific thing that matches the filter *)
 let rec analyze_top f = function
-    Diff.CG(change,context)
-  | Diff.CC(change,context) as x ->
+    CC.CG(change,context)
+  | CC.CC(change,context) as x ->
       if f change
       then Some x
       else 

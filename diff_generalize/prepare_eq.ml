@@ -1,6 +1,6 @@
 (* set up data structures *)
 module Config = Globals
-module CC = Cc
+module CC = Context_change
 open Eq_classes
 module CE = Ce
 

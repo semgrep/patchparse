@@ -1,7 +1,8 @@
 module CE = Ce
 module Config = Globals
-module Diff = Cc
+module Diff = Context_change
 open Eq_classes
+module CC = Context_change
 
 (* We will have equivalence classes of changes and of individual - and +
 strings, for the case where diff has inferred a meaningless pairing. *)
@@ -109,7 +110,7 @@ let vf_tmp_table =
 let tmp_table =
   (Hashtbl.create(1000) :
      (CE.ce,
-      (Cc.t list * Patch.id * Paths.dir * Paths.file * Patch.region *
+      (CC.t list * Patch.id * Paths.dir * Paths.file * Patch.region *
 	 CE.ce) list ref)
      Hashtbl.t)
 

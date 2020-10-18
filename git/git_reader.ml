@@ -1,6 +1,10 @@
 module Config = Globals
 
-(* conventions: in_lines = input_lines *)
+(* conventions: 
+ *  - in_lines = input_lines 
+ *  - code = commitid
+ *  - version = readable version (commitid + date + name)
+ *)
 
 (*****************************************************************************)
 (* Helpers *)

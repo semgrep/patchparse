@@ -36,6 +36,7 @@ let page_width_threshold = ref 60 (* 1/2 num chars on a latex line *)
 (* to have it in a suitably globally visible place *)
 (* author and date only for git files *)
 let version_table =
+  (* pad: Patch.id -> Git.commitid *)
   (Hashtbl.create(50) : (int (* index *), string (* version *)) Hashtbl.t)
 
 let get_version id = Hashtbl.find version_table id

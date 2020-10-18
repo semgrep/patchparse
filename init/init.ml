@@ -2,6 +2,9 @@ module Config = Globals
 
 let logger = Logging.get_logger [__MODULE__]
 
+(*****************************************************************************)
+(* Helpers *)
+(*****************************************************************************)
 
 (* Get things started.  Manage the various versions, collect the data. *)
 
@@ -369,7 +372,10 @@ let process_lines version dirname filename lines =
     let (collected,after) = collect_lines false " " lines in
     loop 1 start_line collected after
 
-(* -------------------------------------------------------------------- *)
+
+(*****************************************************************************)
+(* Entry point *)
+(*****************************************************************************)
 (* processing patch files *)
 
 (* collect all the data for a single patch file, ie a single version *)

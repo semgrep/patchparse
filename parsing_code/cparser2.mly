@@ -1,6 +1,8 @@
-/* IMPORTANT! An expression cannot follow another expression.  A symbol
-cannot follow another symbol. */
-/* not fault tolerant */
+(* IMPORTANT! 
+ * An expression cannot follow another expression.  
+ * A symbol cannot follow another symbol. 
+ *)
+(* not fault tolerant *)
 
 %{
 open Parse_error
@@ -36,15 +38,15 @@ let mkcall fn arg known =
 
 %token EOF 
 %token <int * Patch.linetype * Parse_error.atfront>
-  LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK DEFINE
+  LPAREN "(" RPAREN ")" LBRACE "{" RBRACE "}" LBRACK "[" RBRACK "]" DEFINE
 
-/* operator precedence */
+(* operator precedence *)
 %left	ESEP
 %right	RPAREN
 %left	LPAREN
 %right	EQ
 
-/* Non-terminals informations */
+(* Non-terminals informations *)
 %start interpret
 %type <Ast0.code list> interpret
 
@@ -55,7 +57,7 @@ interpret:
 | EOF {[]}
 ;
 
-/* cannot be empty */
+(* cannot be empty *)
 toplevel:
   expressions ltoplevel2            {Ast0.EXPR($1)::$2}
 | sep toplevel                      {Ast0.SEP($1)::$2}
@@ -67,7 +69,7 @@ toplevel:
 | INCLUDE toplevel {Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])])::$2}
 | INCLUDE          {[Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])])]}
 
-/* cannot start with an expression */
+(* cannot start with an expression *)
 ltoplevel2:
   sep toplevel                      {Ast0.SEP($1)::$2}
 | sep                               {[Ast0.SEP($1)]}
@@ -77,7 +79,7 @@ ltoplevel2:
 | INCLUDE toplevel {Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])])::$2}
 | INCLUDE          {[Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])])]}
 
-/* cannot start with a lparen */
+(* cannot start with a lparen *)
 ltoplevel3:
   expressionsd ltoplevel2           {Ast0.EXPR($1)::$2}
 | expressionsdend                   {[Ast0.EXPR($1)]}
@@ -91,11 +93,11 @@ ltoplevel3:
 
 sep:
   SEP                               {mkinfo $1}
-| LBRACE                            {"{",mkbinfo $1}
-| RBRACE                            {"}",mkbinfo $1}
+| "{"                            {"{",mkbinfo $1}
+| "}"                            {"}",mkbinfo $1}
 | ESEP                              {mkinfo $1}
-| RPAREN                            {")",mkbinfo $1}
-| RBRACK                            {"]",mkbinfo $1}
+| ")"                            {")",mkbinfo $1}
+| "]"                            {"]",mkbinfo $1}
 
 
 definesym:
@@ -104,7 +106,7 @@ definesym:
        Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(mkinfo $2)])])]}
 
 define:
-  DEFINE IDENT LPAREN args RPAREN
+  DEFINE IDENT "(" args ")"
     {[Ast0.SEP("#define",mkbinfo $1);
        Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(mkinfo $2)]);
 		   Ast0.PAREN($4,Ast.KNOWN)])]}
@@ -115,17 +117,17 @@ defineend:
        Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(mkinfo $2)])])]}
 | DEFINE
     {[Ast0.SEP("#define",mkbinfo $1)]}
-| DEFINE IDENT LPAREN args RPAREN
+| DEFINE IDENT "(" args ")"
     {[Ast0.SEP("#define",mkbinfo $1);
        Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(mkinfo $2)]);
 		   Ast0.PAREN($4,Ast.KNOWN)])]}
-| DEFINE IDENT LPAREN args
+| DEFINE IDENT "(" args
     {[Ast0.SEP("#define",mkbinfo $1);
        Ast0.EXPR([Ast0.SYMBOL([Ast0.IDENT(mkinfo $2)]);
 		   Ast0.PAREN($4,Ast.ENDUNKNOWN)])]}
     
 
-/* cannot be empty */
+(* cannot be empty *)
 expressions:
   symbol expressions2               {Ast0.SYMBOL($1)::$2}
 | symbol                            {[Ast0.SYMBOL($1)]}
@@ -140,7 +142,7 @@ expressionsend:
 | dsymbol                           {[Ast0.DSYMBOL($1)]}
 | expressions4end                   {$1}
 
-/* cannot start with a symbol */
+(* cannot start with a symbol *)
 expressions2:
   dsymbol expressions3              {Ast0.DSYMBOL($1)::$2}
 | dsymbol                           {[Ast0.DSYMBOL($1)]}
@@ -151,7 +153,7 @@ expressions2end:
 | dsymbol                           {[Ast0.DSYMBOL($1)]}
 | expressions4end                   {$1}
 
-/* cannot start with a dsymbol */
+(* cannot start with a dsymbol *)
 expressions3:
   symbol expressions2               {Ast0.SYMBOL($1)::$2}
 | symbol                            {[Ast0.SYMBOL($1)]}
@@ -162,51 +164,51 @@ expressions3end:
 | symbol                            {[Ast0.SYMBOL($1)]}
 | expressions4end                   {$1}
 
-/* cannot start with a symbol or dsymbol */
+(* cannot start with a symbol or dsymbol *)
 expressions4:
-  LPAREN args RPAREN expressions    {Ast0.PAREN($2,Ast.KNOWN)::$4}
+  "(" args ")" expressions    {Ast0.PAREN($2,Ast.KNOWN)::$4}
 | OPERATOR expressions              {Ast0.EOP(mkinfo $1)::$2}
-| PRIM LPAREN args RPAREN expressions {(mkcall $1 $3 Ast.KNOWN)::$5}
-| IDENT LPAREN args RPAREN expressions {(mkcall $1 $3 Ast.KNOWN)::$5}
+| PRIM "(" args ")" expressions {(mkcall $1 $3 Ast.KNOWN)::$5}
+| IDENT "(" args ")" expressions {(mkcall $1 $3 Ast.KNOWN)::$5}
 | PRIM expressionsd                 {Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])::$2}
 | EQ assignrhs                      {[Ast0.ASSIGN(mkinfo $1,$2,Ast.KNOWN)]}
-| LPAREN args RPAREN                {[Ast0.PAREN($2,Ast.KNOWN)]}
+| "(" args ")"                {[Ast0.PAREN($2,Ast.KNOWN)]}
 | OPERATOR                          {[Ast0.EOP(mkinfo $1)]}
-| PRIM LPAREN args RPAREN           {[mkcall $1 $3 Ast.KNOWN]}
-| IDENT LPAREN args RPAREN          {[mkcall $1 $3 Ast.KNOWN]}
+| PRIM "(" args ")"           {[mkcall $1 $3 Ast.KNOWN]}
+| IDENT "(" args ")"          {[mkcall $1 $3 Ast.KNOWN]}
 | PRIM                              {[Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])]}
 
 expressions4end:
-  LPAREN args RPAREN expressionsend {Ast0.PAREN($2,Ast.KNOWN)::$4}
+  "(" args ")" expressionsend {Ast0.PAREN($2,Ast.KNOWN)::$4}
 | OPERATOR expressionsend           {Ast0.EOP(mkinfo $1)::$2}
-| PRIM LPAREN args RPAREN expressionsend {(mkcall $1 $3 Ast.KNOWN)::$5}
-| IDENT LPAREN args RPAREN expressionsend {(mkcall $1 $3 Ast.KNOWN)::$5}
+| PRIM "(" args ")" expressionsend {(mkcall $1 $3 Ast.KNOWN)::$5}
+| IDENT "(" args ")" expressionsend {(mkcall $1 $3 Ast.KNOWN)::$5}
 | PRIM expressionsdend              {Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])::$2}
 | EQ assignrhsend                   {[Ast0.ASSIGN(mkinfo $1,$2,Ast.KNOWN)]}
 | EQ                               {[Ast0.ASSIGN(mkinfo $1,[],Ast.ENDUNKNOWN)]}
-| LPAREN args RPAREN                {[Ast0.PAREN($2,Ast.KNOWN)]}
-| LPAREN argsend                    {[Ast0.PAREN($2,Ast.ENDUNKNOWN)]}
+| "(" args ")"                {[Ast0.PAREN($2,Ast.KNOWN)]}
+| "(" argsend                    {[Ast0.PAREN($2,Ast.ENDUNKNOWN)]}
 | OPERATOR                          {[Ast0.EOP(mkinfo $1)]}
-| PRIM LPAREN args RPAREN           {[mkcall $1 $3 Ast.KNOWN]}
-| PRIM LPAREN argsend               {[mkcall $1 $3 Ast.ENDUNKNOWN]}
-| IDENT LPAREN args RPAREN          {[mkcall $1 $3 Ast.KNOWN]}
-| IDENT LPAREN argsend              {[mkcall $1 $3 Ast.ENDUNKNOWN]}
+| PRIM "(" args ")"           {[mkcall $1 $3 Ast.KNOWN]}
+| PRIM "(" argsend               {[mkcall $1 $3 Ast.ENDUNKNOWN]}
+| IDENT "(" args ")"          {[mkcall $1 $3 Ast.KNOWN]}
+| IDENT "(" argsend              {[mkcall $1 $3 Ast.ENDUNKNOWN]}
 | PRIM                              {[Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])]}
 
-/* cannot start with a lparen */
+(* cannot start with a lparen *)
 expressionsd:
   symbol expressions2               {Ast0.SYMBOL($1)::$2}
 | symbol                            {[Ast0.SYMBOL($1)]}
 | dsymbol expressions3              {Ast0.DSYMBOL($1)::$2}
 | dsymbol                           {[Ast0.DSYMBOL($1)]}
 | OPERATOR expressions              {Ast0.EOP(mkinfo $1)::$2}
-| PRIM LPAREN args RPAREN expressions {(mkcall $1 $3 Ast.KNOWN)::$5}
-| IDENT LPAREN args RPAREN expressions {(mkcall $1 $3 Ast.KNOWN)::$5}
+| PRIM "(" args ")" expressions {(mkcall $1 $3 Ast.KNOWN)::$5}
+| IDENT "(" args ")" expressions {(mkcall $1 $3 Ast.KNOWN)::$5}
 | PRIM expressionsd                 {Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])::$2}
 | EQ assignrhs                      {[Ast0.ASSIGN(mkinfo $1,$2,Ast.KNOWN)]}
 | OPERATOR                          {[Ast0.EOP(mkinfo $1)]}
-| PRIM LPAREN args RPAREN           {[mkcall $1 $3 Ast.KNOWN]}
-| IDENT LPAREN args RPAREN          {[mkcall $1 $3 Ast.KNOWN]}
+| PRIM "(" args ")"           {[mkcall $1 $3 Ast.KNOWN]}
+| IDENT "(" args ")"          {[mkcall $1 $3 Ast.KNOWN]}
 | PRIM                              {[Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])]}
 
 expressionsdend:
@@ -215,16 +217,16 @@ expressionsdend:
 | dsymbol expressions3end           {Ast0.DSYMBOL($1)::$2}
 | dsymbol                           {[Ast0.DSYMBOL($1)]}
 | OPERATOR expressionsend           {Ast0.EOP(mkinfo $1)::$2}
-| PRIM LPAREN args RPAREN expressionsend {(mkcall $1 $3 Ast.KNOWN)::$5}
-| IDENT LPAREN args RPAREN expressionsend {(mkcall $1 $3 Ast.KNOWN)::$5}
+| PRIM "(" args ")" expressionsend {(mkcall $1 $3 Ast.KNOWN)::$5}
+| IDENT "(" args ")" expressionsend {(mkcall $1 $3 Ast.KNOWN)::$5}
 | PRIM expressionsdend              {Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])::$2}
 | EQ assignrhsend                   {[Ast0.ASSIGN(mkinfo $1,$2,Ast.KNOWN)]}
 | EQ                               {[Ast0.ASSIGN(mkinfo $1,[],Ast.ENDUNKNOWN)]}
 | OPERATOR                          {[Ast0.EOP(mkinfo $1)]}
-| PRIM LPAREN args RPAREN           {[mkcall $1 $3 Ast.KNOWN]}
-| PRIM LPAREN argsend               {[mkcall $1 $3 Ast.ENDUNKNOWN]}
-| IDENT LPAREN args RPAREN          {[mkcall $1 $3 Ast.KNOWN]}
-| IDENT LPAREN argsend              {[mkcall $1 $3 Ast.ENDUNKNOWN]}
+| PRIM "(" args ")"           {[mkcall $1 $3 Ast.KNOWN]}
+| PRIM "(" argsend               {[mkcall $1 $3 Ast.ENDUNKNOWN]}
+| IDENT "(" args ")"          {[mkcall $1 $3 Ast.KNOWN]}
+| IDENT "(" argsend              {[mkcall $1 $3 Ast.ENDUNKNOWN]}
 | PRIM                              {[Ast0.SYMBOL([Ast0.IDENT(mkinfo $1)])]}
 
 args:
@@ -235,7 +237,7 @@ args:
 
 args2:
   ESEP args                     {Ast0.SEP(mkinfo $1)::$2}
-| LBRACE args RBRACE args       {Ast0.EXPR([Ast0.STRUCT($2,Ast.KNOWN)])::$4}
+| "{" args "}" args       {Ast0.EXPR([Ast0.STRUCT($2,Ast.KNOWN)])::$4}
 
 argsend:
   expressionsend                {[Ast0.EXPR($1)]}
@@ -245,17 +247,17 @@ argsend:
 
 args2end:
   ESEP argsend                  {Ast0.SEP(mkinfo $1)::$2}
-| LBRACE args RBRACE argsend    {Ast0.EXPR([Ast0.STRUCT($2,Ast.KNOWN)])::$4}
-| LBRACE argsend                {[Ast0.EXPR([Ast0.STRUCT($2,Ast.ENDUNKNOWN)])]}
+| "{" args "}" argsend    {Ast0.EXPR([Ast0.STRUCT($2,Ast.KNOWN)])::$4}
+| "{" argsend                {[Ast0.EXPR([Ast0.STRUCT($2,Ast.ENDUNKNOWN)])]}
 
-/* cannot be empty */
+(* cannot be empty *)
 assignrhs:
   symbol expressions2           {Ast0.SYMBOL($1)::$2}
 | symbol                        {[Ast0.SYMBOL($1)]}
 | dsymbol expressions3          {Ast0.DSYMBOL($1)::$2}
 | dsymbol                       {[Ast0.DSYMBOL($1)]}
 | expressions4                  {$1}
-| LBRACE args RBRACE            {[Ast0.STRUCT($2,Ast.KNOWN)]}
+| "{" args "}"            {[Ast0.STRUCT($2,Ast.KNOWN)]}
 
 assignrhsend:
   symbol expressions2end        {Ast0.SYMBOL($1)::$2}
@@ -263,27 +265,27 @@ assignrhsend:
 | dsymbol expressions3end       {Ast0.DSYMBOL($1)::$2}
 | dsymbol                       {[Ast0.DSYMBOL($1)]}
 | expressions4end               {$1}
-| LBRACE args RBRACE            {[Ast0.STRUCT($2,Ast.KNOWN)]}
-| LBRACE argsend                {[Ast0.STRUCT($2,Ast.ENDUNKNOWN)]}
+| "{" args "}"            {[Ast0.STRUCT($2,Ast.KNOWN)]}
+| "{" argsend                {[Ast0.STRUCT($2,Ast.ENDUNKNOWN)]}
 
-/* cannot be empty */
+(* cannot be empty *)
 symbol:
   atoken symbol                       {$1::$2}
 | atoken                              {[$1]}
-| LBRACK expressions RBRACK symbol    {Ast0.ARRAY($2,Ast.KNOWN)::$4}
-| LBRACK expressions RBRACK           {[Ast0.ARRAY($2,Ast.KNOWN)]}
-| LBRACK RBRACK symbol                {Ast0.ARRAY([],Ast.KNOWN)::$3}
-| LBRACK RBRACK                       {[Ast0.ARRAY([],Ast.KNOWN)]}
+| "[" expressions "]" symbol    {Ast0.ARRAY($2,Ast.KNOWN)::$4}
+| "[" expressions "]"           {[Ast0.ARRAY($2,Ast.KNOWN)]}
+| "[" "]" symbol                {Ast0.ARRAY([],Ast.KNOWN)::$3}
+| "[" "]"                       {[Ast0.ARRAY([],Ast.KNOWN)]}
 
 symbolend:
   atoken symbolend                    {$1::$2}
 | atoken                              {[$1]}
-| LBRACK expressions RBRACK symbolend {Ast0.ARRAY($2,Ast.KNOWN)::$4}
-| LBRACK expressions RBRACK           {[Ast0.ARRAY($2,Ast.KNOWN)]}
-| LBRACK expressionsend               {[Ast0.ARRAY($2,Ast.ENDUNKNOWN)]}
-| LBRACK RBRACK symbolend             {Ast0.ARRAY([],Ast.KNOWN)::$3}
-| LBRACK RBRACK                       {[Ast0.ARRAY([],Ast.KNOWN)]}
-| LBRACK                              {[Ast0.ARRAY([],Ast.ENDUNKNOWN)]}
+| "[" expressions "]" symbolend {Ast0.ARRAY($2,Ast.KNOWN)::$4}
+| "[" expressions "]"           {[Ast0.ARRAY($2,Ast.KNOWN)]}
+| "[" expressionsend               {[Ast0.ARRAY($2,Ast.ENDUNKNOWN)]}
+| "[" "]" symbolend             {Ast0.ARRAY([],Ast.KNOWN)::$3}
+| "[" "]"                       {[Ast0.ARRAY([],Ast.KNOWN)]}
+| "["                              {[Ast0.ARRAY([],Ast.ENDUNKNOWN)]}
 
 atoken:
   IDENT                               {Ast0.IDENT(mkinfo $1)}

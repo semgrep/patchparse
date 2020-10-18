@@ -2,6 +2,9 @@
  (name parsing_code)
  (wrapped false)
  (libraries
+   ; pfff deps
+   commons
+
    globals core
  )
  (preprocess (pps ppx_deriving.show))

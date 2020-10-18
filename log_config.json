@@ -8,6 +8,7 @@
 
             { "name": "Main.Init"    , "level": "flash" },
             { "name": "Main.Diff"    , "level": "flash" },
+            { "name": "Main.Parse_error"    , "level": "flash" },
 
             { "name": "XXX"                     , "level": "error" }
         ],

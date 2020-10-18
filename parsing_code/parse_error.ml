@@ -1,4 +1,6 @@
 
+let logger = Logging.get_logger [__MODULE__]
+
 type atfront = FRONT | AFTER
 
 let start_line = ref 0
@@ -46,8 +48,8 @@ let display_error msg token_start token_end =
        (file_name !current_handle) ^ "["
        ^ (string_of_int (lineno !current_handle)) ^ "] " 
   in
-  let oc = out_channel !current_handle in
-  Printf.fprintf oc "%s%s : lines from %d start %d stop %d\n%s\n" string msg
+  let _oc = out_channel !current_handle in
+  logger#error "%s%s : lines from %d start %d stop %d\n%s\n" string msg
     !start_line
     (real_pos token_start !current_handle)
     (real_pos token_end !current_handle)

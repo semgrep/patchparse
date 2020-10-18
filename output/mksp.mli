@@ -1,7 +1,5 @@
 val make_files :
-    (Questions.result *
-       (string * Eq_classes.change_table (* change table *) *
-	  Questions.result) list) ->
-	    (Patch.id(*ver*) * string(*dir*) *
-	       string list(*files*) * Ce.ce list * float (*weight*)) list
-		 -> unit
+ (Questions.result * 
+  (string * Eq_classes.change_table * Questions.result) list) ->
+ Evolution.t list ->
+ unit

@@ -362,7 +362,7 @@ let file_data sp_file get_files
 (* -------------------------------------------------------------------- *)
 (* Entry point *)
 	
-let make_files (change_result,filtered_results) evolutions =
+let make_files (change_result,filtered_results) (evolutions : Evolution.t list) =
   let all_name = "_"^(!Config.outfile) in
   let sp_file =
     if !Config.print_sp

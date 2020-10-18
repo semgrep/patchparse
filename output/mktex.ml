@@ -44,14 +44,17 @@ let file_data tex_file out_file
       multiver_table1,multiver_table2):
        Questions.result) =
   let printed_changes = ref false in
-  let pc (data : (string * (Ce.ce * int) list) list) =(* version or directory *)
+  (* TODO: use either type for version or directory instead of Paths.dir *)
+  let pc (data : (Paths.dir * (Ce.ce * int) list) list) =(* version or directory *)
     if not(!printed_changes)
     then
       begin
 	List.iter
 	  (function (tag,data) ->
+             (* TODO: should use an either above *)
+             let (Paths.Dir stag) = tag in
 	    Printf.fprintf tex_file "\\noindent\\textbf{%s}\n\n"
-	      (Ce_unparse.clean tag);
+	      (Ce_unparse.clean stag);
 	    List.iter
 	      (function (change,count) ->
 		(if !Config.print_parsable
@@ -62,7 +65,8 @@ let file_data tex_file out_file
 		  count (printer change))
 	      (List.rev data))
 	  data
-      end in
+      end 
+  in
   let pcm data = (* multidirectory *)
     Printf.fprintf tex_file "%d changes in all\n\n" (List.length data);
     List.iter
@@ -83,13 +87,15 @@ let file_data tex_file out_file
                        [] -> []
                      | ((version,dir),count)::rest ->
 			 let version = Ce_unparse.clean version in
-			 let dir = Ce_unparse.clean dir in
+                            let (Paths.Dir sdir) = dir in
+			 let dir = Paths.Dir (Ce_unparse.clean sdir) in
+                            let (Paths.Dir sdir) = dir in
 			 let (prev,front) =
 			   let (git_code,_,rest) = split_git_version version in
 			   (git_code,
                             if prev = git_code
                             then
-                              Printf.sprintf "{\\mbox{%s (%d)}} " dir count
+                              Printf.sprintf "{\\mbox{%s (%d)}} " sdir count
                             else
 			      let unused =
 				try
@@ -101,7 +107,7 @@ let file_data tex_file out_file
 				with Not_found -> "unused tokens unknown" in
                               Printf.sprintf
 				"\n\n\\lefteqn{\\mbox{\\href{%s%s}{%s}: \\emph{%s} %s (%d, %s)}}\n\n"
-				!Config.url git_code git_code rest dir count
+				!Config.url git_code git_code rest sdir count
 				unused) in
 			 front :: (loop prev rest) in
 		   loop "" data))
@@ -111,10 +117,12 @@ let file_data tex_file out_file
 		  (let rec loop n = function
                       [] -> []
                     | ((version,dir),count)::rest ->
+                           let (Paths.Dir sdir) = dir in
 			let version = Ce_unparse.clean version in
-			let dir = Ce_unparse.clean dir in
+			let dir = Paths.Dir (Ce_unparse.clean sdir) in
+                           let (Paths.Dir sdir) = dir in
 			let front =
-			  Printf.sprintf "%s: %s (%d)" version dir count in
+			  Printf.sprintf "%s: %s (%d)" version sdir count in
 			if n = per_line
 			then (front ^ "\n\n") :: (loop 0 rest)
 			else front :: (loop (n+1) rest) in
@@ -157,7 +165,7 @@ let file_data tex_file out_file
       [("change", (* drop names, which appear in the lines *)
 	List.map (List.map (fun (v,d) -> (fst v,d))) multidir_table2)] pcm
 
-let print_evolutions tex_file evolutions =
+let print_evolutions tex_file (evolutions : Evolution.t list) =
   if List.exists (function (_,_,_,x,_) -> List.length x > 1) evolutions
   then
     (Printf.fprintf tex_file "\\section{Evolutions}\n";
@@ -165,8 +173,9 @@ let print_evolutions tex_file evolutions =
        (function (version,dir,intersection,changes,weight) ->
           let (Patch.Id iversion) = version in
 	 let v = Config.get_version iversion in
+          let (Paths.Dir sdir) = dir in
 	 Printf.fprintf tex_file "\\subsection{%s. %s %f}files:\n\n"
-	   v dir weight;
+	   v sdir weight;
 	 List.iter
 	   (function file ->
 	     Printf.fprintf tex_file "  \\noindent\\hspace{-0.25in}%s\n\n"

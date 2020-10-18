@@ -7,7 +7,5 @@ type t =
 
 (* pad: I've introduced those new types *)
 
-type region = string
-
 type origin = 
-  Patch.id * string (*path*) * string (*file*) * region
+  Patch.id * Paths.dir (*path*) * Paths.file (*file*) * Patch.region

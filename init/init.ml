@@ -263,10 +263,10 @@ let _compteur = ref 0
 let _current_function = ref None
 let current_region () = 
   match !_current_function with
-  | None -> ("__region__" ^ string_of_int !_compteur)
+  | None -> Patch.Region (!_compteur)
   (* try get name of func, not just split in region,  otherwise will be split
      wheras in fact in same function *)
-  | Some s -> "__infunction__" ^ s (* TODO ? get also compteur,  so sure that
+  | Some s -> Patch.InFunction s (* TODO ? get also compteur,  so sure that
    dont mix together same functions  defined in different files *)
 
 (* focus on ; -- drop code between ;s that has no minus or plus code *)

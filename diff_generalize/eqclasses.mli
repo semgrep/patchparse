@@ -1,10 +1,9 @@
 
 val eqworklists :
     Eq_classes.worklist (* worklist, inout, !modified! *) ->
-      int ref (* max size storage *) ->
-	Cc.t ->
-	  (Patch.id * string (*path*) * string (*file*) * string (*region*) ) 
-	  -> unit
+    int ref (* max size storage *) ->
+    Cc.t -> Cc.origin ->
+    unit
 
 val eqclasses :
   Eq_classes.worklist (* worklist, in *) ->

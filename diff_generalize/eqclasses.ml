@@ -100,16 +100,16 @@ let add_tmp table change context
 
 let vf_tmp_table =
   (Hashtbl.create(10) :
-     ((Patch.id (*version*) * string (*pathname (dir) *)),
-      int (*count*) ref * string (*filename*) list ref *
-	string (*regions*) list ref *
+     ((Patch.id (*version*) * Paths.dir (*pathname (dir) *)),
+      int (*count*) ref * Paths.file (*filename*) list ref *
+	Patch.region (*regions*) list ref *
 	CE.ce (*not_al_change*) list ref)
      Hashtbl.t)
 
 let tmp_table =
   (Hashtbl.create(1000) :
      (CE.ce,
-      (Cc.t list * Patch.id * string * string * string *
+      (Cc.t list * Patch.id * Paths.dir * Paths.file * Patch.region *
 	 CE.ce) list ref)
      Hashtbl.t)
 

@@ -10,6 +10,10 @@ type line =
 
 type t = id * line list
 
+type region = 
+  | Region of int
+  | InFunction of string
+
 (* was in ast.ml *)
 type linetype = 
   | PLUS 

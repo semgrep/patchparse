@@ -49,7 +49,7 @@ let (version_key: Patch.id * string -> Patch.id) =
 let create_version_dir_change_files 
     table 
     (get_key: Patch.id * string -> Patch.id)
-    (change_table: Eqclasses.change_table_type) 
+    (change_table: Eq_classes.change_table_type) 
   =
   Hashtbl.iter
     (function change ->

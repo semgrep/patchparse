@@ -1,6 +1,7 @@
 module CE = Ce
 module Config = Globals
 module Diff = Cc
+open Eq_classes
 
 (* We will have equivalence classes of changes and of individual - and +
 strings, for the case where diff has inferred a meaningless pairing. *)
@@ -68,19 +69,6 @@ let size_ce = function
   | CE.CODECE(c1,c2)    -> size_code c1 + size_code c2
   | CE.CODELCE(cl1,cl2) -> size_codelist cl1 + size_codelist cl2
 
-(* --------------------------------------------------------------------- *)
-type change_table_type =
-    (CE.ce,
-     ((Patch.id (*version*) * string (*dir*)) * int (*sites*) *
-	string list (*files*) * string list (*regions*) *
-	CE.ce list (* same as key but without abstraction lines*)  ) list
-    ) Hashtbl.t
-
-(* the key is the size of the diff.ce of the context_change *)
-type worklist_type = 
-    (int, (Cc.t * Patch.id (*version*) * string (*dir*) *
-	     string (*file*) * string (*region*)) list ref)
-      Hashtbl.t
 (* --------------------------------------------------------------------- *)
 
 (* build worklist *)

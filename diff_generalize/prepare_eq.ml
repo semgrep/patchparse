@@ -1,7 +1,7 @@
 (* set up data structures *)
 module Config = Globals
 module CC = Cc
-open Eqclasses
+open Eq_classes
 module CE = Ce
 
 (* tables for filtered changes *)

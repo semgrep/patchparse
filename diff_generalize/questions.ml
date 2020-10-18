@@ -38,7 +38,7 @@ module Config = Globals
 (* processing the collected data *)
 
 let reorganize pre_fn get_header get_sub1 get_sub2
-    (intable: Eqclasses.change_table_type) outtable =
+    (intable: Eq_classes.change_table_type) outtable =
   Hashtbl.iter
     (function change ->
       function vdc ->
@@ -403,7 +403,7 @@ let postprocess_tables compute_percentage_multiver
 (* Entry point *)
 
 (* make them all so we can easily have a summary *)
-let mk_questions (in_table: Eqclasses.change_table_type) keep_change_table
+let mk_questions (in_table: Eq_classes.change_table_type) keep_change_table
     compute_percentage_multiver
     version_table directory_table multidir_table multidir_table2
     multiver_table =

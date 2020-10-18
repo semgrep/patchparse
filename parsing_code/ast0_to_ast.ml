@@ -4,9 +4,11 @@ module Config = Globals
 
 let __unknown_line = (-1,Patch.CTX)
 
-
-(* ----------------------------------------------------------------- *)
+(****************************************************************************)
+(* Prelude *)
+(****************************************************************************)
 (* convert ast0 to ast *)
+
 (* This entails identifying function calls and assignments.  This is done
    by considering expression lists, ie the code between two separators.
 
@@ -33,6 +35,10 @@ let __unknown_line = (-1,Patch.CTX)
    assume it is a function call and identify the function name as before.
    Note that a sequence of only DEREFOP cannot be a function name, nor can a
    sequence that contains only characters/integers/strings/types. *)
+
+(****************************************************************************)
+(* Helpers *)
+(****************************************************************************)
 
 (* can be all types or types followed by dereferences, ie a symbol and a
    dsymbol or just a symbol.  Just one dereference, ie "( * )" is also allowed. *)
@@ -130,6 +136,10 @@ let parse_function_name l =
     let (acc,rest) = find_front acc (List.rev rest) in
     (rest,List.sort compare acc,name)
   | _ -> ([],[],"")
+
+(****************************************************************************)
+(* Convert_xxx *)
+(****************************************************************************)
 
 let rec convert_prim = function
     IDENT(s,_line) -> Ast.IDENT(Ast.bext (mkident s, _line))
@@ -388,6 +398,9 @@ and convert_exprlist no_fn_name_allowed no_assign_lhs_allowed exprlist =
     | expr::rest -> convert_expr expr :: loop rest in
   List.rev (loop backwards)
 
+(****************************************************************************)
+(* Entry point *)
+(****************************************************************************)
 
 let convert c =
   (*Printf.eprintf "converting %s\n" (unparse_code_list c); flush stderr;*)

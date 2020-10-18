@@ -5,6 +5,10 @@ module CC = Context_change
 
 let logger = Logging.get_logger [__MODULE__]
 
+(*****************************************************************************)
+(* Types *)
+(*****************************************************************************)
+
 (* When we have a - and a +, then we want to compare the two to omit the
    parts that are in common.  However, we want to maintain some context, so
    that we can identify similar things.  For example, if a function has a new
@@ -34,6 +38,9 @@ and change_type =
   (* not willing to merge *)
   | CONTEXT_CHANGE of CC.t list
 
+(*****************************************************************************)
+(* Abstract line *)
+(*****************************************************************************)
 
 (* ----------------- abstract line diff ----------------------------- *)
 
@@ -91,7 +98,9 @@ and have_al_context_change = function
      (List.exists have_al_context_change context_change_list))
 
 
-(****************************************************************************)
+(*****************************************************************************)
+(* Helpers *)
+(*****************************************************************************)
 (* printing functions *)
 let pr = Printf.sprintf
 
@@ -532,6 +541,10 @@ let compare_lists get_everything separate_dropped
       loop_maker comparer5 get_everything mkrce1 mkrce2
         process_immediate_lists middle_loop in
     outer_loop organized_l1 organized_l2
+
+(****************************************************************************)
+(* Compare ASTs *)
+(****************************************************************************)
 
 (* --------------------------------------------------------------------- *)
 (* treatment of primitives *)
@@ -1101,8 +1114,9 @@ and compare_toplevel_lists_lists l1 l2 =
 
 
 
-(* --------------------------------------------------------------------- *)
+(****************************************************************************)
 (* Entry point *)
+(****************************************************************************)
 
 (* It would be nice to take care about doing unions in the right way, and
    the code above tries to do that.  But multiple ASTs print the same way, and

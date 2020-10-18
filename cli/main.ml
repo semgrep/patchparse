@@ -138,11 +138,10 @@ let main _ =
   (* parse and collect differences in the lines from the git/patch file *)
   let changelists = Init.process_all_files patch_data in
   logger#info "done with init";
-  let _ = exit 0 in
 
   (* filter the changelists *)
   let changelists = Select_diffs.select_diffs changelists in
-  logger#info "changelists: %d\n" (List.length changelists);
+  logger#info "changelists: %d" (List.length changelists);
 
   (* convert the changelist to a table for further processing *)
   changelists |> List.iter Prepare_eq.eqworklists;
@@ -151,7 +150,9 @@ let main _ =
 
   let ((big_change_table,change_result),filtered_category_results) =
     Prepare_eq.eqclasses do_evolutions in
-  logger#info "done with questions\n";
+  logger#info "done with questions";
+  let _ = exit 0 in
+
 
   let (evolutions : Evolution.t list) =
     if do_evolutions
@@ -162,7 +163,7 @@ let main _ =
       res
     else [] 
   in
-  logger#info "done with evolutions\n";
+  logger#info "done with evolutions";
 
   Mktex.make_files (change_result,filtered_category_results) evolutions;
   if !Config.print_sp

@@ -4,6 +4,9 @@ module Diff = Context_change
 open Eq_classes
 module CC = Context_change
 
+let logger = Logging.get_logger [__MODULE__]
+
+
 (* We will have equivalence classes of changes and of individual - and +
 strings, for the case where diff has inferred a meaningless pairing. *)
 
@@ -212,9 +215,9 @@ let build_change_classes
 		      if List.exists (function n1 -> n1 >= n) sizes
 		      then
 			begin
-			  Printf.printf "parent %d\n%s\n" n
+			  logger#info "parent %d\n%s" n
 			    (Ce_unparse.ce2c change);
-			  Printf.printf "children %s\n%s\n"
+			  logger#info "children %s\n%s"
 			    (String.concat " " (List.map string_of_int sizes))
 			    (String.concat "\nand\n"
 			       (List.map
@@ -224,7 +227,7 @@ let build_change_classes
 				  context));
                              let (Patch.Id iversion) = version in
                              let (Paths.File sfilename) = filename in
-			  Printf.printf
+			  logger#info
 			    "a child has the same size as its parent %d %s"
 			    iversion sfilename
 			    (* do nothing *)
@@ -258,7 +261,7 @@ let print_change_table change_table =
   Hashtbl.iter
     (function change ->
       function site_counts ->
-	Printf.printf "%d: %s\n"
+	logger#info "%d: %s"
 	  (Aux.sum (List.map (function (_,ct,_,_,_) -> ct) site_counts))
 	  (Ce_unparse.ce2c change))
     change_table

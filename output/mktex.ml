@@ -178,8 +178,9 @@ let print_evolutions tex_file (evolutions : Evolution.t list) =
 	   v sdir weight;
 	 List.iter
 	   (function file ->
+              let (Paths.File sfile) = file in
 	     Printf.fprintf tex_file "  \\noindent\\hspace{-0.25in}%s\n\n"
-	       (Ce_unparse.clean file))
+	       (Ce_unparse.clean sfile))
 	   intersection;
 	 Printf.fprintf tex_file "\n\\noindent changes:\n\n";
 	 List.iter

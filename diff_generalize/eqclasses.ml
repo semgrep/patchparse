@@ -222,9 +222,10 @@ let build_change_classes
 					Ce_unparse.ce2c change)
 				  context));
                              let (Patch.Id iversion) = version in
+                             let (Paths.File sfilename) = filename in
 			  Printf.printf
 			    "a child has the same size as its parent %d %s"
-			    iversion filename
+			    iversion sfilename
 			    (* do nothing *)
 			end
 		      else

@@ -341,8 +341,9 @@ let process_lines version dirname filename lines =
 		_current_function := Some functionname
               else _current_function := None);
 	      incr _compteur;
+               let (Paths.File sfilename) = filename in
 	      if !Config.notex
-	      then (Printf.printf "%s region %d:\n\n" filename start_count;
+	      then (Printf.printf "%s region %d:\n\n" sfilename start_count;
 		    flush stdout);
 	      let start_line = n in
 	      let (collected,rest) = collect_lines false " " rest in
@@ -382,8 +383,9 @@ let process_file (version,lines) =
 	  Aux.normalize
 	    (String.lowercase_ascii (Filename.chop_extension fl))(*drop .c*);
          let dir = Paths.Dir path in
+         let file = Paths.File !Config.complete_filename in
 	let (res,after) =
-	  process_lines version dir !Config.complete_filename rest in
+	  process_lines version dir file rest in
 	res@(loop after)
   in loop lines
 

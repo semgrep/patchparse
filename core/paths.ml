@@ -3,4 +3,4 @@
  * compiler-libs/ when also use pfff libs and ppx *)
 
 type dir = Dir of string
-type file = string
+type file = File of string

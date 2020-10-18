@@ -100,7 +100,7 @@ let gsemi__change_worklist = (Hashtbl.create(200) : worklist)
 (* --------------------------------------------------------------------- *)
 (* build worklists *)
 
-let eqworklists changelist (version, pathname, filename, region) =
+let eqworklists (changelist, (version, pathname, filename, region)) =
   (* the global worklist *)
   if not (!Config.noall)
   then

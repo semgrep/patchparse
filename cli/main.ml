@@ -130,9 +130,7 @@ let main _ =
   Printf.eprintf "changelists: %d\n" (List.length changelists);
 
   (* convert the changelist to a table for further processing *)
-  List.iter
-    (function (changelist,info) -> Prepare_eq.eqworklists changelist info)
-    changelists;
+  changelists |> List.iter Prepare_eq.eqworklists;
 
   let do_evolutions = not (!Config.noev || !Config.noall) in
 
@@ -147,7 +145,8 @@ let main _ =
       (* otherwise write and clear in questions.ml *)
       Hashtbl.clear big_change_table;
       res
-    else [] in
+    else [] 
+  in
   Printf.printf "done with evolutions\n"; flush stdout;
 
   Mktex.make_files (change_result,filtered_category_results) evolutions;

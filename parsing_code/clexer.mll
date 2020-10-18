@@ -37,12 +37,12 @@ let scan_ident id =
 *)
 
 let set_line num =
-	let (inter, lin, buf, pos, _, out, name) = !current_handle in
-	current_handle := (inter, lin, buf, pos, num - 1, out, name)
+    let (inter, lin, buf, pos, _, out, name) = !current_handle in
+    current_handle := (inter, lin, buf, pos, num - 1, out, name)
 
 let set_name name =
-	let (inter, lin, buf, pos, num, out, _) = !current_handle in
-	current_handle := (inter, lin, buf, pos, num, out, name)
+    let (inter, lin, buf, pos, num, out, _) = !current_handle in
+    current_handle := (inter, lin, buf, pos, num, out, name)
 
     
 (*** Error handling ***)
@@ -67,15 +67,15 @@ let get_value chr =
   | _ -> 0
 let scan_hex_escape str =
   String.make 1 (Char.chr (
-		 (get_value (String.get str 0)) * 16
-		   + (get_value (String.get str 1))
-		   ))
+         (get_value (String.get str 0)) * 16
+           + (get_value (String.get str 1))
+           ))
 let scan_oct_escape str =
   String.make 1 (Char.chr (
-		 (get_value (String.get str 0)) * 64
-		   + (get_value (String.get str 1)) * 8
-		   + (get_value (String.get str 2))
-		   ))
+         (get_value (String.get str 0)) * 64
+           + (get_value (String.get str 1)) * 8
+           + (get_value (String.get str 2))
+           ))
 }
 
 let decdigit = ['0'-'9']
@@ -95,9 +95,9 @@ let hexnum = '0' ['x' 'X'] hexdigit+ intsuffix?
 let exponent = ['e' 'E']['+' '-']? decdigit+
 let fraction  = '.' decdigit+
 let floatraw = (intnum? fraction)
-			|(intnum exponent)
-			|(intnum? fraction exponent)
-			|(intnum '.') 
+            |(intnum exponent)
+            |(intnum? fraction exponent)
+            |(intnum '.') 
 let floatnum = floatraw floatsuffix?
 
 let ident =
@@ -108,180 +108,183 @@ let hex_escape = '\\' ['x' 'X'] hexdigit hexdigit
 let oct_escape = '\\' octdigit  octdigit octdigit
 
 rule initial =
-	parse 	"/*"		{let _ = comment lexbuf in initial lexbuf}
+    parse   "/*"        {let _ = comment lexbuf in initial lexbuf}
 (*        |  '\n'                 { incr _current_line; initial lexbuf } *)
         | "___line=" (['0' - '9']+ as line_num)
-	    { set_current_line (int_of_string line_num); initial lexbuf }
-	|		blank		{initial lexbuf}
-	|		"*/"		{initial lexbuf}
-	|		"//"		{endline lexbuf}
-	|		'\012'		{initial lexbuf} (* ^L *)
-(*	|		'#'		{line lexbuf}*)
-	
-	|'"' {let cur = current_line() in
-	      CST_STRING (str lexbuf, (cur, !linetype,!atfront))(*ENOUGH ?*)} 
-	|	floatnum	{CST_INT (lexeme_line lexbuf)}
-	|	hexnum		{CST_INT (lexeme_line lexbuf)}
-	|	octnum		{CST_INT (lexeme_line lexbuf)}
-	|	intnum		{CST_INT (lexeme_line lexbuf)}
+        { set_current_line (int_of_string line_num); initial lexbuf }
+    |       blank       {initial lexbuf}
+    |       "*/"        {initial lexbuf}
+    |       "//"        {endline lexbuf}
+    |       '\012'      {initial lexbuf} (* ^L *)
+(*  |       '#'     {line lexbuf}*)
+    
+    |'"' {let cur = current_line() in
+          CST_STRING (str lexbuf, (cur, !linetype,!atfront))(*ENOUGH ?*)} 
+    |   floatnum    {CST_INT (lexeme_line lexbuf)}
+    |   hexnum      {CST_INT (lexeme_line lexbuf)}
+    |   octnum      {CST_INT (lexeme_line lexbuf)}
+    |   intnum      {CST_INT (lexeme_line lexbuf)}
 
-	|	"!quit!"	{EOF}
-	|	"..."		{OPERATOR(lexeme_line lexbuf)}
-	|		"+="		{EQ(lexeme_line lexbuf)}
-	|		"-="		{EQ(lexeme_line lexbuf)}
-	|		"*="		{EQ(lexeme_line lexbuf)}
-	|		"/="		{EQ(lexeme_line lexbuf)}
-	|		"%="		{EQ(lexeme_line lexbuf)}
-	|		"|="		{EQ(lexeme_line lexbuf)}
-	|		"&="		{EQ(lexeme_line lexbuf)}
-	|		"^="		{EQ(lexeme_line lexbuf)}
-	|		"<<="		{EQ(lexeme_line lexbuf)}
-	|		">>="		{EQ(lexeme_line lexbuf)}
-	|	"<<"		{OPERATOR(lexeme_line lexbuf)}
-	|	">>"		{OPERATOR(lexeme_line lexbuf)}
-	|	"=="		{OPERATOR(lexeme_line lexbuf)}
-	|	"!="		{OPERATOR(lexeme_line lexbuf)}
-	|	"<="		{OPERATOR(lexeme_line lexbuf)}
-	|	">="		{OPERATOR(lexeme_line lexbuf)}
-	|	"="		{EQ(lexeme_line lexbuf)}
-	|	"<"		{OPERATOR(lexeme_line lexbuf)}
-	|	">"		{OPERATOR(lexeme_line lexbuf)}
-	|	"++"		{SYMOP(lexeme_line lexbuf)}
-	|	"--"		{SYMOP(lexeme_line lexbuf)}
-	|	"->"		{SYMOP(lexeme_line lexbuf)}
-	|	'+'		{OPERATOR(lexeme_line lexbuf)}
-	|	'-'		{OPERATOR(lexeme_line lexbuf)}
-	|	'*'		{DEREFOP(lexeme_line lexbuf)}
-	|	'/'		{OPERATOR(lexeme_line lexbuf)}
-	|	'%'		{OPERATOR(lexeme_line lexbuf)}
-	|	'!'		{OPERATOR(lexeme_line lexbuf)}
-	|	"&&"		{OPERATOR(lexeme_line lexbuf)}
-	|	"||"		{OPERATOR(lexeme_line lexbuf)}
-	|	'&'		{DEREFOP(lexeme_line lexbuf)}
-	|	'|'		{OPERATOR(lexeme_line lexbuf)}
-	|	'^'		{OPERATOR(lexeme_line lexbuf)}
-	|	'?'		{OPERATOR(lexeme_line lexbuf)}
-	|	':'		{OPERATOR(lexeme_line lexbuf)}
-	|	'~'		{OPERATOR(lexeme_line lexbuf)}
+    |   "!quit!"    {EOF}
 
-	|		'{'		{LBRACE (current_line(),!linetype,!atfront)}
-	|		'}'		{RBRACE (current_line(),!linetype,!atfront)}
-	|		'['		{LBRACK (current_line(),!linetype,!atfront)}
-	|		']'		{RBRACK (current_line(),!linetype,!atfront)}
-	|		'('		{LPAREN (current_line(),!linetype,!atfront)}
-	|		')'		{RPAREN (current_line(),!linetype,!atfront)}
-	|               "#define"       {endline lexbuf}
-	|               "#ifdef"        {endline lexbuf}
-	|               "#ifndef"       {endline lexbuf}
-	|               "#if"           {endline lexbuf}
-	|               "#else"         {endline lexbuf}
-	|               "#endif"        {endline lexbuf}
-	|               "#error"        {endline lexbuf}
-	|               "#warning"      {endline lexbuf}
-	|               "#include"      
-	    {let (x,info) = lexeme_line lexbuf in
-	    INCLUDE (String.concat "" (x::(idline lexbuf)),info)}
-	|               "if"            {PRIM(lexeme_line lexbuf)}
-	|               "while"         {PRIM(lexeme_line lexbuf)}
-	|               "for"           {PRIM(lexeme_line lexbuf)}
-	|               "switch"        {PRIM(lexeme_line lexbuf)}
-	|		';'		{ESEP(lexeme_line lexbuf)}
-	|		','		{ESEP(lexeme_line lexbuf)}
-	|		'.'		{SYMOP(lexeme_line lexbuf)}
-	|               "int"           {TYPE(lexeme_line lexbuf)}
-	|               "long"          {TYPE(lexeme_line lexbuf)}
-	|               "uint"          {TYPE(lexeme_line lexbuf)}
-	|               "ulong"         {TYPE(lexeme_line lexbuf)}
-	|               "void"          {TYPE(lexeme_line lexbuf)}
-	|               "unsigned"      {TYPE(lexeme_line lexbuf)}
-	|               "u8"|"u16"|"u32"|"u64" {TYPE(lexeme_line lexbuf)}
-	|               "s8"|"s16"|"s32"|"s64" {TYPE(lexeme_line lexbuf)}
-	|               "struct"        {TYPE(lexeme_line lexbuf)}
-	| ident '<' ident '>'		{scan_ident (lexeme_line lexbuf)}
-	| ident '<' '>'			{scan_ident (lexeme_line lexbuf)}
-	|		ident		{scan_ident (lexeme_line lexbuf)}
-	| "++++plus_line++++"
-	    { linetype := PLUS; atfront := FRONT; initial lexbuf }
-	| "++++minus_line++++"
-	    { linetype := MINUS; atfront := FRONT; initial lexbuf }
-	| "++++context_line++++"
-	    { linetype := CTX; atfront := FRONT; initial lexbuf }
-	| "++++space++++"
-	    { atfront := AFTER; initial lexbuf }
-	| '\''	{let cur = current_line() in
-	         CST_CHAR (chr lexbuf, (cur,!linetype,!atfront)) (*ENOUGH?*)}
-	
-	|		eof		{EOF}
-	|		_		{display_error
-						("Invalid symbol: "^
-						 (Lexing.lexeme lexbuf))
-						(Lexing.lexeme_start lexbuf)
-						(Lexing.lexeme_end lexbuf);
-					        initial lexbuf}
+    |   "..."       {OPERATOR(lexeme_line lexbuf)}
+    |       "+="        {EQ(lexeme_line lexbuf)}
+    |       "-="        {EQ(lexeme_line lexbuf)}
+    |       "*="        {EQ(lexeme_line lexbuf)}
+    |       "/="        {EQ(lexeme_line lexbuf)}
+    |       "%="        {EQ(lexeme_line lexbuf)}
+    |       "|="        {EQ(lexeme_line lexbuf)}
+    |       "&="        {EQ(lexeme_line lexbuf)}
+    |       "^="        {EQ(lexeme_line lexbuf)}
+    |       "<<="       {EQ(lexeme_line lexbuf)}
+    |       ">>="       {EQ(lexeme_line lexbuf)}
+    |   "<<"        {OPERATOR(lexeme_line lexbuf)}
+    |   ">>"        {OPERATOR(lexeme_line lexbuf)}
+    |   "=="        {OPERATOR(lexeme_line lexbuf)}
+    |   "!="        {OPERATOR(lexeme_line lexbuf)}
+    |   "<="        {OPERATOR(lexeme_line lexbuf)}
+    |   ">="        {OPERATOR(lexeme_line lexbuf)}
+    |   "="     {EQ(lexeme_line lexbuf)}
+    |   "<"     {OPERATOR(lexeme_line lexbuf)}
+    |   ">"     {OPERATOR(lexeme_line lexbuf)}
+    |   "++"        {SYMOP(lexeme_line lexbuf)}
+    |   "--"        {SYMOP(lexeme_line lexbuf)}
+    |   "->"        {SYMOP(lexeme_line lexbuf)}
+    |   '+'     {OPERATOR(lexeme_line lexbuf)}
+    |   '-'     {OPERATOR(lexeme_line lexbuf)}
+
+    |   '*'     {DEREFOP(lexeme_line lexbuf)}
+
+    |   '/'     {OPERATOR(lexeme_line lexbuf)}
+    |   '%'     {OPERATOR(lexeme_line lexbuf)}
+    |   '!'     {OPERATOR(lexeme_line lexbuf)}
+    |   "&&"        {OPERATOR(lexeme_line lexbuf)}
+    |   "||"        {OPERATOR(lexeme_line lexbuf)}
+    |   '&'     {DEREFOP(lexeme_line lexbuf)}
+    |   '|'     {OPERATOR(lexeme_line lexbuf)}
+    |   '^'     {OPERATOR(lexeme_line lexbuf)}
+    |   '?'     {OPERATOR(lexeme_line lexbuf)}
+    |   ':'     {OPERATOR(lexeme_line lexbuf)}
+    |   '~'     {OPERATOR(lexeme_line lexbuf)}
+
+    |       '{'     {LBRACE (current_line(),!linetype,!atfront)}
+    |       '}'     {RBRACE (current_line(),!linetype,!atfront)}
+    |       '['     {LBRACK (current_line(),!linetype,!atfront)}
+    |       ']'     {RBRACK (current_line(),!linetype,!atfront)}
+    |       '('     {LPAREN (current_line(),!linetype,!atfront)}
+    |       ')'     {RPAREN (current_line(),!linetype,!atfront)}
+    |               "#define"       {endline lexbuf}
+    |               "#ifdef"        {endline lexbuf}
+    |               "#ifndef"       {endline lexbuf}
+    |               "#if"           {endline lexbuf}
+    |               "#else"         {endline lexbuf}
+    |               "#endif"        {endline lexbuf}
+    |               "#error"        {endline lexbuf}
+    |               "#warning"      {endline lexbuf}
+    |               "#include"      
+        {let (x,info) = lexeme_line lexbuf in
+        INCLUDE (String.concat "" (x::(idline lexbuf)),info)}
+    |               "if"            {PRIM(lexeme_line lexbuf)}
+    |               "while"         {PRIM(lexeme_line lexbuf)}
+    |               "for"           {PRIM(lexeme_line lexbuf)}
+    |               "switch"        {PRIM(lexeme_line lexbuf)}
+    |       ';'     {ESEP(lexeme_line lexbuf)}
+    |       ','     {ESEP(lexeme_line lexbuf)}
+    |       '.'     {SYMOP(lexeme_line lexbuf)}
+    |               "int"           {TYPE(lexeme_line lexbuf)}
+    |               "long"          {TYPE(lexeme_line lexbuf)}
+    |               "uint"          {TYPE(lexeme_line lexbuf)}
+    |               "ulong"         {TYPE(lexeme_line lexbuf)}
+    |               "void"          {TYPE(lexeme_line lexbuf)}
+    |               "unsigned"      {TYPE(lexeme_line lexbuf)}
+    |               "u8"|"u16"|"u32"|"u64" {TYPE(lexeme_line lexbuf)}
+    |               "s8"|"s16"|"s32"|"s64" {TYPE(lexeme_line lexbuf)}
+    |               "struct"        {TYPE(lexeme_line lexbuf)}
+    | ident '<' ident '>'       {scan_ident (lexeme_line lexbuf)}
+    | ident '<' '>'         {scan_ident (lexeme_line lexbuf)}
+    |       ident       {scan_ident (lexeme_line lexbuf)}
+    | "++++plus_line++++"
+        { linetype := PLUS; atfront := FRONT; initial lexbuf }
+    | "++++minus_line++++"
+        { linetype := MINUS; atfront := FRONT; initial lexbuf }
+    | "++++context_line++++"
+        { linetype := CTX; atfront := FRONT; initial lexbuf }
+    | "++++space++++"
+        { atfront := AFTER; initial lexbuf }
+    | '\''  {let cur = current_line() in
+             CST_CHAR (chr lexbuf, (cur,!linetype,!atfront)) (*ENOUGH?*)}
+    
+    |       eof     {EOF}
+    |       _       {display_error
+                        ("Invalid symbol: "^
+                         (Lexing.lexeme lexbuf))
+                        (Lexing.lexeme_start lexbuf)
+                        (Lexing.lexeme_end lexbuf);
+                            initial lexbuf}
 and comment =
-	parse 	"*/"			{()}
-	| eof                           {()}
-	| 		_ 		{comment lexbuf}
+    parse   "*/"            {()}
+    | eof                           {()}
+    |       _       {comment lexbuf}
 
 (* # <line number> <file name> ... *)
 and line =
-	parse	'\n'			{initial lexbuf}
-	| blank				{line lexbuf}
-	| intnum {set_line (int_of_string (Lexing.lexeme lexbuf));
-					  file lexbuf}
-	|	_			{endline lexbuf}
+    parse   '\n'            {initial lexbuf}
+    | blank             {line lexbuf}
+    | intnum {set_line (int_of_string (Lexing.lexeme lexbuf));
+                      file lexbuf}
+    |   _           {endline lexbuf}
 and file =
-	parse '\n'			{initial lexbuf}
-	|	blank			{file lexbuf}
-	|	'"' [^ '"']* '"' 	{set_name (rem_quotes (Lexing.lexeme lexbuf));
-					  endline lexbuf}
-	|	_			{endline lexbuf}
+    parse '\n'          {initial lexbuf}
+    |   blank           {file lexbuf}
+    |   '"' [^ '"']* '"'    {set_name (rem_quotes (Lexing.lexeme lexbuf));
+                      endline lexbuf}
+    |   _           {endline lexbuf}
 and endline_slash =
-	parse '\n' 			{endline lexbuf}
-	|     eof 			{initial lexbuf}
-	|	_			{endline_slash lexbuf}
+    parse '\n'          {endline lexbuf}
+    |     eof           {initial lexbuf}
+    |   _           {endline_slash lexbuf}
 and endline =
-	parse '\n' 			{initial lexbuf}
-	|     eof 			{initial lexbuf}
-	|	'\\'			{endline_slash lexbuf}
-	|	_			{endline lexbuf}
+    parse '\n'          {initial lexbuf}
+    |     eof           {initial lexbuf}
+    |   '\\'            {endline_slash lexbuf}
+    |   _           {endline lexbuf}
 
 and idline =
-	parse '\n' 			{[]}
-	|	_			{let x = Lexing.lexeme lexbuf in x::idline lexbuf}
+    parse '\n'          {[]}
+    |   _           {let x = Lexing.lexeme lexbuf in x::idline lexbuf}
 
 and str =
-	parse	'"'			{""}
-        | eof      			{""}
-	|		hex_escape	{let cur = scan_hex_escape (String.sub
-								      (Lexing.lexeme lexbuf) 2 2) in cur ^ (str lexbuf)}
-	|		oct_escape	{let cur = scan_oct_escape (String.sub
-								      (Lexing.lexeme lexbuf) 1 3) in cur ^ (str lexbuf)}
-	|		"\\0"		{(String.make 1 (Char.chr 0)) ^ (str lexbuf)}
-	|		escape		{let cur = scan_escape (String.sub
-								  (Lexing.lexeme lexbuf) 1 1) in cur ^ (str lexbuf)}
-	|		_		{let cur = Lexing.lexeme lexbuf in cur ^  (str lexbuf)} 
+    parse   '"'         {""}
+        | eof               {""}
+    |       hex_escape  {let cur = scan_hex_escape (String.sub
+                                      (Lexing.lexeme lexbuf) 2 2) in cur ^ (str lexbuf)}
+    |       oct_escape  {let cur = scan_oct_escape (String.sub
+                                      (Lexing.lexeme lexbuf) 1 3) in cur ^ (str lexbuf)}
+    |       "\\0"       {(String.make 1 (Char.chr 0)) ^ (str lexbuf)}
+    |       escape      {let cur = scan_escape (String.sub
+                                  (Lexing.lexeme lexbuf) 1 1) in cur ^ (str lexbuf)}
+    |       _       {let cur = Lexing.lexeme lexbuf in cur ^  (str lexbuf)} 
 
 and chr =
-	parse	'\''			{""}
-	|		hex_escape	{let cur = scan_hex_escape (String.sub
-								      (Lexing.lexeme lexbuf) 2 2) in cur ^ (endchr lexbuf)}
-	|		oct_escape	{let cur = scan_oct_escape (String.sub
-								      (Lexing.lexeme lexbuf) 1 3) in cur ^ (endchr lexbuf)}
-	|		"\\0"		{(String.make 1 (Char.chr 0)) ^ (endchr lexbuf)}
-	|		escape		{let cur = scan_escape (String.sub
-								  (Lexing.lexeme lexbuf) 1 1) in cur ^ (endchr lexbuf)}
-	|		_		{let cur = Lexing.lexeme lexbuf in cur ^ (endchr lexbuf)} 
+    parse   '\''            {""}
+    |       hex_escape  {let cur = scan_hex_escape (String.sub
+                                      (Lexing.lexeme lexbuf) 2 2) in cur ^ (endchr lexbuf)}
+    |       oct_escape  {let cur = scan_oct_escape (String.sub
+                                      (Lexing.lexeme lexbuf) 1 3) in cur ^ (endchr lexbuf)}
+    |       "\\0"       {(String.make 1 (Char.chr 0)) ^ (endchr lexbuf)}
+    |       escape      {let cur = scan_escape (String.sub
+                                  (Lexing.lexeme lexbuf) 1 1) in cur ^ (endchr lexbuf)}
+    |       _       {let cur = Lexing.lexeme lexbuf in cur ^ (endchr lexbuf)} 
 
 and endchr =
-	parse	'\'' {""}
+    parse   '\'' {""}
         | _ {""} (* miss a char, but likely in a comment *)
-	
+    
 {
 
 (* init: handle -> ()
-**	Initialize lexer.
+**  Initialize lexer.
 *)
 let init hdl =
-	current_handle := hdl 
+    current_handle := hdl 
 }

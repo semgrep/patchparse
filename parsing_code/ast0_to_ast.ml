@@ -2,12 +2,10 @@ open Ast0
 open Ast0_unparse
 module Config = Globals
 
-let __unknown_line = (-1,Patch.CTX)
-
 (****************************************************************************)
 (* Prelude *)
 (****************************************************************************)
-(* convert ast0 to ast *)
+(* Convert Ast0 to Ast *)
 
 (* This entails identifying function calls and assignments.  This is done
    by considering expression lists, ie the code between two separators.
@@ -40,6 +38,8 @@ let __unknown_line = (-1,Patch.CTX)
 (* Helpers *)
 (****************************************************************************)
 
+let __unknown_line = (-1,Patch.CTX)
+
 (* can be all types or types followed by dereferences, ie a symbol and a
    dsymbol or just a symbol.  Just one dereference, ie "( * )" is also allowed. *)
 let is_cast exprlist =
@@ -50,9 +50,11 @@ let is_cast exprlist =
     | INT(s,_)::rest -> false
     | STR(s,_)::rest -> false
     | SYMOP(s,_)::rest -> false
+
     | [TYPE("struct",_);IDENT(s,_)] -> true
     | TYPE(s,_)::rest -> loop rest
-    | ARRAY(exprlist,known)::rest -> false in
+    | ARRAY(exprlist,known)::rest -> false 
+  in
   match exprlist with
     [SYMBOL(only_types)] -> loop only_types
   | [SYMBOL(only_types);DSYMBOL(only_stars)] ->
@@ -142,7 +144,7 @@ let parse_function_name l =
 (****************************************************************************)
 
 let rec convert_prim = function
-    IDENT(s,_line) -> Ast.IDENT(Ast.bext (mkident s, _line))
+  | IDENT(s,_line) -> Ast.IDENT(Ast.bext (mkident s, _line))
   | CHAR(s,_line) -> Ast.CHAR(Ast.bext (s, _line))
   | INT(s,_line) -> Ast.INT(Ast.bext (s, _line))
   | STR(s,_line) -> Ast.STR (Ast.bext ((),_line)) (*s*)
@@ -158,7 +160,7 @@ and convert_symbol primlist = List.map convert_prim primlist
 and convert_dsymbol dprimlist = List.map convert_dprim dprimlist
 
 and convert_expr = function
-    DSYMBOL(dsym) -> Ast.SYMBOL(convert_dsymbol dsym)
+  | DSYMBOL(dsym) -> Ast.SYMBOL(convert_dsymbol dsym)
   | EOP(s,_line) -> Ast.EOP(Ast.bext (s,_line))
   | STRUCT(codelist,known) -> Ast.STRUCT(convert_codelist false codelist,known)
   | CALL((nm,_line),args,known) ->
@@ -172,7 +174,7 @@ and convert_expr = function
       (Printf.sprintf "convert_expr: not possible: %s" (unparse_expr e))
 
 and convert_code start = function
-    EXPR(exprlist) -> Ast.EXPR(convert_exprlist true start exprlist)
+  | EXPR(exprlist) -> Ast.EXPR(convert_exprlist true start exprlist)
   | SEP(s,_line) -> Ast.SEP(Ast.bext (s,_line))
 
 and convert_codelist start codelist =

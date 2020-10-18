@@ -33,7 +33,8 @@ type prim =
   | SYMOP of string extended
 
   | ARRAY of expr list * known
-  (* ??? not in Ast0.prim *)
+
+  (* ??? not in Ast0.prim, was in Ast0.expr instead *)
   | PARENSYM of expr list * known
 
   (* ??? *)

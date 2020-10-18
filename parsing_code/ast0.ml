@@ -14,7 +14,7 @@ type prim =
 
   | ARRAY of expr list * Ast.known
 
-(* ?? not in Ast *)
+(* pad: a pointer derefence or a multiplication *)
 and dprim = DEREFOP of string_extended
 
 (* list? *)
@@ -40,4 +40,5 @@ and expr =
 
 and code =
   | EXPR of expr list
+  (* ,;{} *)
   | SEP of string_extended

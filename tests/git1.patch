@@ -1,0 +1,38 @@
+commit 8e3ec76a20d6abf5dd8ceb3f5f2c157000e4c13e
+Merge: f6b06b4590 c0192df630
+Author: Junio C Hamano <gitster@pobox.com>
+Date:   Mon Oct 5 14:01:54 2020 -0700
+
+    Merge branch 'jk/refspecs-negative'
+    
+    "git fetch" and "git push" support negative refspecs.
+    
+    * jk/refspecs-negative:
+      refspec: add support for negative refspecs
+
+diff --cc builtin/fetch.c
+index 25fa1cf931,310699eb7e..f9c3c49f14
+--- a/builtin/fetch.c
++++ b/builtin/fetch.c
+@@@ -539,8 -530,21 +539,18 @@@ static struct ref *get_ref_map(struct r
+  		tail = &rm->next;
+  	}
+  
++ 	/*
++ 	 * apply negative refspecs first, before we remove duplicates. This is
++ 	 * necessary as negative refspecs might remove an otherwise conflicting
++ 	 * duplicate.
++ 	 */
++ 	if (rs->nr)
++ 		ref_map = apply_negative_refspecs(ref_map, rs);
++ 	else
++ 		ref_map = apply_negative_refspecs(ref_map, &remote->fetch);
++ 
+  	ref_map = ref_remove_duplicates(ref_map);
+  
+ -	refname_hash_init(&existing_refs);
+ -	for_each_ref(add_one_refname, &existing_refs);
+ -
+  	for (rm = ref_map; rm; rm = rm->next) {
+  		if (rm->peer_ref) {
+  			const char *refname = rm->peer_ref->name;

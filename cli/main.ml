@@ -1,3 +1,4 @@
+open Common
 (* I've renamed config.ml to globals.ml to avoid conflict with
  * compiler-libs/config.ml which is used when linking with pfff commons,
  * but I restore its original name here to look as before.
@@ -11,6 +12,13 @@ let log_config_file = ref "log_config.json"
 (*****************************************************************************)
 (* Purpose *)
 (*****************************************************************************)
+
+(*****************************************************************************)
+(* Local flags *)
+(*****************************************************************************)
+
+(* action mode *)
+let action = ref ""
 
 (*****************************************************************************)
 (* Setup *)
@@ -52,6 +60,32 @@ let setup_days n =
   Config.file := Printf.sprintf "--since=\"%s days ago\"" n;
   let date = List.hd (Aux.cmd_to_list (Printf.sprintf "date +%%m.%%d.%%y")) in
   Config.outfile := Printf.sprintf "%s_%s_days_ago" date n
+
+(*****************************************************************************)
+(* Actions *)
+(*****************************************************************************)
+
+let dump_patch file =
+  let xs = Git_reader.patch file in
+  xs |> List.iter (fun patch -> 
+    pr2 (Patch.show patch);
+  )
+
+let dump_changelists file =
+  let patch_data = Git_reader.patch file in
+  let changelists = Init.process_all_files patch_data in
+  changelists |> List.iter (fun x -> 
+    pr2 (Context_change.show_changelist x);
+  )
+
+  
+
+let actions () = [
+  "-dump_patch", " <file>",
+  Common.mk_action_1_arg dump_patch;
+  "-dump_changelists", " <file>",
+  Common.mk_action_1_arg dump_changelists;
+ ]
 
 (*****************************************************************************)
 (* Options *)
@@ -111,6 +145,10 @@ let speclist = Arg.align [
 
 let usage = "Usage: patchparse [--git dir] [--patch file] <file> ..."
 
+let options () = 
+  speclist @
+  Common.options_of_actions action (actions())
+
 (*****************************************************************************)
 (* entry point *)
 (*****************************************************************************)
@@ -118,14 +156,33 @@ let usage = "Usage: patchparse [--git dir] [--patch file] <file> ..."
 let main _ =
   Gc.set {(Gc.get ()) with Gc.stack_limit = 1000 * 1024 * 1024};
 
-  (* modifies many of the Config.xxx globals *)
-  Arg.parse speclist (fun str -> Config.file := str)  usage;
+  (* pad: modifies many of the Config.xxx globals *)
+  (* pad: old: Arg.parse speclist (fun str -> Config.file := str)  usage; *)
+  let args = Common.parse_options (options()) usage Sys.argv in
 
   if Sys.file_exists !log_config_file
   then begin
     Logging.load_config_file !log_config_file;
     logger#info "loaded %s" !log_config_file;
   end;
+  
+ (match args with
+
+ (* --------------------------------------------------------- *)
+ (* actions, useful to debug subpart *)
+ (* --------------------------------------------------------- *)
+ | xs when List.mem !action (Common.action_list (actions())) -> 
+        Common.do_action !action xs (actions())
+
+ | _ when not (Common.null_string !action) -> 
+        failwith ("unrecognized action or wrong params: " ^ !action)
+
+ (* --------------------------------------------------------- *)
+ (* main entry *)
+ (* --------------------------------------------------------- *)
+
+ | [x] ->
+   Config.file := x;
 
   (* collect lines from the git/patch file *)
   let patch_data =
@@ -151,8 +208,6 @@ let main _ =
   let ((big_change_table,change_result),filtered_category_results) =
     Prepare_eq.eqclasses do_evolutions in
   logger#info "done with questions";
-  let _ = exit 0 in
-
 
   let (evolutions : Evolution.t list) =
     if do_evolutions
@@ -169,5 +224,15 @@ let main _ =
   if !Config.print_sp
   then Mksp.make_files (change_result,filtered_category_results) evolutions
 
+ (* --------------------------------------------------------- *)
+ (* empty entry *)
+ (* --------------------------------------------------------- *)
+ | _ -> 
+    Common.usage usage (options());
+    failwith "too few or too many arguments"
+ )
+
 let _ = 
-  main ()
+  Common.main_boilerplate (fun () -> 
+    main ()
+  )

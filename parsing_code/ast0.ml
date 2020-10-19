@@ -40,5 +40,5 @@ and expr =
 
 and code =
   | EXPR of expr list
-  (* ,;{} *)
+  (* , ; { } *)
   | SEP of string_extended

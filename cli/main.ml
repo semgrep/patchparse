@@ -78,6 +78,30 @@ let dump_hunks file =
     hunks |> List.iter (fun x -> pr (Patch.show_hunk x));
   ) |> ignore
 
+let dump_ast0 file =
+  let xs = Patch_reader.patch file in
+  xs |> List.iter (fun patch -> 
+    let hunks = Parse_patch.hunks_of_patch patch in
+    hunks |> List.iter (fun x -> 
+     let ast0 = Parse_code.parse_ast0 x.Patch.patch_id x.minus in
+     pr (Ast0.show_codelist ast0)
+   )
+  ) |> ignore
+
+let dump_ast file =
+  let xs = Patch_reader.patch file in
+  xs |> List.iter (fun patch -> 
+    let hunks = Parse_patch.hunks_of_patch patch in
+    hunks |> List.iter (fun x -> 
+     match Parse_code.parse x.Patch.patch_id x.minus with
+     | None -> failwith "no ast"
+     | Some xxs ->
+         xxs |> List.iter (fun xs ->
+                  pr (Ast.show_codelist xs)
+         )
+    )
+  ) |> ignore
+
 
 let dump_changelists file =
   let patch_data = Patch_reader.patch file in
@@ -93,6 +117,11 @@ let actions () = [
   Common.mk_action_1_arg dump_patch;
   "-dump_hunks", " <file>",
   Common.mk_action_1_arg dump_hunks;
+  "-dump_ast0", " <file>",
+  Common.mk_action_1_arg dump_ast0;
+  "-dump_ast", " <file>",
+  Common.mk_action_1_arg dump_ast;
+
   "-dump_changelists", " <file>",
   Common.mk_action_1_arg dump_changelists;
  ]

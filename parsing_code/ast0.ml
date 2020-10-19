@@ -1,5 +1,6 @@
 
 type string_extended = string * Ast.info
+ [@@deriving show { with_path = false }]
 
 type prim =
   | IDENT of string_extended
@@ -42,3 +43,7 @@ and code =
   | EXPR of expr list
   (* , ; { } *)
   | SEP of string_extended
+
+and codelist = code list
+
+ [@@deriving show { with_path = false }]

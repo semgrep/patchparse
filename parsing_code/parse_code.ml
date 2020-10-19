@@ -29,4 +29,14 @@ let parse (version : Patch.id) s =
   | Parsing.Parse_error -> 
     logger#error "Parse error";
     None
-(*  | x -> None*)
+
+let parse_ast0 (version : Patch.id) s =
+  let s =
+    Str.global_replace
+      (Str.regexp "\\([^\n]*\\)___line=\\([0-9]+\\)")  "___line=\\2 \\1" s 
+  in
+  let lexbuf = Lexing.from_string s in
+  Clexer.init (true, "", "", 0, 0, stderr, s);
+  (*Clexer.set_current_line line_number;*)
+  Cparser2.interpret Clexer.initial lexbuf
+  

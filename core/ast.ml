@@ -82,4 +82,6 @@ and code =
   | ARG of int 
   (* ??? *)
   | CODE
+
+and codelist = code list
  [@@deriving show { with_path = false }]

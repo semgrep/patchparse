@@ -6,6 +6,7 @@
    commons
 
    globals core
+   parsing_patch
    parsing_code
    diff
  )

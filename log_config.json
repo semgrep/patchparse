@@ -6,10 +6,11 @@
             },
             { "name": "Main.Dune__exe__Main"    , "level": "debug" },
 
-            { "name": "Main.Init"    , "level": "flash" },
-            { "name": "Main.Diff"    , "level": "flash" },
-            { "name": "Main.Parse_error"    , "level": "flash" },
+            { "name": "Main.Parse_patch"    , "level": "flash" },
             { "name": "Main.Parse_code"    , "level": "flash" },
+            { "name": "Main.Diff"    , "level": "flash" },
+            { "name": "Main.Init"    , "level": "flash" },
+            { "name": "Main.Parse_error"    , "level": "flash" },
             { "name": "Main.Eqclasses"    , "level": "flash" },
 
             { "name": "XXX"                     , "level": "error" }

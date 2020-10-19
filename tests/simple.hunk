@@ -1,7 +1,7 @@
 diff --git a/f/foo.c b/f/foo.c
 index e613980..da03fbc 100644
---- a/f/foo.c
-+++ b/f/foo.c
+--- a/f/abc.c
++++ b/f/abc.c
 @@ -1,11 +1,16 @@ void foo(void) {
 
 - foo(1);

@@ -23,6 +23,9 @@ let file_threshold = ref 3
 let version_threshold = ref 0
 let directory_threshold = ref 0
 
+(* pad: new config flags *)
+let drop_substring_filename_from_ident = ref false
+
 (* ignore strings of more than this many non-whitespace characters *)
 let length_threshold = 1400
 

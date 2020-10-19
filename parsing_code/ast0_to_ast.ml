@@ -71,6 +71,9 @@ let make_front_unknown = function
 (* Drop substrings that correspond to the file name.  Drop any leading or
    trailing _'s as well *)
 let mkident s =
+ if not !Config.drop_substring_filename_from_ident
+ then s
+ else
   let filename = !Config.filename in
   let prefilename = List.hd (Str.split (Str.regexp "_") filename) in
   let process fl s =

@@ -71,6 +71,15 @@ let dump_patch file =
     pr2 (Patch.show patch);
   )
 
+let dump_hunks file =
+  let xs = Patch_reader.patch file in
+  xs |> List.iter (fun patch -> 
+    patch |> Parse_patch.process_file (fun a b c d e ->
+          pr2_gen (a,b,c,d,e);
+          []
+    ) |> ignore
+  )
+
 let dump_changelists file =
   let patch_data = Patch_reader.patch file in
   let changelists = Init.process_all_files patch_data in
@@ -78,11 +87,13 @@ let dump_changelists file =
     pr2 (Context_change.show_changelist x);
   )
 
-  
+ 
 
 let actions () = [
   "-dump_patch", " <file>",
   Common.mk_action_1_arg dump_patch;
+  "-dump_hunks", " <file>",
+  Common.mk_action_1_arg dump_hunks;
   "-dump_changelists", " <file>",
   Common.mk_action_1_arg dump_changelists;
  ]

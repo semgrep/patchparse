@@ -6,3 +6,5 @@ val process_file:
   string (* minus part *) -> string (* plus part *) -> 
   'b list) ->
   Patch.t -> 'b list
+
+val hunks_of_file: Patch.t -> Patch.hunk list

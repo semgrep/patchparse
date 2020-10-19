@@ -66,13 +66,13 @@ let setup_days n =
 (*****************************************************************************)
 
 let dump_patch file =
-  let xs = Git_reader.patch file in
+  let xs = Patch_reader.patch file in
   xs |> List.iter (fun patch -> 
     pr2 (Patch.show patch);
   )
 
 let dump_changelists file =
-  let patch_data = Git_reader.patch file in
+  let patch_data = Patch_reader.patch file in
   let changelists = Init.process_all_files patch_data in
   changelists |> List.iter (fun x -> 
     pr2 (Context_change.show_changelist x);
@@ -189,7 +189,7 @@ let main _ =
     if !Config.git
     (* uses many of the globals in Config (e.g., Config.gitcommitlist) *)
     then Git_reader.git !Config.file
-    else Git_reader.patch !Config.file 
+    else Patch_reader.patch !Config.file 
   in
 
   (* parse and collect differences in the lines from the git/patch file *)

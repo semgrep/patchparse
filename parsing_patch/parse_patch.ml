@@ -361,7 +361,7 @@ let process_file f (version,lines) =
   in loop lines
 
 (* pad: I've added this function *)
-let hunks_of_file unparsed_patch = 
+let hunks_of_patch unparsed_patch = 
   unparsed_patch |> process_file (fun 
    (patch_id, dir, file) start_line region minus plus ->
    [{ Patch. patch_id; dir; file; start_line; region; minus; plus }]

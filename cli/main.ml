@@ -74,11 +74,10 @@ let dump_patch file =
 let dump_hunks file =
   let xs = Patch_reader.patch file in
   xs |> List.iter (fun patch -> 
-    patch |> Parse_patch.process_file (fun a b c d e ->
-          pr2_gen (a,b,c,d,e);
-          []
-    ) |> ignore
-  )
+    let hunks = Parse_patch.hunks_of_patch patch in
+    hunks |> List.iter (fun x -> pr (Patch.show_hunk x));
+  ) |> ignore
+
 
 let dump_changelists file =
   let patch_data = Patch_reader.patch file in

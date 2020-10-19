@@ -7,4 +7,4 @@ val process_file:
   'b list) ->
   Patch.t -> 'b list
 
-val hunks_of_file: Patch.t -> Patch.hunk list
+val hunks_of_patch: Patch.t -> Patch.hunk list

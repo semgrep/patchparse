@@ -1,0 +1,24 @@
+diff --git a/f/foo.c b/f/foo.c
+index e613980..da03fbc 100644
+--- a/f/foo.c
++++ b/f/foo.c
+@@ -1,0 +1,0 @@ void foo(void) {
+
+- foo(x.f);
++ bar(x.f);
+  xxx(x.f);
+- foo(x.f);
++ bar(x.f);
+  xxx();
+ 
+diff --git a/f/foo.c b/f/foo.c
+index e613980..da03fbc 100644
+--- a/b/bar.c
++++ b/b/bar.c
+@@ -1,11 +1,16 @@ void bar(void) {
+- foo(1);
++ bar(1);
+  xxx();
+- foo(1);
++ bar(1);
+

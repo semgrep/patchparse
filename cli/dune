@@ -9,9 +9,9 @@
     ; internal deps
     globals
     core
+    parsing_patch
     diff
     init
-    get_input
     select_diffs
     generalize_diffs
     eq_classes

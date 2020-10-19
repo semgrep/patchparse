@@ -7,7 +7,7 @@
 
     ; internal deps
     globals 
-    get_input
+    parsing_patch
     init
     select_diffs
     generalize_diffs

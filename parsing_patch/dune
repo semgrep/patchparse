@@ -1,13 +1,11 @@
 (library
- (name get_input)
+ (name parsing_patch)
  (wrapped false)
  (libraries
+   ; pfff deps
    commons
 
-   core
-   utils 
-   globals
-
+   globals core
  )
  (preprocess (pps ppx_deriving.show))
 )

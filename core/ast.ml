@@ -5,14 +5,20 @@ type known =
   | ENDUNKNOWN 
   | FRONTUNKNOWN 
   | BOTHUNKNOWN
+ [@@deriving show { with_path = false }]
 
 (* position information *)
 type info = line_number * Patch.linetype
   and line_number = int 
+ [@@deriving show { with_path = false }]
 
 (* I also keep the 'a outside the closure cos I want to do pattern matching *)
+type 'a kind = Abstract | Concrete of (unit -> ('a * info))
+let pp_kind _x fmt x = 
+  Format.fprintf fmt "()"
+
 type 'a extended = ('a * 'a kind)
-and 'a kind = Abstract | Concrete of (unit -> ('a * info))
+ [@@deriving show { with_path = false }]
 
 (* build extended *)
 let bext (x,line) = x, Concrete (fun () -> (x,line))
@@ -76,3 +82,4 @@ and code =
   | ARG of int 
   (* ??? *)
   | CODE
+ [@@deriving show { with_path = false }]

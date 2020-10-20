@@ -12,6 +12,7 @@
             { "name": "Main.Init"    , "level": "flash" },
             { "name": "Main.Parse_error"    , "level": "flash" },
             { "name": "Main.Eqclasses"    , "level": "flash" },
+            { "name": "Main.Collect_evolutions4"    , "level": "flash" },
 
             { "name": "XXX"                     , "level": "error" }
         ],

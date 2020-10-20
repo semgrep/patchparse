@@ -1,4 +1,7 @@
 module CE = Ce
+
+let logger = Logging.get_logger [__MODULE__]
+
 (* we only do context changes for the moment *)
 
 (* In principle, we want to intersect the set of files associated with
@@ -115,7 +118,7 @@ let compute_distances key_change_files key =
              let lwconly = List.length wconly in
              let diff = min lconly lwconly in
              let lccboth = List.length ccboth in
-             Printf.printf "lconly %d lwconly %d lccboth %d\n"
+             logger#info "lconly %d lwconly %d lccboth %d\n"
                lconly lwconly lccboth;
              if diff + lccboth = 0
              then file_weight
@@ -125,17 +128,17 @@ let compute_distances key_change_files key =
            let weight = min file_weight commonality_weight in
            (*if not(weight = 1.0)
              	    then*)
-           (Printf.printf
+           (logger#info
               "The distance between the following changes is %f %f %f\n"
               file_weight commonality_weight weight;
-            Printf.printf "%s\nin\n" (Ce_unparse.ce2c change);
-            List.iter (function s -> Printf.printf "  %s\n" s) files;
-            Printf.printf "%s\nin\n" (Ce_unparse.ce2c wchange);
-            List.iter (function s -> Printf.printf "  %s\n" s) !wfiles;
-            Printf.printf "strings %s, wstrings %s\n"
+            logger#info "%s\nin\n" (Ce_unparse.ce2c change);
+            List.iter (function s -> logger#info "  %s\n" s) files;
+            logger#info "%s\nin\n" (Ce_unparse.ce2c wchange);
+            List.iter (function s -> logger#info "  %s\n" s) !wfiles;
+            logger#info "strings %s, wstrings %s\n"
               (String.concat " " !chars)
               (String.concat " " !wchars);
-            Printf.printf "***************\n\n";
+            logger#info "***************\n\n";
 
             Hashtbl.add distance_table tuple weight))
         rest in
@@ -149,7 +152,7 @@ let compute_distances key_change_files key =
   let rec loop = function
       [] -> ()
     | (change,(files,chars))::rest when CeH.function_change change ->
-      Printf.printf "function change: %s\n" (Ce_unparse.ce2c change);
+      logger#info "function change: %s\n" (Ce_unparse.ce2c change);
       loop rest;
       let files = !files in
       let (old_functions,new_functions) = CeH.get_function_names change in
@@ -173,7 +176,7 @@ let compute_distances key_change_files key =
              let lwconly = List.length wconly in
              let diff = min lconly lwconly in
              let lccboth = List.length ccboth in
-             Printf.printf "lconly %d lwconly %d lccboth %d\n"
+             logger#info "lconly %d lwconly %d lccboth %d\n"
                lconly lwconly lccboth;
              if diff + lccboth = 0
              then file_weight
@@ -288,7 +291,7 @@ let make_classes key_change_files key =
          List.iter
            (function (change,(elems,curmax,sz)) ->
               elems := change::!elems;
-              Printf.printf "%f: %s\n" !min_max (Ce_unparse.ce2c change);
+              logger#info "%f: %s\n" !min_max (Ce_unparse.ce2c change);
               curmax := !min_max;
               sz := !sz +. 1.0;
               worklist := Aux.remove change !worklist)
@@ -298,7 +301,7 @@ let make_classes key_change_files key =
     let (min_pair,min_val) = get_min_dist !worklist in
     (match (min_pair,min_val) with
        (Some(change1,change2),dist) ->
-       Printf.printf "making a class for %s and %s\n"
+       logger#info "making a class for %s and %s\n"
          (Ce_unparse.ce2c change1) (Ce_unparse.ce2c change2);
        (* sz is initially 1 with 2 because it represents how
           	   many elements have grouped with the center. or maybe

@@ -14,6 +14,10 @@ type line =
 type t = id * line list
  [@@deriving show { with_path = false }]
 
+(* Leveraging the region heuristic of diff, for example on
+ * '@@ 1,1 @@ void foo()' 
+ * we will store InFunction "foo".
+ *)
 type region = 
   | Region of int
   | InFunction of string
@@ -35,7 +39,9 @@ type hunk = {
     start_line: int;
     region: region;
 
+    (* minus and context part *)
     minus: string;
+    (* plus and context part *)
     plus: string;
 }
  [@@deriving show { with_path = false }]

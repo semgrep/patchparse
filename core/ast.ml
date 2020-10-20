@@ -1,17 +1,7 @@
 
-(* pad: used for a sequence of things (e.g., arguments), to record whether
- * we parsed the end of the sequence or some parts were unknown.
- *)
-type known = 
-  | KNOWN 
-  | ENDUNKNOWN 
-  | FRONTUNKNOWN 
-  | BOTHUNKNOWN
- [@@deriving show { with_path = false }]
-
 (* position information *)
 type info = line_number * Patch.linetype
-  and line_number = int 
+  and line_number = int (* line number in the patch, not in original code *)
  [@@deriving show { with_path = false }]
 
 (* I also keep the 'a outside the closure cos I want to do pattern matching *)
@@ -30,6 +20,17 @@ let eext e  = fst e
 let lext = function
     Abstract -> failwith "abstract value, no line here"
   | Concrete f -> snd (f())
+
+
+(* pad: used for a sequence of things (e.g., arguments), to record whether
+ * we parsed from start to end the sequence or whether some parts were unknown.
+ *)
+type known = 
+  | KNOWN 
+  | ENDUNKNOWN 
+  | FRONTUNKNOWN 
+  | BOTHUNKNOWN
+ [@@deriving show { with_path = false }]
 
 
 type prim =

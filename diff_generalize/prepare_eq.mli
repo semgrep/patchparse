@@ -10,3 +10,6 @@ val eqclasses :
    Questions.result) *
   (string * Eq_classes.change_table (* category change table *) *
    Questions.result) list
+
+(* internals *)
+val gsemi__change_worklist: Eq_classes.worklist

@@ -117,6 +117,52 @@ let dump_changelist file =
     pr2 (Context_change.show_changelist x);
   )
 
+let dump_worklist file = 
+  let patch_data = Patch_reader.patch file in
+  let changelists = Init.process_all_files patch_data in
+  changelists |> List.iter Prepare_eq.eqworklists;
+  let worklist = Prepare_eq.gsemi__change_worklist in
+  worklist |> Hashtbl.iter (fun k v ->
+      pr "KEY:";
+      pr (spf "%d" k);
+      pr "VALUE:";
+      pr (Eq_classes.show_workset v);
+  )
+
+let dump_changetable file = 
+  let patch_data = Patch_reader.patch file in
+  let changelists = Init.process_all_files patch_data in
+(*
+  Config.noall := false;
+  Config.print_sp := false;
+  Config.same_threshold := 1;
+  Config.file_threshold := 1;
+  Config.version_threshold := 0;
+  Config.directory_threshold := 0;
+*)
+  changelists |> List.iter Prepare_eq.eqworklists;
+  let ((big_change_table,_change_result),_filtered_category_results) =
+    Prepare_eq.eqclasses true in
+  big_change_table |> Hashtbl.iter (fun k xs ->
+      pr "KEY:";
+      pr (Ce.show_ce k);
+      pr "VALUE:";
+      xs |> List.iter (fun v -> pr (Eq_classes.show_changes v));
+  )
+
+let dump_evolution file = 
+  let patch_data = Patch_reader.patch file in
+  let changelists = Init.process_all_files patch_data in
+  Config.noall := true;
+  changelists |> List.iter Prepare_eq.eqworklists;
+  let ((big_change_table,_change_result),_filtered_category_results) =
+    Prepare_eq.eqclasses true in
+  let (evolutions : Evolution.t list) =
+    Collect_evolutions4.collect big_change_table in
+  evolutions |> List.iter (fun evo ->
+     pr (Evolution.show evo)
+  )
+  
  
 
 let actions () = [
@@ -128,9 +174,16 @@ let actions () = [
   Common.mk_action_1_arg dump_ast0;
   "-dump_ast", " <file>",
   Common.mk_action_1_arg dump_ast;
-
+  "-dump_diff", " <file>",
+  Common.mk_action_1_arg dump_changelist;
   "-dump_changelist", " <file>",
   Common.mk_action_1_arg dump_changelist;
+  "-dump_worklist", " <file>",
+  Common.mk_action_1_arg dump_worklist;
+  "-dump_changetable", " <file>",
+  Common.mk_action_1_arg dump_changetable;
+  "-dump_evolution", " <file>",
+  Common.mk_action_1_arg dump_evolution;
  ]
 
 (*****************************************************************************)

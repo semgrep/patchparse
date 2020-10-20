@@ -30,10 +30,13 @@ let drop_substring_filename_from_ident = ref false
 let length_threshold = 1400
 
 let verbose = ref false
+
 let notex = ref false
+
 let noall = ref false
 let nofilters = ref false
 let noev = ref false
+
 let page_width_threshold = ref 60 (* 1/2 num chars on a latex line *)
 
 (* to have it in a suitably globally visible place *)

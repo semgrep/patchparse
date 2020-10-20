@@ -103,12 +103,11 @@ let gsemi__change_worklist = (Hashtbl.create(200) : worklist)
 let eqworklists (changelist, (version, pathname, filename, region)) =
   (* the global worklist *)
   if not (!Config.noall)
-  then
-    List.iter
-      (function change ->
+  then changelist |> List.iter (function change ->
          Eqclasses.eqworklists gsemi__change_worklist max_change_size
-           change (version, pathname, filename, region))
-      changelist;
+             change (version, pathname, filename, region));
+
+  (* pad: the special worklists *)
   let rec loop cc =
     let (cc,context) =
       match cc with
@@ -139,8 +138,7 @@ let eqworklists (changelist, (version, pathname, filename, region)) =
     List.iter loop context 
   in
   if not (!Config.nofilters)
-  then
-    List.iter loop changelist
+  then List.iter loop changelist
 
 let eqclasses keep_change_table =
   let big_change_table    = (Hashtbl.create(200) : change_table) in

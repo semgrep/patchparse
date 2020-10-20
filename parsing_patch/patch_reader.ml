@@ -13,7 +13,7 @@ module Config = Globals
 let lines = ref 0
 
 let drop_patch_start in_lines =
-  ("no_ver","no_code",in_lines)
+  ("no_ver 1 pad Oct 5 2020","no_code",in_lines)
 
 let get_diffs in_lines =
   let rec loop acc = function

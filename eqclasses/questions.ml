@@ -1,6 +1,8 @@
 module CE = Ce
 module Config = Globals
 
+let logger = Logging.get_logger [__MODULE__]
+
 (* We consider the following questions:
 
    1. For each version, what are the changes that occur in the various
@@ -131,10 +133,12 @@ let make_multidir_table in_table out_table =
 let make_multidir_table2 in_table out_table =
   let split_git_version version =
     match Str.split (Str.regexp " ") version with
-      git_code :: start :: rest ->
+    | git_code :: start :: rest ->
       let rest = String.concat " " rest in
       (git_code,int_of_string start,rest)
-    | _ -> failwith "bad version" in
+    | _ -> 
+        logger#error "bad version %s" version;
+        failwith (Printf.sprintf "bad version %s" version) in
 
   let author (v : Patch.id) =
     let (Patch.Id iversion) = v in
@@ -434,6 +438,7 @@ type result =
    ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list) list *
   (CE.ce *
    ((string (*version*) * int (*count*)) * int (*ver#*)) list) list
+ [@@deriving show { with_path = false }]
 
 let questions change_table keep_change_table compute_percentage_multiver =
   mk_questions change_table keep_change_table compute_percentage_multiver

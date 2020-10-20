@@ -14,6 +14,8 @@ type result =
   (Ce.ce *
    ((string (*version*) * int (*count*)) * int (*ver#*)) list) list
 
+val show_result: result -> string
+
 (* the percentage of changes that are multiversion *)
 val percentage_multiver : int ref
 val total_changes : int ref

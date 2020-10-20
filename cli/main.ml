@@ -136,20 +136,27 @@ let dump_worklist file =
 let dump_changetable file = 
   let patch_data = Patch_reader.patch file in
   let changelists = Init.process_all_files patch_data in
-(*
+
   Config.same_threshold := 1;
   Config.file_threshold := 1;
   Config.version_threshold := 0;
   Config.directory_threshold := 0;
-*)
+
   changelists |> List.iter Prepare_eq.eqworklists;
-  let ((big_change_table,_change_result),_filtered_category_results) =
+  let ((big_change_table,change_result),filtered_category_results) =
     Prepare_eq.eqclasses true in
-  big_change_table |> Hashtbl.iter (fun k xs ->
-      pr "KEY:";
-      pr (Ce.show_ce k);
-      pr "VALUE:";
-      xs |> List.iter (fun v -> pr (Eq_classes.show_changes v));
+  (("all", big_change_table, change_result)::filtered_category_results) 
+  |> List.iter (fun (categ, changetable, result) ->
+      pr (spf "CATEGORY: %s" categ);
+      pr (spf "CHANGETABLE");
+      changetable |> Hashtbl.iter (fun k xs ->
+          pr "KEY:";
+          pr (Ce.show_ce k);
+          pr "VALUE:";
+          xs |> List.iter (fun v -> pr (Eq_classes.show_changes v));
+      );
+      pr (spf "QUESTIONS");
+      pr (Questions.show_result result);
   )
 
 let dump_evolution file = 

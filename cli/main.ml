@@ -67,6 +67,7 @@ let setup_days n =
 
 let dump_patch file =
   let xs = Patch_reader.patch file in
+
   xs |> List.iter (fun patch -> 
     pr2 (Patch.show patch);
   )
@@ -75,6 +76,7 @@ let dump_hunk file =
   let xs = Patch_reader.patch file in
   xs |> List.iter (fun patch -> 
     let hunks = Parse_patch.hunks_of_patch patch in
+
     hunks |> List.iter (fun x -> pr (Patch.show_hunk x));
   ) |> ignore
 
@@ -113,6 +115,7 @@ let dump_ast file =
 let dump_changelist file =
   let patch_data = Patch_reader.patch file in
   let changelists = Init.process_all_files patch_data in
+
   changelists |> List.iter (fun x -> 
     pr2 (Context_change.show_changelist x);
   )
@@ -121,6 +124,7 @@ let dump_worklist file =
   let patch_data = Patch_reader.patch file in
   let changelists = Init.process_all_files patch_data in
   changelists |> List.iter Prepare_eq.eqworklists;
+
   let worklist = Prepare_eq.gsemi__change_worklist in
   worklist |> Hashtbl.iter (fun k v ->
       pr "KEY:";
@@ -133,8 +137,6 @@ let dump_changetable file =
   let patch_data = Patch_reader.patch file in
   let changelists = Init.process_all_files patch_data in
 (*
-  Config.noall := false;
-  Config.print_sp := false;
   Config.same_threshold := 1;
   Config.file_threshold := 1;
   Config.version_threshold := 0;

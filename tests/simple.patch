@@ -23,3 +23,16 @@ index e613980..da03fbc 100644
 - foo(2);
 + bar(2);
 
+
+diff --git a/f/foo.c b/f/foo.c
+index e613980..da03fbc 100644
+--- a/b/foobar.c
++++ b/b/foobar.c
+@@ -1,4 +1,4 @@ void bar(void) {
+ 
+- foo2(2, 4);
++ bar2(2, 4);
+  xxx();
+- foo2(2, 4);
++ bar2(2, 4);
+

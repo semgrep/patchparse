@@ -1,10 +1,11 @@
 (library
- (name eqclasses)
+ (name classify)
  (wrapped false)
  (libraries
    commons
 
-   core
+   eqclasses
+   diff
  )
  (preprocess (pps ppx_deriving.show))
 )

@@ -10,8 +10,7 @@
     parsing_patch
     init
     select_diffs
-    generalize_diffs
-    eq_classes
+    eqclasses
     output
  )
  (preprocess (pps ppx_profiling))

@@ -2,7 +2,8 @@
  (name output)
  (wrapped false)
  (libraries
-   generalize_diffs
+   core
+   classify
  )
  (preprocess (pps ppx_deriving.show))
 )

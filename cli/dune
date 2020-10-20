@@ -13,8 +13,8 @@
     diff
     init
     select_diffs
-    generalize_diffs
-    eq_classes
+    eqclasses
+    collect
     output
  )
  (preprocess (pps ppx_profiling))

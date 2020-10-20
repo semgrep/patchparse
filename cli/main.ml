@@ -1,5 +1,5 @@
 open Common
-(* I've renamed config.ml to globals.ml to avoid conflict with
+(* pad: I've renamed config.ml to globals.ml to avoid conflict with
  * compiler-libs/config.ml which is used when linking with pfff commons,
  * but I restore its original name here to look as before.
 *)
@@ -17,7 +17,7 @@ let log_config_file = ref "log_config.json"
 (* Local flags *)
 (*****************************************************************************)
 
-(* action mode *)
+(* pad: action mode, used for all the -dump_xxx actions. Use commons/ lib *)
 let action = ref ""
 
 (*****************************************************************************)
@@ -71,7 +71,7 @@ let dump_patch file =
     pr2 (Patch.show patch);
   )
 
-let dump_hunks file =
+let dump_hunk file =
   let xs = Patch_reader.patch file in
   xs |> List.iter (fun patch -> 
     let hunks = Parse_patch.hunks_of_patch patch in
@@ -83,8 +83,12 @@ let dump_ast0 file =
   xs |> List.iter (fun patch -> 
     let hunks = Parse_patch.hunks_of_patch patch in
     hunks |> List.iter (fun x -> 
+     pr "Minus:";
      let ast0 = Parse_code.parse_ast0 x.Patch.patch_id x.minus in
-     pr (Ast0.show_codelist ast0)
+     pr (Ast0.show_codelist ast0);
+     pr "Plus:";
+     let ast0 = Parse_code.parse_ast0 x.Patch.patch_id x.plus in
+     pr (Ast0.show_codelist ast0);
    )
   ) |> ignore
 
@@ -93,17 +97,20 @@ let dump_ast file =
   xs |> List.iter (fun patch -> 
     let hunks = Parse_patch.hunks_of_patch patch in
     hunks |> List.iter (fun x -> 
-     match Parse_code.parse x.Patch.patch_id x.minus with
+     pr "Minus:";
+     (match Parse_code.parse x.Patch.patch_id x.minus with
      | None -> failwith "no ast"
-     | Some xxs ->
-         xxs |> List.iter (fun xs ->
-                  pr (Ast.show_codelist xs)
-         )
+     | Some xxs -> xxs |> List.iter (fun xs -> pr (Ast.show_codelist xs)));
+     pr "Plus:";
+     (match Parse_code.parse x.Patch.patch_id x.plus with
+     | None -> failwith "no ast"
+     | Some xxs -> xxs |> List.iter (fun xs -> pr (Ast.show_codelist xs)));
+
     )
   ) |> ignore
 
 
-let dump_changelists file =
+let dump_changelist file =
   let patch_data = Patch_reader.patch file in
   let changelists = Init.process_all_files patch_data in
   changelists |> List.iter (fun x -> 
@@ -115,15 +122,15 @@ let dump_changelists file =
 let actions () = [
   "-dump_patch", " <file>",
   Common.mk_action_1_arg dump_patch;
-  "-dump_hunks", " <file>",
-  Common.mk_action_1_arg dump_hunks;
+  "-dump_hunk", " <file>",
+  Common.mk_action_1_arg dump_hunk;
   "-dump_ast0", " <file>",
   Common.mk_action_1_arg dump_ast0;
   "-dump_ast", " <file>",
   Common.mk_action_1_arg dump_ast;
 
-  "-dump_changelists", " <file>",
-  Common.mk_action_1_arg dump_changelists;
+  "-dump_changelist", " <file>",
+  Common.mk_action_1_arg dump_changelist;
  ]
 
 (*****************************************************************************)

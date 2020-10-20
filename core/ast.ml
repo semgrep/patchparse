@@ -1,5 +1,7 @@
 
-(* ??? *)
+(* pad: used for a sequence of things (e.g., arguments), to record whether
+ * we parsed the end of the sequence or some parts were unknown.
+ *)
 type known = 
   | KNOWN 
   | ENDUNKNOWN 
@@ -78,9 +80,9 @@ and code =
   | EXPR of expr list
   | SEP of string extended
 
-  (* ??? *)
+  (* pad: Generalized argument (not in Ast0) *)
   | ARG of int 
-  (* ??? *)
+  (* pad: ??? (not in Ast0) *)
   | CODE
 
 and codelist = code list

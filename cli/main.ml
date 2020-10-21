@@ -199,11 +199,24 @@ let actions () = [
   Common.mk_action_1_arg dump_patch;
   "-dump_hunk", " <file>",
   Common.mk_action_1_arg dump_hunk;
+
   "-dump_ast0", " <file>",
   Common.mk_action_1_arg dump_ast0;
   "-dump_ast", " <file>",
   Common.mk_action_1_arg dump_ast;
+
   "-dump_ce", " <file>",
+  Common.mk_action_1_arg dump_ce;
+  "-dump_cc", " <file>",
+  Common.mk_action_1_arg dump_changelist;
+
+  "-dump_ct", " <file>",
+  Common.mk_action_1_arg dump_changetable;
+  "-dump_evo", " <file>",
+  Common.mk_action_1_arg dump_evolution;
+
+  (* aliases, longer form *)
+  "-dump_changeelement", " <file>",
   Common.mk_action_1_arg dump_ce;
   "-dump_diff", " <file>",
   Common.mk_action_1_arg dump_changelist;

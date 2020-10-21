@@ -126,11 +126,11 @@ let eqworklists (changelist, (version, pathname, filename, region)) =
     in
     List.iter
       (function (filter,_,max_change_size,worklist,_) ->
-       match filter (Diff.al_context_change cc) with
+       match filter (Change_tree_al.al_context_change cc) with
          None -> ()
        | Some change ->
          Eqclasses.eqworklists worklist max_change_size
-           (Diff.al_context_change change)
+           (Change_tree_al.al_context_change change)
            (version, pathname, filename, region))
       (if !Config.print_sp
        then sp__interface_filter_tables

@@ -55,20 +55,15 @@ and al_change_type = function
   (* willing to merge with an expr or code context *)
   | IMMEDIATE_EXPR_CHANGE (ce (* the change *) , context_change_list) -> 
     IMMEDIATE_EXPR_CHANGE (Ce_al.al_ce ce (* the change *),
-                           List.map al_context_change context_change_list)
+                           List.map Change_tree_al.al_context_change context_change_list)
   (* only willing to merge with a code context, ie a code list *)
   | IMMEDIATE_CODE_CHANGE (ce (* the change *) , context_change_list) -> 
     IMMEDIATE_CODE_CHANGE (Ce_al.al_ce ce (* the change *),
-                           List.map al_context_change context_change_list) 
+                           List.map Change_tree_al.al_context_change context_change_list) 
   (* not willing to merge *)
   | CONTEXT_CHANGE context_change_list ->
-    CONTEXT_CHANGE (List.map al_context_change context_change_list)
+    CONTEXT_CHANGE (List.map Change_tree_al.al_context_change context_change_list)
 
-and al_context_change = function
-  | CC ( ce (* the change *) , context_change_list) -> 
-    CC (Ce_al.al_ce ce, List.map al_context_change context_change_list)
-  | CG (ce (* a change generalized with EXP or CODE *), context_change_list) ->
-    CG (Ce_al.al_ce ce, List.map al_context_change context_change_list)
 
 
 (* ------------------------------------------------------------------------- *)
@@ -80,22 +75,15 @@ let rec have_al_change = function
 and have_al_change_type = function
   | IMMEDIATE_EXPR_CHANGE (ce (* the change *) , context_change_list) -> 
     (Ce_al.have_al_ce ce (* the change *) ||
-     (List.exists have_al_context_change context_change_list))
+     (List.exists Change_tree_al.have_al_context_change context_change_list))
   (* only willing to merge with a code context, ie a code list *)
   | IMMEDIATE_CODE_CHANGE (ce (* the change *) , context_change_list) -> 
     (Ce_al.have_al_ce ce (* the change *) ||
-     (List.exists have_al_context_change context_change_list))
+     (List.exists Change_tree_al.have_al_context_change context_change_list))
   (* not willing to merge *)
   | CONTEXT_CHANGE context_change_list ->
-    (List.exists have_al_context_change context_change_list)
+    (List.exists Change_tree_al.have_al_context_change context_change_list)
 
-and have_al_context_change = function
-  | CC (ce (* the change *) , context_change_list) -> 
-    (Ce_al.have_al_ce ce ||
-     (List.exists have_al_context_change context_change_list))
-  | CG (ce (* a change generalized with EXP or CODE *), context_change_list) ->
-    (Ce_al.have_al_ce ce ||
-     (List.exists have_al_context_change context_change_list))
 
 
 (*****************************************************************************)
@@ -336,12 +324,12 @@ let pair_immediates lrebuilt rrebuilt left_immediate right_immediate =
 
 
 let rec al_union_change xs ys = 
-  let ys' = List.map al_context_change ys in
+  let ys' = List.map Change_tree_al.al_context_change ys in
   let rec aux xs = 
     match xs with
       [] -> ys (* ys !!! and not ys' *)
     | x::xs ->
-      if List.mem (al_context_change x) ys' then aux xs else x :: (aux xs) in
+      if List.mem (Change_tree_al.al_context_change x) ys' then aux xs else x :: (aux xs) in
   aux xs
 
 (* ------------------------------------------------------------------ *)

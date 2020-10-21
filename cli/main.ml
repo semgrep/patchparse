@@ -12,7 +12,18 @@ let log_config_file = ref "log_config.json"
 (*****************************************************************************)
 (* Purpose *)
 (*****************************************************************************)
+(* Parse patches and extract recurring transformations.
+ * It also classify those transformations in a taxonomy.
+ * 
+ * The original goal of patchparse was to study collateral evolutions in
+ * the Linux kernel, as documented in the Eurosys'06 paper:
+ *  "Understanding Collateral Evolution in Linux Device Drivers".
+ * The PDF of the paper is in the docs/ directory, and reading
+ * section 5.2 is especially useful to understand patchparse.
+ *)
 
+
+(* -------------------------------------------------------------------- *)
 (*****************************************************************************)
 (* Local flags *)
 (*****************************************************************************)

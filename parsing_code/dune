@@ -5,7 +5,7 @@
    ; pfff deps
    commons
 
-   globals core
+   globals core boilerplate
  )
  (preprocess (pps ppx_deriving.show))
 )

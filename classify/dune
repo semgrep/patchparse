@@ -6,6 +6,7 @@
 
    eqclasses
    diff
+   unparsing
  )
  (preprocess (pps ppx_deriving.show))
 )

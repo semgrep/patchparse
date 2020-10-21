@@ -3,7 +3,7 @@
  (wrapped false)
  (libraries
    utils
-   core
+   core boilerplate unparsing
  )
  (preprocess (pps ppx_deriving.show))
 )

@@ -6,7 +6,7 @@
    commons
 
    globals 
-   core
+   core boilerplate unparsing
    parsing_code
  )
  (preprocess (pps ppx_deriving.show))

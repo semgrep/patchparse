@@ -1,10 +1,12 @@
 (library
- (name eqclasses)
+ (name unparsing)
  (wrapped false)
  (libraries
    commons
 
-   core boilerplate unparsing
+   utils
+   globals
+   core boilerplate
  )
  (preprocess (pps ppx_deriving.show))
 )

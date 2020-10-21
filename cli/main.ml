@@ -123,7 +123,7 @@ let dump_ast file =
   ) |> ignore
 
 
-let dump_ce file =
+let dump_change file =
   let patch_data = Patch_reader.patch file in
   let changelists = Init.process_all_files patch_data in
 
@@ -136,7 +136,7 @@ let dump_ce file =
     );
   )
 
-let dump_changelist file =
+let dump_changetree file =
   let patch_data = Patch_reader.patch file in
   let changelists = Init.process_all_files patch_data in
 
@@ -216,28 +216,27 @@ let actions () = [
   "-dump_ast", " <file>",
   Common.mk_action_1_arg dump_ast;
 
-  "-dump_ce", " <file>",
-  Common.mk_action_1_arg dump_ce;
-  "-dump_cc", " <file>",
-  Common.mk_action_1_arg dump_changelist;
+  "-dump_change", " <file>",
+  Common.mk_action_1_arg dump_change;
+  "-dump_changetree", " <file>",
+  Common.mk_action_1_arg dump_changetree;
 
-  "-dump_ct", " <file>",
-  Common.mk_action_1_arg dump_changetable;
-  "-dump_evo", " <file>",
-  Common.mk_action_1_arg dump_evolution;
-
-  (* aliases, longer form *)
-  "-dump_changeelement", " <file>",
-  Common.mk_action_1_arg dump_ce;
-  "-dump_diff", " <file>",
-  Common.mk_action_1_arg dump_changelist;
-  "-dump_changelist", " <file>",
-  Common.mk_action_1_arg dump_changelist;
   "-dump_worklist", " <file>",
   Common.mk_action_1_arg dump_worklist;
   "-dump_changetable", " <file>",
   Common.mk_action_1_arg dump_changetable;
+
   "-dump_evolution", " <file>",
+  Common.mk_action_1_arg dump_evolution;
+
+  (* aliases, shorter form *)
+  "-dump_ce", " <file>",
+  Common.mk_action_1_arg dump_change;
+  "-dump_ct1", " <file>",
+  Common.mk_action_1_arg dump_changetree;
+  "-dump_ct2", " <file>",
+  Common.mk_action_1_arg dump_changetable;
+  "-dump_evo", " <file>",
   Common.mk_action_1_arg dump_evolution;
  ]
 

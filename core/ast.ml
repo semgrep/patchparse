@@ -46,7 +46,7 @@ type prim =
   (* ??? not in Ast0.prim, was in Ast0.expr instead *)
   | PARENSYM of expr list * known
 
-  (* ??? *)
+  (* pad: Generalized prim, with original prim *)
   | EXP of int * prim option
 
 (* list? *)
@@ -55,18 +55,19 @@ and symbol = prim list
 and expr =
   | SYMBOL of symbol
 
-  (* ??? *)
+  (* ??? Expression Operator? *)
   | EOP of string extended
 
   (* In the following, the first field is currently always a symbol.  But it 
      needs to change to allow function prototypes. *)
-  | ASSIGN of expr * string extended * expr list * known
+  | ASSIGN of expr * string  extended (* = or -=, +=, ...*) * expr list * known
 
   (* In the following the first field is always a symbol.  Having symbol
      always as an expression is convenient for diff, because then we don't
      have to figure out how to turn a context change that might occur in
      the function part of a call (same for assignments) into a symbol so
      that it matches with other occurrences of the same change. *)
+  (* pad: note that even if(...) are parsed as a Call *)
   | CALL of expr * code list * known
 
   | DECLARER of expr * code list * known
@@ -81,9 +82,12 @@ and code =
   | EXPR of expr list
   | SEP of string extended
 
-  (* pad: Generalized argument (not in Ast0) *)
+  (* pad: Generalized argument (not in Ast0). The int is the argument
+   * position in the original code *)
   | ARG of int 
-  (* pad: ??? (not in Ast0) *)
+  (* pad: Even more generalized argument (also not in Ast0), we don't even
+   * record the original position.
+   *)
   | CODE
 
 and codelist = code list

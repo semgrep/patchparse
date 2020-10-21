@@ -1,0 +1,12 @@
+diff --git a/f/foo.c b/f/foo.c
+index e613980..da03fbc 100644
+--- a/f/foo.c
++++ b/f/foo.c
+@@ -1,11 +1,16 @@ void foo(void) {
+ 
+  xxx();
+- if((res=usb_submit_urb(dev->tx_urb))){
++ if((res=usb_submit_urb(dev->tx_urb, GPF_ATOMIC))) {
+     warn("failed");
+  }
+

@@ -46,7 +46,7 @@ type prim =
   (* ??? not in Ast0.prim, was in Ast0.expr instead *)
   | PARENSYM of expr list * known
 
-  (* pad: Generalized prim, with original prim *)
+  (* pad: Generalized prim, with optional original prim *)
   | EXP of int * prim option
 
 (* list? *)

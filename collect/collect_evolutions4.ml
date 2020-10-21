@@ -31,7 +31,7 @@ let logger = Logging.get_logger [__MODULE__]
    the first to get a list of all of the changes to build the equivalence
    classes. *)
 
-let version_dir_change_files =
+let _version_dir_change_files =
   (Hashtbl.create(200) :
      ((Patch.id (* version *) * Paths.dir (* dir *)),
       (CE.ce * (Paths.file list ref (* sorted files *) *
@@ -45,7 +45,9 @@ let version_change_files =
                 string list ref (* referenced symbols *))) list ref)
        Hashtbl.t)
 
-let version_dir_key (version,dir) = (version,dir)
+(* pad: id *)
+let (version_dir_key: Patch.id * Paths.dir -> Patch.id * Paths.dir) =
+ fun (version,dir) -> (version,dir)
 let (version_key: Patch.id * Paths.dir -> Patch.id) = 
   fun (version,dir) -> version
 
@@ -54,9 +56,7 @@ let create_version_dir_change_files
     (get_key: Patch.id * Paths.dir -> Patch.id)
     (change_table: Eq_classes.change_table) 
   =
-  Hashtbl.iter
-    (function change ->
-     function info ->
+  Hashtbl.iter (fun change info ->
        List.iter
          (function ((version,dir),ct,files, regions, not_al_changeset) ->
             let key = get_key (version,dir) in	    
@@ -118,7 +118,7 @@ let compute_distances key_change_files key =
              let lwconly = List.length wconly in
              let diff = min lconly lwconly in
              let lccboth = List.length ccboth in
-             logger#info "lconly %d lwconly %d lccboth %d\n"
+             logger#info "lconly %d lwconly %d lccboth %d"
                lconly lwconly lccboth;
              if diff + lccboth = 0
              then file_weight
@@ -129,16 +129,16 @@ let compute_distances key_change_files key =
            (*if not(weight = 1.0)
              	    then*)
            (logger#info
-              "The distance between the following changes is %f %f %f\n"
+              "The distance between the following changes is %f %f %f"
               file_weight commonality_weight weight;
-            logger#info "%s\nin\n" (Ce_unparse.ce2c change);
-            List.iter (function s -> logger#info "  %s\n" s) files;
-            logger#info "%s\nin\n" (Ce_unparse.ce2c wchange);
-            List.iter (function s -> logger#info "  %s\n" s) !wfiles;
-            logger#info "strings %s, wstrings %s\n"
+            logger#info "%s\nin" (Ce_unparse.ce2c change);
+            List.iter (function s -> logger#info "  %s" s) files;
+            logger#info "%s\nin" (Ce_unparse.ce2c wchange);
+            List.iter (function s -> logger#info "  %s" s) !wfiles;
+            logger#info "strings %s, wstrings %s"
               (String.concat " " !chars)
               (String.concat " " !wchars);
-            logger#info "***************\n\n";
+            logger#info "***************";
 
             Hashtbl.add distance_table tuple weight))
         rest in
@@ -152,7 +152,7 @@ let compute_distances key_change_files key =
   let rec loop = function
       [] -> ()
     | (change,(files,chars))::rest when CeH.function_change change ->
-      logger#info "function change: %s\n" (Ce_unparse.ce2c change);
+      logger#info "function change: %s" (Ce_unparse.ce2c change);
       loop rest;
       let files = !files in
       let (old_functions,new_functions) = CeH.get_function_names change in
@@ -176,7 +176,7 @@ let compute_distances key_change_files key =
              let lwconly = List.length wconly in
              let diff = min lconly lwconly in
              let lccboth = List.length ccboth in
-             logger#info "lconly %d lwconly %d lccboth %d\n"
+             logger#info "lconly %d lwconly %d lccboth %d"
                lconly lwconly lccboth;
              if diff + lccboth = 0
              then file_weight
@@ -291,7 +291,7 @@ let make_classes key_change_files key =
          List.iter
            (function (change,(elems,curmax,sz)) ->
               elems := change::!elems;
-              logger#info "%f: %s\n" !min_max (Ce_unparse.ce2c change);
+              logger#info "%f: %s" !min_max (Ce_unparse.ce2c change);
               curmax := !min_max;
               sz := !sz +. 1.0;
               worklist := Aux.remove change !worklist)
@@ -301,7 +301,7 @@ let make_classes key_change_files key =
     let (min_pair,min_val) = get_min_dist !worklist in
     (match (min_pair,min_val) with
        (Some(change1,change2),dist) ->
-       logger#info "making a class for %s and %s\n"
+       logger#info "making a class for %s and %s"
          (Ce_unparse.ce2c change1) (Ce_unparse.ce2c change2);
        (* sz is initially 1 with 2 because it represents how
           	   many elements have grouped with the center. or maybe
@@ -338,10 +338,7 @@ let process_versions (version_dir_change_files :
                         ('key,(CE.ce * (Paths.file list ref (* sorted files *) *
                                         string list ref (* referenced symbols *))) list ref)
                           Hashtbl.t) =
-  Hashtbl.fold
-    (function key ->
-     function _ ->
-     function rest ->
+  Hashtbl.fold (fun key _ rest ->
        compute_distances version_dir_change_files key;
        let classes =
          augment_classes version_dir_change_files key
@@ -352,13 +349,18 @@ let process_versions (version_dir_change_files :
        @ rest)
     version_dir_change_files []
 
-(* --------------------------------------------------------------------- *)
+(*****************************************************************************)
 (* Entry point *)
+(*****************************************************************************)
 
 let collect change_table =
+  logger#info "size of change table: %d" (Hashtbl.length change_table);
   create_version_dir_change_files version_change_files
     version_key change_table;
-  List.map
-    (function (version,files,changes,weight) ->
-       (version,Paths.Dir "",files,changes,weight))
-    (List.sort compare (process_versions version_change_files))
+  version_change_files
+  |> process_versions
+  |> List.sort compare
+  |> List.map (function (version,files,changes,weight) ->
+       (version,Paths.Dir "",files,changes,weight)
+  )
+

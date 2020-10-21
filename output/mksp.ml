@@ -359,8 +359,9 @@ let file_data sp_file get_files
       data in
   pcm multidir_table
 
-(* -------------------------------------------------------------------- *)
+(*****************************************************************************)
 (* Entry point *)
+(*****************************************************************************)
 
 let make_files (change_result,filtered_results) (evolutions : Evolution.t list) =
   let all_name = "_"^(!Config.outfile) in

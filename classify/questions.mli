@@ -21,7 +21,7 @@ val percentage_multiver : int ref
 val total_changes : int ref
 
 val questions :
-  Eq_classes.change_table (* change table *) ->
+  Change_table.t (* change table *) ->
   bool (* is the change table needed after this phase? *) ->
   bool (* compute percentage_multiver? not for filtered tables *) ->
   result

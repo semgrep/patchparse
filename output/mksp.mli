@@ -1,5 +1,5 @@
 val make_files :
   (Questions.result * 
-   (string * Eq_classes.change_table * Questions.result) list) ->
+   (string * Change_table.t * Questions.result) list) ->
   Evolution.t list ->
   unit

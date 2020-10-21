@@ -1,7 +1,7 @@
 module CE = Ce
 module Config = Globals
 module Diff = Change_tree
-open Eq_classes
+open Change_table
 module CC = Change_tree
 
 let logger = Logging.get_logger [__MODULE__]
@@ -133,7 +133,7 @@ let inc_version version =
 
 let build_change_classes 
     (change_worklist: worklist)
-    (real_table: change_table) 
+    (real_table: Change_table.t) 
     split size_fn size_fn1 max =
   let rec loop = function
       0 -> ()
@@ -274,7 +274,7 @@ let eqworklists worklist max_change_size change
   build_change_worklist worklist max_change_size
     change (version, pathname, filename, region)
 
-let eqclasses worklist (change_table: change_table) max_change_size =
+let eqclasses worklist (change_table: Change_table.t) max_change_size =
   build_context_change_classes worklist change_table max_change_size (*;
                                                                        if !Config.notex then print_change_table change_table *)
 

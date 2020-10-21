@@ -1,7 +1,7 @@
 (* set up data structures *)
 module Config = Globals
 module CC = Change_tree
-open Eq_classes
+open Change_table
 module CE = Ce
 
 (* tables for filtered changes *)
@@ -80,8 +80,8 @@ let make_filter_tables filters =
   List.map
     (function (filter,filter_string) ->
        (filter,filter_string,ref 0,
-        (Hashtbl.create(100) : worklist),    (* worklist table *)
-        (Hashtbl.create(100) : change_table) (* change table - result *) 
+        (Hashtbl.create(100) : Change_table.worklist),    (* worklist table *)
+        (Hashtbl.create(100) : Change_table.t) (* change table - result *) 
        )
     )
     filters
@@ -141,7 +141,7 @@ let eqworklists (changelist, (version, pathname, filename, region)) =
   then List.iter loop changelist
 
 let eqclasses keep_change_table =
-  let big_change_table    = (Hashtbl.create(200) : change_table) in
+  let big_change_table    = (Hashtbl.create(200) : Change_table.t) in
 
   Eqclasses.eqclasses gsemi__change_worklist big_change_table max_change_size;
   let global_res =

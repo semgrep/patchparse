@@ -40,7 +40,7 @@ let logger = Logging.get_logger [__MODULE__]
 (* processing the collected data *)
 
 let reorganize pre_fn get_header get_sub1 get_sub2
-    (intable: Eq_classes.change_table) outtable =
+    (intable: Change_table.t) outtable =
   Hashtbl.iter
     (function change ->
      function vdc ->
@@ -407,7 +407,7 @@ let postprocess_tables compute_percentage_multiver
 (* Entry point *)
 
 (* make them all so we can easily have a summary *)
-let mk_questions (in_table: Eq_classes.change_table) keep_change_table
+let mk_questions (in_table: Change_table.t) keep_change_table
     compute_percentage_multiver
     version_table directory_table multidir_table multidir_table2
     multiver_table =

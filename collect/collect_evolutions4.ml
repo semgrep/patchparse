@@ -54,7 +54,7 @@ let (version_key: Patch.id * Paths.dir -> Patch.id) =
 let create_version_dir_change_files 
     table 
     (get_key: Patch.id * Paths.dir -> Patch.id)
-    (change_table: Eq_classes.change_table) 
+    (change_table: Change_table.t) 
   =
   Hashtbl.iter (fun change info ->
        List.iter

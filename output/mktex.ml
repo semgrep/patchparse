@@ -197,7 +197,7 @@ let safe_div str num = function
   | den -> num / den
 
 let print_summary tex_file desired_info
-    (label, (change_table: Eq_classes.change_table),
+    (label, (change_table: Change_table.t),
      (version_table,dir_table,multidir_table,
       multiver_table1,multiver_table2)) =
   let change_table_changes = Hashtbl.length change_table in

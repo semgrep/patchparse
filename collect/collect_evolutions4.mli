@@ -1,2 +1,2 @@
 
-val collect : Eq_classes.change_table -> Evolution.t list
+val collect : Change_table.t -> Evolution.t list

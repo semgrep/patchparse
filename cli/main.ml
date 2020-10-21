@@ -154,7 +154,7 @@ let dump_worklist file =
       pr "KEY:";
       pr (spf "%d" k);
       pr "VALUE:";
-      pr (Eq_classes.show_workset v);
+      pr (Change_table.show_workset v);
   )
 
 let dump_changetable file = 
@@ -177,7 +177,7 @@ let dump_changetable file =
           pr "KEY:";
           pr (Ce.show_ce k);
           pr "VALUE:";
-          xs |> List.iter (fun v -> pr (Eq_classes.show_changes v));
+          xs |> List.iter (fun v -> pr (Change_table.show_changes v));
       );
       pr (spf "QUESTIONS");
       pr (Questions.show_result result);

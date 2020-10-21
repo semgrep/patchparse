@@ -5,7 +5,7 @@ type changes =
     Ce.ce list (* same as key but without abstraction lines*)
  [@@deriving show { with_path = false }]
 
-type change_table = (Ce.ce, changes list) Hashtbl.t
+type t = (Ce.ce, changes list) Hashtbl.t
 
 type workset = 
   (Change_tree.t * 

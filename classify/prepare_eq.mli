@@ -6,10 +6,10 @@ val eqworklists :
 
 val eqclasses :
   bool (* whether the change table is needed after this step *) ->
-  (Eq_classes.change_table (* global change table *) *
+  (Change_table.t (* global change table *) *
    Questions.result) *
-  (string * Eq_classes.change_table (* category change table *) *
+  (string * Change_table.t (* category change table *) *
    Questions.result) list
 
 (* internals *)
-val gsemi__change_worklist: Eq_classes.worklist
+val gsemi__change_worklist: Change_table.worklist

@@ -131,7 +131,7 @@ let dump_ce file =
     pr (Change_tree.show_origin origin);
     xs |> List.iter (function
     | Change_tree.CC (ce, _cg) -> 
-       pr (Ce.show_ce ce);
+       pr (Change.show_ce ce);
     | _ -> raise Impossible
     );
   )
@@ -175,7 +175,7 @@ let dump_changetable file =
       pr (spf "CHANGETABLE");
       changetable |> Hashtbl.iter (fun k xs ->
           pr "KEY:";
-          pr (Ce.show_ce k);
+          pr (Change.show_ce k);
           pr "VALUE:";
           xs |> List.iter (fun v -> pr (Change_table.show_changes v));
       );

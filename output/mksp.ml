@@ -1,5 +1,5 @@
 module Config = Globals
-module CE = Ce
+module CE = Change
 
 (* -------------------------------------------------------------------- *)
 (* Print the data in the VERSION or DIRECTORY cases *)

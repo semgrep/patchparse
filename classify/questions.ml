@@ -1,4 +1,4 @@
-module CE = Ce
+module CE = Change
 module Config = Globals
 
 let logger = Logging.get_logger [__MODULE__]
@@ -425,18 +425,18 @@ let mk_questions (in_table: Change_table.t) keep_change_table
 
 type result =
   (string (*version*) *
-   (Paths.dir (*dir*) * (CE.ce * int (*count*)) list) list) list *
+   (Paths.dir (*dir*) * (Change.ce * int (*count*)) list) list) list *
   (Paths.dir (*dir*) *
-   (string (*version*) * (CE.ce * int (*count*)) list) list) list *
-  (CE.ce *
+   (string (*version*) * (Change.ce * int (*count*)) list) list) list *
+  (Change.ce *
    ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list)
     list list *
-  ((CE.ce * string) *
+  ((Change.ce * string) *
    ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list)
     list list *
-  (CE.ce *
+  (Change.ce *
    ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list) list *
-  (CE.ce *
+  (Change.ce *
    ((string (*version*) * int (*count*)) * int (*ver#*)) list) list
  [@@deriving show { with_path = false }]
 

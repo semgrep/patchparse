@@ -2,7 +2,7 @@
 module Config = Globals
 module CC = Change_tree
 open Change_table
-module CE = Ce
+module CE = Change
 
 (* tables for filtered changes *)
 (*let filters =

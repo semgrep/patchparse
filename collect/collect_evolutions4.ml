@@ -1,4 +1,4 @@
-module CE = Ce
+module CE = Change
 
 let logger = Logging.get_logger [__MODULE__]
 
@@ -34,14 +34,14 @@ let logger = Logging.get_logger [__MODULE__]
 let _version_dir_change_files =
   (Hashtbl.create(200) :
      ((Patch.id (* version *) * Paths.dir (* dir *)),
-      (CE.ce * (Paths.file list ref (* sorted files *) *
+      (Change.ce * (Paths.file list ref (* sorted files *) *
                 string list ref (* referenced symbols *))) list ref)
        Hashtbl.t)
 
 let version_change_files =
   (Hashtbl.create(200) :
      (Patch.id (* version *),
-      (CE.ce * (Paths.file list ref (* sorted files *) *
+      (Change.ce * (Paths.file list ref (* sorted files *) *
                 string list ref (* referenced symbols *))) list ref)
        Hashtbl.t)
 
@@ -87,7 +87,7 @@ let create_version_dir_change_files
 (* compute the distances between pairs of changes for a given key *)
 
 let distance_table =
-  (Hashtbl.create(200) : (CE.ce * CE.ce, float) Hashtbl.t)
+  (Hashtbl.create(200) : (Change.ce * Change.ce, float) Hashtbl.t)
 
 let normalize x y = if compare x y < 0 then (x,y) else (y,x)
 
@@ -222,7 +222,7 @@ let compute_distances key_change_files key =
 (* --------------------------------------------------------------------- *)
 
 let get_min_dist worklist =
-  let min_pair = ref (None : (CE.ce * CE.ce) option) in
+  let min_pair = ref (None : (Change.ce * Change.ce) option) in
   (* prevents completely disjoint sets, which don't appear anyway *)
   let min_val = ref 1.0 in
   Hashtbl.iter
@@ -244,7 +244,7 @@ let make_classes key_change_files key =
     List.map (function (c,_) -> c) (!(Hashtbl.find key_change_files key)) in
   let worklist = ref changes in
   let classes =
-    ref ([] : (CE.ce list ref * float ref (*max dist*) *
+    ref ([] : (Change.ce list ref * float ref (*max dist*) *
                float ref (*sz*)) list) in
   let rec loop ((elems,curmax,sz) as curclass) =
     match !worklist with
@@ -318,7 +318,7 @@ let make_classes key_change_files key =
 (* Augment classes with files (could have been done in the previous step, but
    separated for simplicity) *)
 
-let augment_classes key_table key (classes : (CE.ce list * float) list) =
+let augment_classes key_table key (classes : (Change.ce list * float) list) =
   let get_files curclass : Paths.file list =
     List.sort compare
       (List.fold_left
@@ -335,7 +335,7 @@ let augment_classes key_table key (classes : (CE.ce list * float) list) =
 (* Process all versions *)
 
 let process_versions (version_dir_change_files :
-                        ('key,(CE.ce * (Paths.file list ref (* sorted files *) *
+                        ('key,(Change.ce * (Paths.file list ref (* sorted files *) *
                                         string list ref (* referenced symbols *))) list ref)
                           Hashtbl.t) =
   Hashtbl.fold (fun key _ rest ->

@@ -1,4 +1,4 @@
-module CE = Ce
+module CE = Change
 
 (* Filters for various kinds of expressions *)
 

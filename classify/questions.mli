@@ -1,17 +1,17 @@
 type result =
   (string (*version*) *
-   (Paths.dir (*dir*) * (Ce.ce * int (*count*)) list) list) list *
+   (Paths.dir (*dir*) * (Change.ce * int (*count*)) list) list) list *
   (Paths.dir (*dir*) *
-   (string (*version*) * (Ce.ce * int (*count*)) list) list) list *
-  (Ce.ce *
+   (string (*version*) * (Change.ce * int (*count*)) list) list) list *
+  (Change.ce *
    ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list)
     list list *
-  ((Ce.ce * string) *
+  ((Change.ce * string) *
    ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list)
     list list *
-  (Ce.ce *
+  (Change.ce *
    ((string (*version*) * Paths.dir (*dir*)) * int (*count*)) list) list *
-  (Ce.ce *
+  (Change.ce *
    ((string (*version*) * int (*count*)) * int (*ver#*)) list) list
 
 val show_result: result -> string

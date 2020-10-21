@@ -2,10 +2,10 @@
 type changes = 
    (Patch.id * Paths.dir) * int (*sites*) *
     Paths.file list * Patch.region list *
-    Ce.ce list (* same as key but without abstraction lines*)
+    Change.ce list (* same as key but without abstraction lines*)
  [@@deriving show { with_path = false }]
 
-type t = (Ce.ce, changes list) Hashtbl.t
+type t = (Change.ce, changes list) Hashtbl.t
 
 type workset = 
   (Change_tree.t * 

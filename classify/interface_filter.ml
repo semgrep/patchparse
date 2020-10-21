@@ -1,4 +1,4 @@
-module CE = Ce
+module CE = Change
 module CC = Change_tree
 
 (* Filters for the changes in the interface *)

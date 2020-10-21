@@ -1,5 +1,5 @@
 module Config = Globals
-module CE = Ce
+module CE = Change
 
 (* -------------------------------------------------------------------- *)
 (* Print the data in the VERSION or DIRECTORY cases *)
@@ -45,7 +45,7 @@ let file_data tex_file out_file
        Questions.result) =
   let printed_changes = ref false in
   (* TODO: use either type for version or directory instead of Paths.dir *)
-  let pc (data : (Paths.dir * (Ce.ce * int) list) list) =(* version or directory *)
+  let pc (data : (Paths.dir * (Change.ce * int) list) list) =(* version or directory *)
     if not(!printed_changes)
     then
       begin
@@ -270,7 +270,7 @@ let print_summary tex_file desired_info
     (function (dir,data) ->
        let changes =
          let change_table =
-           (Hashtbl.create(200) : (CE.ce,unit) Hashtbl.t) in
+           (Hashtbl.create(200) : (Change.ce,unit) Hashtbl.t) in
          List.iter
            (function (version,changes) ->
               List.iter

@@ -1,4 +1,4 @@
-open Ce
+open Change
 
 let process_ce combiner mapper primfn exprfn codefn = function
   | PRIMCE(prim1, prim2) ->

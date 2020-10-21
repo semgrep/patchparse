@@ -1,4 +1,4 @@
-module CE = Ce
+module CE = Change
 module Config = Globals
 module CC = Change_tree
 

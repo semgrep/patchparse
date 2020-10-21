@@ -12,7 +12,5 @@ val eqclasses :
 
 val print_change_table : Change_table.t -> unit
 
-val for_debug : Change_table.worklist -> unit
-
 val version_unused_table : (* unused tokens in each version *)
   (string (* version *), int ref (* unused tokens *)) Hashtbl.t

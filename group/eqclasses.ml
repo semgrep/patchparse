@@ -258,13 +258,12 @@ let build_context_change_classes change_worklist change_table max_change_size =
 (* Output *)
 
 let print_change_table change_table =
-  Hashtbl.iter
-    (function change ->
-     function site_counts ->
-       logger#info "%d: %s"
+  change_table |> Hashtbl.iter (fun change site_counts ->
+      logger#info "%d: %s"
          (Aux.sum (List.map (function (_,ct,_,_,_) -> ct) site_counts))
-         (Ce_unparse.ce2c change))
-    change_table
+         (Ce_unparse.ce2c change)
+  )
+    
 
 (* --------------------------------------------------------------------- *)
 (* Entry point *)
@@ -275,8 +274,5 @@ let eqworklists worklist max_change_size change
     change (version, pathname, filename, region)
 
 let eqclasses worklist (change_table: Change_table.t) max_change_size =
-  build_context_change_classes worklist change_table max_change_size (*;
-                                                                       if !Config.notex then print_change_table change_table *)
-
-
-let for_debug  (big_worklist: worklist) = ()
+  build_context_change_classes worklist change_table max_change_size 
+ (*; if !Config.notex then print_change_table change_table *)

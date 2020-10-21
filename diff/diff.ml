@@ -1,7 +1,7 @@
 module CE = Ce
 module Config = Globals
-open Context_change
-module CC = Context_change
+open Change_tree
+module CC = Change_tree
 
 let logger = Logging.get_logger [__MODULE__]
 
@@ -32,11 +32,11 @@ type change =
 
 and change_type =
   (* willing to merge with an expr or code context *)
-    IMMEDIATE_EXPR_CHANGE of CE.ce (* the change *) * CC.t list
+    IMMEDIATE_EXPR_CHANGE of CE.ce (* the change *) * Change_tree.t list
   (* only willing to merge with a code context, ie a code list *)
-  | IMMEDIATE_CODE_CHANGE of CE.ce (* the change *) * CC.t list
+  | IMMEDIATE_CODE_CHANGE of CE.ce (* the change *) * Change_tree.t list
   (* not willing to merge *)
-  | CONTEXT_CHANGE of CC.t list
+  | CONTEXT_CHANGE of Change_tree.t list
 
 (*****************************************************************************)
 (* Abstract line *)

@@ -128,9 +128,9 @@ let dump_ce file =
   let changelists = Init.process_all_files patch_data in
 
   changelists |> List.iter (fun (xs, origin) -> 
-    pr (Context_change.show_origin origin);
+    pr (Change_tree.show_origin origin);
     xs |> List.iter (function
-    | Context_change.CC (ce, _cg) -> 
+    | Change_tree.CC (ce, _cg) -> 
        pr (Ce.show_ce ce);
     | _ -> raise Impossible
     );
@@ -141,7 +141,7 @@ let dump_changelist file =
   let changelists = Init.process_all_files patch_data in
 
   changelists |> List.iter (fun x -> 
-    pr2 (Context_change.show_changelist x);
+    pr2 (Change_tree.show_changelist x);
   )
 
 let dump_worklist file = 

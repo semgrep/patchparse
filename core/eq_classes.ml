@@ -8,7 +8,7 @@ type changes =
 type change_table = (Ce.ce, changes list) Hashtbl.t
 
 type workset = 
-  (Context_change.t * 
+  (Change_tree.t * 
   Patch.id * Paths.dir * Paths.file * Patch.region) list ref
  [@@deriving show { with_path = false }]
 

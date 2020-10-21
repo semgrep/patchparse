@@ -2,7 +2,7 @@
 val eqworklists :
   Eq_classes.worklist (* worklist, inout, !modified! *) ->
   int ref (* max size storage *) ->
-  Context_change.t -> Context_change.origin ->
+  Change_tree.t -> Change_tree.origin ->
   unit
 
 val eqclasses :

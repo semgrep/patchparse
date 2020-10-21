@@ -1,2 +1,2 @@
 val select_diffs :
-  Context_change.changelist list  -> Context_change.changelist list
+  Change_tree.changelist list  -> Change_tree.changelist list

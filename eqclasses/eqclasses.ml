@@ -1,8 +1,8 @@
 module CE = Ce
 module Config = Globals
-module Diff = Context_change
+module Diff = Change_tree
 open Eq_classes
-module CC = Context_change
+module CC = Change_tree
 
 let logger = Logging.get_logger [__MODULE__]
 

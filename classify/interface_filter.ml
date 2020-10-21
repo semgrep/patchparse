@@ -1,5 +1,5 @@
 module CE = Ce
-module CC = Context_change
+module CC = Change_tree
 
 (* Filters for the changes in the interface *)
 

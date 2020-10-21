@@ -2,7 +2,7 @@
    category analysis *)
 
 val eqworklists :
-  Context_change.changelist -> unit
+  Change_tree.changelist -> unit
 
 val eqclasses :
   bool (* whether the change table is needed after this step *) ->

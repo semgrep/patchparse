@@ -13,7 +13,7 @@
     eqclasses
     output
  )
- (preprocess (pps ppx_profiling))
+; (preprocess (pps ppx_profiling)) ; optional
  ; for ocamldebug
  (modes byte)
 )

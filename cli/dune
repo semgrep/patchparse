@@ -17,7 +17,7 @@
     collect
     output
  )
- (preprocess (pps ppx_profiling))
+; (preprocess (pps ppx_profiling)) ; optional, for -profile
  ; for ocamldebug
  (modes byte)
 )

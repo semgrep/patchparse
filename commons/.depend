@@ -1,0 +1,55 @@
+Common.cmo : \
+    Common.cmi
+Common.cmx : \
+    Common.cmi
+Common.cmi :
+Dumper.cmo : \
+    Dumper.cmi
+Dumper.cmx : \
+    Dumper.cmi
+Dumper.cmi :
+OCaml.cmo : \
+    common2.cmi \
+    Common.cmi \
+    OCaml.cmi
+OCaml.cmx : \
+    common2.cmx \
+    Common.cmx \
+    OCaml.cmi
+OCaml.cmi : \
+    Common.cmi
+OUnit.cmo : \
+    Dumper.cmi \
+    OUnit.cmi
+OUnit.cmx : \
+    Dumper.cmx \
+    OUnit.cmi
+OUnit.cmi :
+common2.cmo : \
+    Common.cmi \
+    common2.cmi
+common2.cmx : \
+    Common.cmx \
+    common2.cmi
+common2.cmi : \
+    Common.cmi
+file_type.cmo : \
+    common2.cmi \
+    Common.cmi \
+    file_type.cmi
+file_type.cmx : \
+    common2.cmx \
+    Common.cmx \
+    file_type.cmi
+file_type.cmi : \
+    Common.cmi
+map_.cmo : \
+    map_.cmi
+map_.cmx : \
+    map_.cmi
+map_.cmi :
+set_.cmo : \
+    set_.cmi
+set_.cmx : \
+    set_.cmi
+set_.cmi :

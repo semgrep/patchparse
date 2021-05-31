@@ -6,12 +6,12 @@
             },
             { "name": "Main.Dune__exe__Main"    , "level": "debug" },
 
-            { "name": "Main.Parse_patch"    , "level": "flash" },
-            { "name": "Main.Parse_code"    , "level": "flash" },
-            { "name": "Main.Diff"    , "level": "flash" },
-            { "name": "Main.Init"    , "level": "flash" },
-            { "name": "Main.Parse_error"    , "level": "flash" },
-            { "name": "Main.Eqclasses"    , "level": "flash" },
+            { "name": "Main.Parse_patch"    , "level": "debug" },
+            { "name": "Main.Parse_code"    , "level": "debug" },
+            { "name": "Main.Diff"    , "level": "debug" },
+            { "name": "Main.Init"    , "level": "debug" },
+            { "name": "Main.Parse_error"    , "level": "debug" },
+            { "name": "Main.Eqclasses"    , "level": "debug" },
             { "name": "Main.Collect_evolutions4"    , "level": "debug" },
 
             { "name": "XXX"                     , "level": "error" }

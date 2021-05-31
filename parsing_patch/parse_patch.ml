@@ -288,7 +288,8 @@ let process_lines parse_code_and_perform_diff version dirname filename lines =
        start line is the number of the first line in this region *)
       [] -> ([],[])
     | ((n,ln)::rest) as lines ->
-      if start_string "diff " ln || start_string "--- " ln ||
+      (match () with
+      | _ when start_string "diff " ln || start_string "--- " ln ||
          start_string "index " ln ||
          start_string "similarity index " ln ||
          start_string "rename from " ln ||
@@ -296,11 +297,23 @@ let process_lines parse_code_and_perform_diff version dirname filename lines =
          start_string "old file mode " ln ||
          start_string "new mode " ln ||
          start_string "old mode " ln
-      then ([],rest)
-      else
-      if start_string "@@ " ln
-      then
-        begin
+        -> ([],rest)
+      (* bugfix: see tests/triple_at_hunk.patch. In https://github.com/git/git
+       * at commit id af6b65d45ef179ed52087e80cb089f6b2349f4ec.
+       * Without this fix the code was going in an infinite loop.
+       *)
+      | _ when start_string "@@@" ln ->
+           logger#info "triple @@@ in patch, weird";
+           _current_function := None;
+
+          incr _compteur;
+          let (Paths.File sfilename) = filename in
+          if !Config.notex
+          then logger#info "%s region %d:\n\n" sfilename start_count;
+          let start_line = n in
+          let (collected,rest) = collect_lines false " " rest in
+          loop (start_count + 1) start_line collected rest
+      | _ when start_string "@@ " ln ->
           let start =
             "@@[^@]*@@\\(.*\\)[ \t]+\\([a-zA-Z_][a-zA-Z_0-9]+\\)[\t ]*(" in
           (if Str.string_match (Str.regexp start) ln 0
@@ -316,9 +329,7 @@ let process_lines parse_code_and_perform_diff version dirname filename lines =
           let start_line = n in
           let (collected,rest) = collect_lines false " " rest in
           loop (start_count + 1) start_line collected rest
-        end
-      else
-        begin
+      | _ ->
           let (minus,rest) = collect_lines true "-" lines in
           let (plus,rest) = collect_lines true "+" rest in
           let new_start_line = n in
@@ -327,7 +338,8 @@ let process_lines parse_code_and_perform_diff version dirname filename lines =
           let (rest_res,rest) =
             loop start_count new_start_line after rest in
           (cur@rest_res,rest)
-        end in
+       )
+  in
 
   match lines with
     [] -> ([],[])
@@ -343,6 +355,9 @@ let process_lines parse_code_and_perform_diff version dirname filename lines =
 
 (* collect all the data for a single patch file, ie a single version *)
 let process_file f (version,lines) =
+  let (Patch.Id id) = version in
+  logger#info "processing id %s (commitid = %s)" 
+    (Patch.show_id version) (Hashtbl.find Globals.version_table id);
   let lines = drop_slash_input lines in
   let rec loop lines =
     match find_driver_diff lines with
